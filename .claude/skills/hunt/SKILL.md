@@ -1,9 +1,9 @@
 ---
-name: browse-marketplace
-description: Run the daily Facebook Marketplace hunt — opens the user's own signed-in Chrome, runs the configured searches at human pace, reads and assesses listings, and stores them for scoring. Use when the user says hunt, run the deal finder, check Marketplace, or run today's searches.
+name: hunt
+description: Run the daily Facebook Marketplace hunt — opens the user's own signed-in Chrome, runs the configured searches at human pace, reads and assesses listings, and stores them for scoring. Use when the user says /hunt, hunt, run the deal finder, check Marketplace, or run today's searches. Accepts an optional search name (golf, pokemon, speakers) to run just one.
 ---
 
-# Browse Marketplace
+# Hunt Marketplace
 
 You are doing the browsing yourself, in the user's real Chrome, because Facebook
 blocks code from doing it. Everything downstream is plain local Node.

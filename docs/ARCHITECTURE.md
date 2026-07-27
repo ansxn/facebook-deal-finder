@@ -15,7 +15,7 @@ This splits the system cleanly in two:
 ```
   ┌─────────────────────────────────────────────┐
   │  AGENT SIDE  (no code — a Claude skill)      │
-  │  .claude/skills/browse-marketplace/          │
+  │  .claude/skills/hunt/                        │
   │                                              │
   │  opens your Chrome → runs one search →       │
   │  reads result cards → opens listings →       │

@@ -16,7 +16,7 @@ There's no app to launch. You ask Claude to hunt; local code does everything els
 ```bash
 /hunt                 # run today's searches in your Chrome
 /hunt golf            # just one search
-/morning              # hunt if due, otherwise show standings
+/morning-hunt         # hunt if due, otherwise show standings
 ```
 
 Then read the results — in the browser:
@@ -44,12 +44,12 @@ Only `/hunt` needs Chrome. Everything else works offline against stored data.
 | 3 | Valuation & deal scoring | ✅ |
 | 4 | All three searches + dedupe | ✅ golf run live; other two configured, not yet run |
 | 5 | Dashboard | ✅ |
-| 6 | Daily trigger (`/morning`) | ✅ semi-manual by design |
+| 6 | Daily trigger (`/morning-hunt`) | ✅ semi-manual by design |
 
 ## What the first live run taught
 
 Phase 2 ate the time, as expected. The findings are baked into
-[the browse skill](.claude/skills/browse-marketplace/SKILL.md), marked
+[the browse skill](.claude/skills/hunt/SKILL.md), marked
 **(verified)** so they don't get rediscovered:
 
 - **`javascript_tool` is blocked on facebook.com.** DOM extraction is impossible;
@@ -73,8 +73,7 @@ a Callaway set down to $258 when those sell for well over $300.
 
 ```
 searches.json          what I'm hunting — hand-editable, also written by the dashboard
-.claude/skills/        the browse routine (a Claude skill, not code)
-.claude/commands/      /hunt and /morning
+.claude/skills/        /hunt and /morning-hunt — the browse routine, not code
 scripts/               ingest, dedupe, scoring, server — plain Node, zero dependencies
 dashboard/             localhost UI
 data/                  listing store + my verdicts (gitignored)
