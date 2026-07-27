@@ -1,0 +1,94 @@
+{
+  "_comment": "Synthetic listings for testing scoring without touching Facebook. Safe to delete.",
+  "search_id": "golf-complete-sets",
+  "listings": [
+    {
+      "id": "fixture-001",
+      "url": "https://www.facebook.com/marketplace/item/fixture-001",
+      "title": "Callaway complete golf set - irons, driver, putter, bag",
+      "price": "$240",
+      "location": "Austin, TX",
+      "miles": 8,
+      "photos": ["https://example.invalid/a.jpg"],
+      "description": "Full Callaway set. 5-PW irons, driver, 3 wood, putter and stand bag. Some scratches on the irons, grips are worn but playable. Right handed regular flex.",
+      "assessment": {
+        "brand": "Callaway",
+        "condition": "fair",
+        "must_have": { "right_handed": true, "regular_flex": true, "full_iron_set": true, "driver": true, "putter": true },
+        "nice_to_have": { "fairway_wood_or_hybrid": true, "bag": true, "major_brand": true, "wedges": false },
+        "disqualified": false,
+        "years_old": 7,
+        "notes": "Worn grips, cosmetic scratches. Complete otherwise.",
+        "confidence": 0.9
+      }
+    },
+    {
+      "id": "fixture-002",
+      "url": "https://www.facebook.com/marketplace/item/fixture-002",
+      "title": "Left handed TaylorMade set",
+      "price": "$180",
+      "location": "Round Rock, TX",
+      "miles": 18,
+      "description": "LH TaylorMade irons and driver, good shape.",
+      "assessment": {
+        "brand": "TaylorMade",
+        "condition": "good",
+        "must_have": { "right_handed": false, "full_iron_set": true, "driver": true, "putter": false },
+        "disqualified": true,
+        "disqualify_reason": "Left-handed",
+        "confidence": 0.95
+      }
+    },
+    {
+      "id": "fixture-003",
+      "url": "https://www.facebook.com/marketplace/item/fixture-003",
+      "title": "Top Flite starter set",
+      "price": "$130",
+      "location": "Austin, TX",
+      "miles": 4,
+      "description": "Beginner set, everything included.",
+      "assessment": {
+        "brand": "Top Flite",
+        "condition": "good",
+        "must_have": { "right_handed": true, "full_iron_set": true, "driver": true, "putter": true },
+        "nice_to_have": { "bag": true, "major_brand": false },
+        "disqualified": false,
+        "confidence": 0.7
+      }
+    },
+    {
+      "id": "fixture-004",
+      "url": "https://www.facebook.com/marketplace/item/fixture-004",
+      "title": "Ping G410 full set, mint",
+      "price": "$620",
+      "location": "Austin, TX",
+      "miles": 12,
+      "description": "Barely used Ping set.",
+      "assessment": {
+        "brand": "Ping",
+        "condition": "like_new",
+        "must_have": { "right_handed": true, "full_iron_set": true, "driver": true, "putter": true },
+        "disqualified": false,
+        "confidence": 0.9
+      }
+    },
+    {
+      "id": "fixture-005",
+      "url": "https://www.facebook.com/marketplace/item/fixture-005",
+      "title": "Mizuno irons + driver bundle",
+      "price": "$300",
+      "location": "Cedar Park, TX",
+      "miles": 22,
+      "description": "Mizuno JPX irons 5-PW plus a driver. Handedness not stated. No putter mentioned.",
+      "assessment": {
+        "brand": "Mizuno",
+        "condition": "good",
+        "must_have": { "full_iron_set": true, "driver": true },
+        "nice_to_have": { "major_brand": true },
+        "disqualified": false,
+        "notes": "Seller did not state handedness or flex, and no putter is listed.",
+        "confidence": 0.5
+      }
+    }
+  ]
+}

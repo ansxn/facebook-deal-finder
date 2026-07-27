@@ -1,14 +1,19 @@
 {
-  "version": 1,
+  "version": 2,
   "updated": "2026-07-27",
   "_doc": "Hand-edit this freely. Field meanings: docs/searches.schema.md",
+  "_currency_note": "All values are CAD. Your Marketplace is set to Toronto and lists in CA$, so USD anchors would have made every listing look ~35% cheaper than it is. Your stated ceilings were kept as-is and read as CAD — change them if you meant USD.",
 
   "global": {
+    "currency": "CAD",
     "location": {
       "mode": "facebook_default",
+      "resolved": "Toronto, Ontario",
       "radius_miles": 30,
-      "note": "Uses whatever location your Marketplace is already set to. Change mode to 'explicit' and add a 'place' value to pin it instead."
+      "facebook_radius_km": 65,
+      "note": "Facebook's own radius is set to 65 km (~40 mi), wider than your 30 mi. Results leak well past it (Norfolk, Niagara Falls). Distance is re-checked locally — see max_km below."
     },
+    "max_km": 50,
     "surface_threshold_pct": 20,
     "read_depth": "full_detail",
     "pacing": {
@@ -29,10 +34,10 @@
       "filters": { "min_price": 60, "max_price": 600, "sort": "newest" },
 
       "must_have": [
-        { "spec": "right_handed", "hard": true, "test": "Right-handed. Reject explicit 'left handed', 'LH', 'lefty'. Unstated = assume RH (it's the default) but note the assumption." },
+        { "spec": "right_handed", "hard": true, "test": "Right-handed. Reject explicit 'left handed', 'LH', 'lefty'. Titles here state handedness far more often than expected — roughly a third say it outright." },
         { "spec": "regular_flex", "hard": false, "test": "Regular flex shafts. Sellers usually omit flex — unstated is a maybe, not a reject. Explicit 'stiff'/'X-stiff' only = downgrade, not eliminate." },
         { "spec": "full_iron_set", "hard": true, "test": "Irons spanning roughly 5-PW or better. A 'set' with only a few irons is a picked-over bundle — reject." },
-        { "spec": "driver", "hard": true, "test": "Includes a driver." },
+        { "spec": "driver", "hard": true, "test": "Includes a driver. Iron-set-plus-putter listings are common and read as complete sets in the title — check the description, not the title." },
         { "spec": "putter", "hard": true, "test": "Includes a putter." }
       ],
       "nice_to_have": [
@@ -44,8 +49,8 @@
       "dealbreakers": [
         "Left-handed",
         "Junior / youth / kids sizing",
-        "Women's flex sets (unless you say otherwise)",
-        "Single clubs or partial bundles dressed up as a 'set'",
+        "Women's / ladies sets",
+        "Single clubs, iron-only sets, or partial bundles dressed up as a 'set'",
         "Broken or cracked shafts / heads"
       ],
 
@@ -57,22 +62,22 @@
 
       "fair_value": {
         "method": "brand_tier",
-        "confidence": "seed",
-        "basis": "Marketplace/eBay asking prices for used complete sets, Jul 2026. Not sold-comps yet — Phase 3 replaces these.",
+        "confidence": "medium",
+        "basis": "Calibrated against 24 live Toronto listings on 2026-07-27 — major-brand complete sets asking CA$350-500, mid CA$195-250, entry CA$100-140.",
+        "reference_condition": "good",
+        "_reference_note": "Tier values describe a typical used set in good condition. Condition and age adjustments move relative to that, not down from retail.",
         "tiers": [
-          { "tier": "major", "brands": ["Titleist", "Ping", "Mizuno", "TaylorMade", "Callaway", "Cobra"], "fmv_usd": 380 },
-          { "tier": "mid", "brands": ["Cleveland", "Wilson Staff", "Srixon", "Tour Edge", "Adams"], "fmv_usd": 250 },
-          { "tier": "entry", "brands": ["Strata", "Top Flite", "Precise", "Confidence", "unbranded"], "fmv_usd": 140 }
+          { "tier": "major", "brands": ["Titleist", "Ping", "Mizuno", "TaylorMade", "Callaway", "Cobra"], "fmv": 420 },
+          { "tier": "mid", "brands": ["Cleveland", "Wilson", "Srixon", "Tour Edge", "Adams", "Power Bilt", "Tommy Armour"], "fmv": 240 },
+          { "tier": "entry", "brands": ["Strata", "Top Flite", "Precise", "Confidence", "Northwestern", "PEAK", "unbranded"], "fmv": 130 }
         ],
         "adjustments": {
-          "condition_like_new": 1.15,
-          "condition_fair": 0.85,
           "missing_nice_to_have_bag": 0.95,
-          "generation_5plus_years_old": 0.8
+          "generation_10plus_years_old": 0.8
         }
       },
 
-      "pricing": { "target_usd": 300, "max_usd": 600, "good_deal_pct": 20, "great_deal_pct": 35 }
+      "pricing": { "target": 300, "max": 600, "good_deal_pct": 20, "great_deal_pct": 35 }
     },
 
     {
@@ -80,7 +85,7 @@
       "label": "Pokémon Elite Trainer Boxes (sealed)",
       "active": true,
       "queries": ["pokemon elite trainer box", "pokemon etb", "pokemon elite trainer box sealed"],
-      "filters": { "min_price": 15, "max_price": 120, "sort": "newest" },
+      "filters": { "min_price": 20, "max_price": 120, "sort": "newest" },
 
       "must_have": [
         { "spec": "factory_sealed", "hard": true, "test": "Factory sealed, shrink-wrap intact. Reject 'opened', 'no packs', 'empty box', 'accessories only'. Verify against photos, not just the title — resealed and 'like new opened' are common." },
@@ -107,20 +112,20 @@
       "fair_value": {
         "method": "per_set_lookup",
         "confidence": "low_seed",
-        "basis": "MSRP anchors only. PriceCharting blocks plain HTTP fetching (403), so Phase 3 must pull comps through the browser instead — see docs/ARCHITECTURE.md.",
-        "default_in_print_fmv_usd": 52,
+        "basis": "CAD retail anchors only (~CA$70 for an in-print ETB). PriceCharting blocks plain HTTP fetching, and it prices in USD — Canadian Marketplace comps run differently. These need a real calibration pass.",
+        "default_in_print_fmv": 70,
         "set_overrides": {
-          "_comment": "Retired sets vary enormously and need real comps. These are rough placeholders — correct them as you learn.",
-          "scarlet-violet-151": 110,
-          "prismatic-evolutions": 150,
-          "crown-zenith": 160,
-          "evolving-skies": 300,
-          "hidden-fates": 200
+          "_comment": "Rough CAD placeholders. Retired sets vary enormously — correct these as you learn.",
+          "scarlet-violet-151": 150,
+          "prismatic-evolutions": 205,
+          "crown-zenith": 220,
+          "evolving-skies": 410,
+          "hidden-fates": 275
         },
         "adjustments": { "sealed_but_damaged_box": 0.9 }
       },
 
-      "pricing": { "target_usd": 40, "max_usd": 120, "good_deal_pct": 20, "great_deal_pct": 35 }
+      "pricing": { "target": 55, "max": 120, "good_deal_pct": 20, "great_deal_pct": 35 }
     },
 
     {
@@ -128,7 +133,7 @@
       "label": "Powered bookshelf speakers for turntable",
       "active": true,
       "queries": ["powered bookshelf speakers", "kanto speakers", "active bookshelf speakers", "bluetooth bookshelf speakers"],
-      "filters": { "min_price": 80, "max_price": 550, "sort": "newest" },
+      "filters": { "min_price": 100, "max_price": 550, "sort": "newest" },
 
       "must_have": [
         { "spec": "built_in_phono_preamp", "hard": true, "test": "Has a PHONO input / built-in phono stage. Your turntable has no preamp, so line-level-only speakers will not work. Verify from the model, not the seller's wording — most powered speakers are line-level only." },
@@ -159,13 +164,15 @@
       "fair_value": {
         "method": "model_lookup",
         "confidence": "seed",
-        "basis": "New retail from Amazon/Best Buy Jul 2026, used FMV estimated at ~60% of new. Phase 3 should verify against sold listings.",
+        "basis": "CAD retail, used FMV at ~60% of new. A Kanto Ora pair appeared at CA$320 during the first live run, which is consistent with these anchors.",
+        "reference_condition": "good",
         "models": [
-          { "model": "Kanto YU6", "new_usd": 400, "used_fmv_usd": 250, "phono": true },
-          { "model": "Kanto YU4", "new_usd": 330, "used_fmv_usd": 200, "phono": true },
-          { "model": "ELAC Debut ConneX DCB41", "new_usd": 450, "used_fmv_usd": 280, "phono": true },
-          { "model": "Klipsch The Fives", "new_usd": 800, "used_fmv_usd": 480, "phono": true },
-          { "model": "Andover Spinbase", "new_usd": 400, "used_fmv_usd": 230, "phono": true }
+          { "model": "Kanto YU6", "new_price": 550, "used_fmv": 330, "phono": true },
+          { "model": "Kanto YU4", "new_price": 450, "used_fmv": 270, "phono": true },
+          { "model": "Kanto Ora", "new_price": 440, "used_fmv": 265, "phono": false, "note": "Ora is a desktop pair — verify phono, it is not standard across revisions." },
+          { "model": "ELAC Debut ConneX DCB41", "new_price": 620, "used_fmv": 370, "phono": true },
+          { "model": "Klipsch The Fives", "new_price": 1100, "used_fmv": 660, "phono": true },
+          { "model": "Andover Spinbase", "new_price": 550, "used_fmv": 320, "phono": true }
         ],
         "known_negatives": [
           { "model": "Fluance Ai61 / Ai41 / Ai81", "reason": "Line-level only — no phono stage. Confirmed." },
@@ -175,7 +182,7 @@
         "unknown_model_fallback": { "fmv_pct_of_new_retail": 0.6, "note": "If the model isn't listed, look up new retail and take 60%. Confirm phono input before scoring at all." }
       },
 
-      "pricing": { "target_usd": 250, "max_usd": 550, "good_deal_pct": 20, "great_deal_pct": 35 }
+      "pricing": { "target": 340, "max": 550, "good_deal_pct": 20, "great_deal_pct": 35 }
     }
   ]
 }

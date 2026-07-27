@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deal Finder</title>
+<style>
+  :root {
+    --bg: #0e1014; --panel: #171a21; --panel-2: #1e222b; --line: #262b36;
+    --text: #e6e8ec; --muted: #8b93a3; --faint: #5a6273;
+    --accent: #64d2a0; --warn: #e0b658; --bad: #d9707a; --link: #7cb0f0;
+    --radius: 12px;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f6f7f9; --panel: #fff; --panel-2: #f0f2f5; --line: #dfe3ea;
+      --text: #12151a; --muted: #5c6575; --faint: #8c95a5;
+      --accent: #157f56; --warn: #96700d; --bad: #b33341; --link: #1b5fb5;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.5 ui-sans-serif, -apple-system, "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  header {
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    padding: 18px 24px; border-bottom: 1px solid var(--line); background: var(--panel);
+    position: sticky; top: 0; z-index: 10;
+  }
+  h1 { font-size: 17px; margin: 0; letter-spacing: -0.01em; }
+  .spacer { flex: 1; }
+  .status { font-size: 13px; color: var(--muted); }
+  button {
+    font: inherit; font-size: 13px; padding: 7px 13px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--panel-2); color: var(--text);
+    cursor: pointer; transition: border-color .12s, background .12s;
+  }
+  button:hover { border-color: var(--faint); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); font-weight: 600; }
+  button.primary:hover { filter: brightness(1.08); }
+  main { padding: 24px; max-width: 1200px; margin: 0 auto; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tabs button[aria-selected="true"] { background: var(--panel-2); border-color: var(--faint); font-weight: 600; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    overflow: hidden; display: flex; flex-direction: column;
+  }
+  .card.muted { opacity: .5; }
+  .thumb { aspect-ratio: 4/3; background: var(--panel-2); object-fit: cover; width: 100%; display: block; }
+  .thumb.empty { display: grid; place-items: center; color: var(--faint); font-size: 12px; }
+  .body { padding: 13px 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .headline { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; }
+  .price { font-size: 20px; font-weight: 660; letter-spacing: -0.02em; }
+  .pill {
+    font-size: 11px; font-weight: 620; padding: 2px 8px; border-radius: 999px;
+    text-transform: uppercase; letter-spacing: .04em;
+  }
+  .pill.steal { background: color-mix(in srgb, var(--accent) 20%, transparent); color: var(--accent); }
+  .pill.good  { background: color-mix(in srgb, var(--warn) 20%, transparent); color: var(--warn); }
+  .pill.dead  { background: color-mix(in srgb, var(--bad) 16%, transparent); color: var(--bad); }
+  .title { font-size: 14px; line-height: 1.35; }
+  .meta { font-size: 12px; color: var(--muted); display: flex; gap: 8px; flex-wrap: wrap; }
+  .basis { font-size: 11.5px; color: var(--faint); }
+  .score { margin-left: auto; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .actions { display: flex; gap: 6px; padding: 10px 14px; border-top: 1px solid var(--line); background: var(--panel-2); }
+  .actions a, .actions button { font-size: 12.5px; padding: 5px 10px; }
+  .actions a { color: var(--link); text-decoration: none; border: 1px solid var(--line); border-radius: 8px; }
+  .actions a:hover { border-color: var(--link); }
+  .flag { font-size: 11.5px; color: var(--warn); }
+
+  .empty-state { text-align: center; padding: 64px 24px; color: var(--muted); }
+  .empty-state code { background: var(--panel-2); padding: 2px 6px; border-radius: 5px; font-size: 13px; }
+
+  textarea {
+    width: 100%; min-height: 60vh; font: 13px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace;
+    background: var(--panel); color: var(--text); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 14px; resize: vertical;
+  }
+  .editor-bar { display: flex; gap: 10px; align-items: center; margin: 12px 0; }
+  .msg { font-size: 13px; }
+  .msg.ok { color: var(--accent); } .msg.err { color: var(--bad); }
+  dialog {
+    border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel);
+    color: var(--text); max-width: 460px; padding: 22px;
+  }
+  dialog::backdrop { background: rgba(0,0,0,.55); }
+  dialog h2 { margin: 0 0 10px; font-size: 16px; }
+  dialog p { color: var(--muted); font-size: 14px; margin: 0 0 8px; }
+  dialog code { background: var(--panel-2); padding: 3px 8px; border-radius: 6px; font-size: 14px; color: var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Deal Finder</h1>
+  <span class="status" id="status">loading…</span>
+  <span class="spacer"></span>
+  <button id="toggle-dismissed">Show dismissed</button>
+  <button class="primary" id="run">Run now</button>
+</header>
+
+<main>
+  <div class="tabs" id="tabs"></div>
+  <div id="view"></div>
+</main>
+
+<dialog id="run-dialog">
+  <h2>Runs happen in Claude, not here</h2>
+  <p>This dashboard is local code, and code can't drive your Chrome — that's the
+     whole reason this tool works the way it does.</p>
+  <p>I've noted the request. To actually hunt, run this in Claude Code:</p>
+  <p style="margin:14px 0"><code>/hunt</code></p>
+  <div style="display:flex;justify-content:flex-end"><button onclick="runDialog.close()">Got it</button></div>
+</dialog>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const runDialog = $('#run-dialog');
+let state = { deals: [], searches: [], tab: 'all', dismissed: false };
+
+const fmtPrice = (n) => n == null ? '—' : '$' + n.toLocaleString();
+const ago = (iso) => {
+  if (!iso) return 'never';
+  const h = (Date.now() - new Date(iso)) / 36e5;
+  if (h < 1) return Math.round(h * 60) + 'm ago';
+  if (h < 48) return Math.round(h) + 'h ago';
+  return Math.round(h / 24) + 'd ago';
+};
+
+async function load() {
+  const [deals, status] = await Promise.all([
+    fetch('/api/deals?dismissed=' + state.dismissed).then(r => r.json()),
+    fetch('/api/status').then(r => r.json()),
+  ]);
+  state.deals = deals.deals;
+  state.searches = deals.searches;
+
+  const last = status.last_run;
+  $('#status').textContent = last
+    ? `last run ${ago(last.started)} · ${last.status}` + (status.can_run ? '' : ` · next in ${(status.min_hours - status.hours_since).toFixed(1)}h`)
+    : 'no runs yet';
+
+  renderTabs();
+  render();
+}
+
+function renderTabs() {
+  const counts = {};
+  for (const d of state.deals) counts[d.search_id] = (counts[d.search_id] ?? 0) + (d.status === 'surface' ? 1 : 0);
+  const tabs = [
+    { id: 'all', label: 'All deals' },
+    ...state.searches.map(s => ({ id: s.id, label: s.label, n: counts[s.id] ?? 0 })),
+    { id: 'rejected', label: 'Rejected' },
+    { id: 'config', label: 'Searches' },
+  ];
+  $('#tabs').innerHTML = tabs.map(t =>
+    `<button role="tab" aria-selected="${state.tab === t.id}" data-tab="${t.id}">${t.label}${t.n ? ` (${t.n})` : ''}</button>`
+  ).join('');
+  $('#tabs').querySelectorAll('button').forEach(b =>
+    b.onclick = () => { state.tab = b.dataset.tab; renderTabs(); render(); });
+}
+
+function render() {
+  if (state.tab === 'config') return renderConfig();
+
+  let list = state.deals;
+  if (state.tab === 'rejected') list = list.filter(d => d.status === 'disqualified' || d.status === 'below_threshold');
+  else {
+    list = list.filter(d => d.status === 'surface');
+    if (state.tab !== 'all') list = list.filter(d => d.search_id === state.tab);
+  }
+
+  if (!list.length) {
+    $('#view').innerHTML = `<div class="empty-state">
+      <p>${state.tab === 'rejected' ? 'Nothing rejected yet.' : 'No deals above your threshold.'}</p>
+      <p>Run <code>/hunt</code> in Claude Code to check Marketplace.</p></div>`;
+    return;
+  }
+  $('#view').innerHTML = `<div class="grid">${list.map(card).join('')}</div>`;
+  $('#view').querySelectorAll('[data-verdict]').forEach(b =>
+    b.onclick = async () => {
+      await fetch('/api/verdict', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ id: b.dataset.id, state: b.dataset.verdict }),
+      });
+      load();
+    });
+}
+
+function card(d) {
+  const pill = d.status !== 'surface' ? `<span class="pill dead">${d.status === 'disqualified' ? 'rejected' : 'below bar'}</span>`
+    : d.label === 'steal' ? '<span class="pill steal">steal</span>'
+    : '<span class="pill good">good deal</span>';
+
+  const lowConf = d.fair_value_confidence === 'low' || d.fair_value_confidence === 'none';
+  const dropped = d.price_history?.length > 1 && d.price_history.at(-1).price < d.price_history[0].price;
+
+  return `<article class="card${d.status === 'surface' ? '' : ' muted'}">
+    ${d.photo
+      // Facebook CDN URLs expire and often refuse hotlinking, so a broken image
+      // is the normal case rather than the exception. Swap in the placeholder
+      // instead of letting a broken <img> collapse the card.
+      ? `<img class="thumb" src="${esc(d.photo)}" alt="" loading="lazy" referrerpolicy="no-referrer"
+             onerror="this.outerHTML='&lt;div class=&quot;thumb empty&quot;&gt;photo expired&lt;/div&gt;'">`
+      : '<div class="thumb empty">no photo</div>'}
+    <div class="body">
+      <div class="headline">
+        <span class="price">${fmtPrice(d.price)}</span>${pill}
+        ${d.score != null ? `<span class="score">score ${d.score}</span>` : ''}
+      </div>
+      <div class="title">${esc(d.title ?? 'Untitled')}</div>
+      ${d.discount_pct != null
+        ? `<div class="meta"><strong>${d.discount_pct < 0
+              ? Math.abs(d.discount_pct) + '% over'
+              : d.discount_pct + '% under'}</strong> fair value ${fmtPrice(d.fair_value)}</div>` : ''}
+      ${d.status === 'disqualified' ? `<div class="meta">${esc(d.reason ?? '')}</div>` : ''}
+      <div class="meta">
+        ${d.location ? `<span>${esc(d.location)}</span>` : ''}
+        ${d.miles != null ? `<span>${d.miles}mi</span>` : ''}
+        <span>seen ${ago(d.first_seen)}</span>
+        ${d.verdict ? `<span>· ${d.verdict}</span>` : ''}
+      </div>
+      ${dropped ? `<div class="flag">price dropped from ${fmtPrice(d.price_history[0].price)}</div>` : ''}
+      ${lowConf && d.status === 'surface' ? '<div class="flag">low-confidence valuation — check comps yourself</div>' : ''}
+      ${d.fair_value_basis ? `<div class="basis">${esc(d.fair_value_basis)}</div>` : ''}
+    </div>
+    <div class="actions">
+      <a href="${esc(d.url ?? '#')}" target="_blank" rel="noopener noreferrer">Open listing</a>
+      <button data-id="${esc(d.id)}" data-verdict="saved">Save</button>
+      <button data-id="${esc(d.id)}" data-verdict="${d.verdict === 'dismissed' ? 'none' : 'dismissed'}">
+        ${d.verdict === 'dismissed' ? 'Undismiss' : 'Dismiss'}</button>
+    </div>
+  </article>`;
+}
+
+async function renderConfig() {
+  const cfg = await fetch('/api/searches').then(r => r.json());
+  $('#view').innerHTML = `
+    <div class="editor-bar">
+      <button class="primary" id="save-cfg">Save searches.json</button>
+      <span class="msg" id="cfg-msg"></span>
+    </div>
+    <textarea id="cfg" spellcheck="false">${esc(JSON.stringify(cfg, null, 2))}</textarea>
+    <p class="basis" style="margin-top:10px">
+      Field reference: docs/searches.schema.md · Saved changes re-score every stored listing immediately.
+    </p>`;
+
+  $('#save-cfg').onclick = async () => {
+    const msg = $('#cfg-msg');
+    let parsed;
+    try { parsed = JSON.parse($('#cfg').value); }
+    catch (e) { msg.className = 'msg err'; msg.textContent = 'Invalid JSON: ' + e.message; return; }
+    const res = await fetch('/api/searches', {
+      method: 'PUT', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(parsed),
+    });
+    const out = await res.json();
+    msg.className = 'msg ' + (res.ok ? 'ok' : 'err');
+    msg.textContent = res.ok ? 'Saved — rescored.' : ('Failed: ' + out.error);
+    if (res.ok) load();
+  };
+}
+
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+$('#run').onclick = async () => {
+  await fetch('/api/request-run', { method: 'POST' });
+  runDialog.showModal();
+};
+$('#toggle-dismissed').onclick = (e) => {
+  state.dismissed = !state.dismissed;
+  e.target.textContent = state.dismissed ? 'Hide dismissed' : 'Show dismissed';
+  load();
+};
+
+load();
+</script>
+</body>
+</html>

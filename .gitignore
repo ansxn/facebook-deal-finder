@@ -7,6 +7,11 @@ data/*.sqlite
 data/*.db
 !data/.gitkeep
 
+# Raw browse batches are personal too. Fixtures are the exception: they carry no
+# real listings and are what lets scoring be tested without touching Facebook.
+data/incoming/*.json
+!data/incoming/fixture-*.json
+
 # Local run state
 .runstate/
 *.log
