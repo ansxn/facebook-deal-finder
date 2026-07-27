@@ -1,0 +1,13 @@
+node_modules/
+
+# Scraped listing data — personal, noisy, and can get large.
+# searches.json IS tracked (it's your editable config).
+data/*.json
+data/*.sqlite
+data/*.db
+!data/.gitkeep
+
+# Local run state
+.runstate/
+*.log
+.DS_Store
