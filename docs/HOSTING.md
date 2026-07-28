@@ -65,3 +65,7 @@ nothing else in the codebase changes. `scripts/serve.mjs` becomes Vercel
 serverless routes with the same paths (`/api/deals`, `/api/verdict`,
 `/api/searches`, `/api/status`), and `dashboard/index.html` ships unchanged
 because it only ever speaks JSON to those four endpoints.
+
+## Now built
+
+Option A is live. Setup steps and the security decision: [SETUP-HOSTING.md](SETUP-HOSTING.md).

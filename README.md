@@ -82,9 +82,9 @@ docs/                  architecture, config reference, hosting notes
 
 ## Hosting
 
-Runs locally by default. The dashboard *can* go on Vercel, but the hunt never
-can — and hosting makes the "Run now" button worse, not better. Trade-offs and
-the migration seam: [docs/HOSTING.md](docs/HOSTING.md).
+Dashboard is deployed to Vercel with a Supabase backend — setup and the security
+decision: [docs/SETUP-HOSTING.md](docs/SETUP-HOSTING.md). The hunt stays local
+permanently. Trade-offs: [docs/HOSTING.md](docs/HOSTING.md).
 
 ## Requirements
 

@@ -49,6 +49,20 @@ https://www.facebook.com/marketplace/search?query=<urlencoded>&minPrice=<n>&maxP
 keeps your params. `minPrice`/`maxPrice` and `sortBy=creation_time_descend` both
 work — every result came back in range and marked "Just listed".
 
+**(verified, 2026-07-27) `sortBy=creation_time_descend` silently destroys query
+relevance on brand and model searches. Drop it for those.** `query=kanto
+speakers&sortBy=creation_time_descend` returned **zero Kanto listings** — just a
+generic recency feed of the whole speaker category. The identical search with
+`sortBy` removed returned 13 real Kanto listings, including the only speaker in
+the entire run that met the user's requirements. The Kanto listings existed the
+whole time; the sort buried them.
+
+Rule of thumb: recency sort is fine for a broad category phrase ("complete golf
+set", "pokemon elite trainer box"), where it worked correctly both runs. For any
+query carrying a brand or model token, drop `sortBy` and let relevance rank. If a
+brand query returns nothing of that brand, that is this bug, not an empty market
+— re-run without the sort before concluding anything.
+
 **(verified)** The location radius does **not** hold. The account is set to
 "Within 65 km" and results still came from Niagara Falls, Norfolk and Waterloo —
 100–150 km out. Distance must be filtered locally; see the assessment step.
