@@ -63,7 +63,18 @@ const server = createServer(async (req, res) => {
         min_hours: minHours,
         can_run: hoursSince == null || hoursSince >= minHours,
         total_runs: runs.length,
+        // The local server binds to localhost and is never password gated —
+        // the dashboard shares its markup with the hosted build, so it needs
+        // to be told which one it's talking to.
+        hosted: false,
+        auth_required: false,
       });
+    }
+
+    // Exists only so the shared dashboard can call it unconditionally. There is
+    // nothing to authenticate against on localhost.
+    if (path === '/api/login' && req.method === 'POST') {
+      return json(res, 200, { ok: true, note: 'local server — no password needed' });
     }
 
     if (path === '/api/searches' && req.method === 'GET') {

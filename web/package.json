@@ -1,0 +1,7 @@
+{
+  "name": "deal-finder-web",
+  "private": true,
+  "type": "module",
+  "description": "Hosted dashboard for the Marketplace deal finder. No dependencies — the Supabase client is plain fetch against PostgREST.",
+  "engines": { "node": ">=20" }
+}

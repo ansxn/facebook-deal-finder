@@ -12,13 +12,33 @@ const [cmd, ...args] = process.argv.slice(2);
 const now = () => new Date().toISOString();
 
 const runs = loadRuns();
-const last = runs.runs.at(-1);
 const minHours = loadSearches()?.global?.pacing?.min_hours_between_runs ?? 18;
 
 function hoursSince(iso) {
   if (!iso) return Infinity;
   return (Date.now() - new Date(iso).getTime()) / 36e5;
 }
+
+// A run that never called finish or abort — a crash, a closed terminal, a
+// session that wandered off — otherwise stays "running" forever, which makes
+// `status` lie and lets `finish` close the wrong record. Nothing legitimate
+// takes hours, so anything older than this was abandoned.
+const STALE_RUN_HOURS = 2;
+let reaped = 0;
+for (const run of runs.runs) {
+  if (run.status === 'running' && hoursSince(run.started) > STALE_RUN_HOURS) {
+    run.status = 'abandoned';
+    run.finished = new Date().toISOString();
+    run.abort_reason = `no finish or abort recorded within ${STALE_RUN_HOURS}h`;
+    reaped++;
+  }
+}
+if (reaped) {
+  saveRuns(runs);
+  console.error(`(closed ${reaped} abandoned run${reaped > 1 ? 's' : ''})`);
+}
+
+const last = runs.runs.at(-1);
 
 switch (cmd) {
   case 'check': {

@@ -107,6 +107,20 @@
   <div id="view"></div>
 </main>
 
+<dialog id="login-dialog">
+  <h2>Deal Finder</h2>
+  <p>This dashboard is password protected.</p>
+  <form method="dialog" id="login-form" style="margin-top:14px">
+    <input type="password" id="password" placeholder="Password" autocomplete="current-password"
+           style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--line);
+                  background:var(--panel-2);color:var(--text);font:inherit">
+    <div class="msg err" id="login-msg" style="margin-top:8px"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:14px">
+      <button class="primary" type="submit">Unlock</button>
+    </div>
+  </form>
+</dialog>
+
 <dialog id="run-dialog">
   <h2>Runs happen in Claude, not here</h2>
   <p>This dashboard is local code, and code can't drive your Chrome — that's the
@@ -119,7 +133,7 @@
 <script>
 const $ = (s) => document.querySelector(s);
 const runDialog = $('#run-dialog');
-let state = { deals: [], searches: [], tab: 'all', dismissed: false };
+let state = { deals: [], searches: [], tab: 'all', dismissed: false, hosted: false };
 
 const fmtPrice = (n) => n == null ? '—' : '$' + n.toLocaleString();
 const ago = (iso) => {
@@ -131,10 +145,20 @@ const ago = (iso) => {
 };
 
 async function load() {
-  const [deals, status] = await Promise.all([
-    fetch('/api/deals?dismissed=' + state.dismissed).then(r => r.json()),
-    fetch('/api/status').then(r => r.json()),
-  ]);
+  // Status is fetched first and unguarded, because its job is partly to tell us
+  // whether we're allowed to ask for anything else.
+  const statusRes = await fetch('/api/status');
+  if (statusRes.status === 401) return showLogin();
+  const status = await statusRes.json();
+  state.hosted = Boolean(status.hosted);
+
+  const dealsRes = await fetch('/api/deals?dismissed=' + state.dismissed);
+  if (dealsRes.status === 401) return showLogin();
+  const deals = await dealsRes.json();
+  if (deals.error) {
+    $('#view').innerHTML = `<div class="empty-state"><p>${esc(deals.error)}</p></div>`;
+    return;
+  }
   state.deals = deals.deals;
   state.searches = deals.searches;
 
@@ -267,8 +291,24 @@ async function renderConfig() {
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c =>
   ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+function showLogin() {
+  const dialog = $('#login-dialog');
+  if (!dialog.open) dialog.showModal();
+  $('#login-form').onsubmit = async (e) => {
+    e.preventDefault();
+    const res = await fetch('/api/login', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ password: $('#password').value }),
+    });
+    if (res.ok) { dialog.close(); load(); }
+    else $('#login-msg').textContent = (await res.json()).error ?? 'Login failed';
+  };
+}
+
 $('#run').onclick = async () => {
-  await fetch('/api/request-run', { method: 'POST' });
+  // Hosted, there is no local flag file to write and no laptop to reach — the
+  // button can only tell you what to go and type.
+  if (!state.hosted) await fetch('/api/request-run', { method: 'POST' });
   runDialog.showModal();
 };
 $('#toggle-dismissed').onclick = (e) => {
