@@ -1,3 +1,6 @@
+// GENERATED — do not edit. Source of truth: scripts/lib/supabase.mjs
+// Regenerate with: node scripts/sync-web.mjs
+
 // Supabase access over plain PostgREST + fetch.
 //
 // No @supabase/supabase-js on purpose: the whole tool has zero dependencies, and

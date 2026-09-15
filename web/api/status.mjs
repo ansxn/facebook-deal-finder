@@ -1,5 +1,5 @@
 import { loadAll } from './_lib/supabase.mjs';
-import { isAuthed, authRequired } from './_lib/auth.mjs';
+import { getUser } from './_lib/auth.mjs';
 
 // Deliberately not wrapped in guard(): the dashboard calls this first to find
 // out whether it needs to show a login screen, so an unauthenticated request
@@ -7,7 +7,14 @@ import { isAuthed, authRequired } from './_lib/auth.mjs';
 export default async function handler(req, res) {
   res.setHeader('cache-control', 'no-store');
 
-  if (!isAuthed(req)) {
+  let user;
+  try {
+    user = await getUser(req);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+    return;
+  }
+  if (!user) {
     res.status(401).json({ auth_required: true, authed: false });
     return;
   }
@@ -21,7 +28,8 @@ export default async function handler(req, res) {
 
     res.status(200).json({
       authed: true,
-      auth_required: authRequired(),
+      auth_required: true,
+      email: user.email,
       last_run: lastRun,
       hours_since: hoursSince,
       min_hours: minHours,
