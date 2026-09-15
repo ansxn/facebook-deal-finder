@@ -57,11 +57,28 @@ generic recency feed of the whole speaker category. The identical search with
 the entire run that met the user's requirements. The Kanto listings existed the
 whole time; the sort buried them.
 
-Rule of thumb: recency sort is fine for a broad category phrase ("complete golf
-set", "pokemon elite trainer box"), where it worked correctly both runs. For any
-query carrying a brand or model token, drop `sortBy` and let relevance rank. If a
-brand query returns nothing of that brand, that is this bug, not an empty market
-— re-run without the sort before concluding anything.
+**(verified, 2026-07-29) The bug is wider than "brand and model searches" —
+`pokemon elite trainer box` broke too. Default to dropping `sortBy` on every
+search.** With the recency sort, that query returned 24 results containing
+exactly **one** ETB — the rest was a generic recent-Pokémon feed of booster
+bundles, single cards, promos, a playmat, and two items that were not Pokémon at
+all. The identical search with `sortBy` removed returned 15 results, nearly all
+genuine ETBs, including every listing that mattered. This contradicts the earlier
+note that the phrase "worked correctly both runs"; treat that as superseded.
+
+Rule of thumb, revised: **drop `sortBy` by default.** Relevance ranking has now
+been the better source on every query it has been tested against, and "Just
+listed" badges plus the `Date listed` facet still let you see recency without
+sorting by it. Only reach for `creation_time_descend` if you specifically need
+the newest listings and the query is a broad category phrase — and re-check the
+first few results are actually on-topic before trusting the page. If a query
+returns nothing of the thing you searched for, that is this bug, not an empty
+market — re-run without the sort before concluding anything.
+
+One side effect worth knowing: without the recency sort you get old listings
+back. This run surfaced a year-old ETB and a 19-week-old speaker pair. That is
+usually fine (a stale listing with a price drop is a motivated seller) but check
+the "Listed X ago" line before treating anything as new.
 
 **(verified)** The location radius does **not** hold. The account is set to
 "Within 65 km" and results still came from Niagara Falls, Norfolk and Waterloo —
@@ -88,6 +105,13 @@ Two things about that:
   `1787416939121193`. A truncated id breaks dedupe silently and permanently.
 - `read_page` output is capped, so raise `max_chars` or page through it. About
   14 listings fit in 6000 chars.
+- **(verified) The results list is virtualized — cards leave the accessibility
+  tree once you scroll past them.** `read_page` returns only what is near the
+  viewport, so a single read after scrolling to the bottom silently loses
+  everything above it. Read after *each* scroll and accumulate, rather than
+  scrolling to the end and reading once. If you notice a gap between two reads
+  (ref numbers jump), `find` with the card's title text recovers the missing
+  href without re-scrolling.
 
 `get_page_text` also works on the results page and is easier to skim, but it
 returns **no ids and no links**, so it can't be the primary source. Use it as a
@@ -110,7 +134,75 @@ posting time, and seller name + rating + join year.
 
 **(verified) Stop reading at "Related searches" or "Today's picks".** Everything
 after those headings is unrelated inventory Facebook injects — random couches,
-cars, and other categories. Parsing it as results will poison the store.
+cars, and other categories. Parsing it as results will poison the store. (It is
+worse than random: those blocks are ad-targeted from *your own* searches, so
+after a golf run they fill with golf sets and after a speaker run with Kanto
+speakers. They look exactly like results for the search you are on. Never harvest
+a listing from them — go find it through a real search.)
+
+**(verified, 2026-07-27) The card price is frequently NOT the price of the titled
+item.** This is the single highest-damage trap found so far, and it was in four
+of six Pokémon listings opened in one run:
+
+| Card said | Description actually said |
+|---|---|
+| "Pokemon ETB **Lot**" — CA$90 | "90 each" for 6 boxes |
+| "Pitch Black ETB" — CA$100 | "$100 each", multi-quantity |
+| "Chaos rising booster box and etb" — CA$110 | CA$110 is the ETB; boxes are $270–285 |
+| "30th anniversary **pokemon center etb**" — CA$90 | **PC ETB is $400**; the $90 item is a booster bundle |
+
+That last one is the shape to fear: the card advertises a premium
+Pokémon-Center-exclusive ETB at CA$90, and scoring that against a
+Pokémon-Center-premium fair value manufactures a spectacular deal that does not
+exist. Facebook's price field shows the listing's *cheapest* item, and sellers
+title the listing after the *most desirable* one.
+
+**(verified again, 2026-07-29 — three more, including a near-exact repeat.)** Do
+not treat the table above as a historical curiosity; this is the steady state of
+the Pokémon category.
+
+| Card said | Description actually said |
+|---|---|
+| "Pitch Black **Pokémon Center ETB**, Booster box, Booster Bundle" — CA$45 | booster bundle $45 · **PC ETB $170** · booster box $260 |
+| "Elite Trainer Box**es** (Prismatic, Chaos Rising, **Evolving Skies**)" — CA$90 | CA$90 buys one Chaos Rising · **Evolving Skies is $820** · Prismatic $195 |
+| "Pitch Black Elite Trainer Box **and** Booster Bundle" — CA$96 | bundle $50 · **ETB $140** · box $240 — CA$96 matches *nothing* |
+
+Three additions to the rule from these:
+
+- The Pokémon-Center repeat is the same trap as 2026-07-27, same premium variant,
+  different set. Scoring CA$45 as a PC ETB, or CA$90 against Evolving Skies'
+  CA$410, would each have produced the run's "best deal" out of thin air.
+- **The card price is not always even the cheapest item — sometimes it is no item
+  at all.** CA$96 corresponded to none of that listing's three prices. When the
+  card price matches nothing, disqualify with the real price in the reason rather
+  than leaving a fictional number in the store.
+- The card can render a strikethrough pair like "CA$45 CA$200", which reads as a
+  markdown on the whole bundle when it is really the price of the cheapest single
+  item next to an unrelated former price. Do not read it as a discount.
+
+**(verified, 2026-07-29) Facebook's structured detail fields are seller-populated
+and are wrong often enough to distrust.** Two independent cases in one run:
+
+- `Brand: Slazenger` on a golf set whose clubs were all Alien Golf, Rawlings and
+  AltaPro — Slazenger was the **bag**. The platform's own Brand field inherits the
+  accessory-brand trap.
+- `Condition: New` on an ETB whose description said the packaging was removed and
+  the card packs opened.
+
+`Hand Orientation` has been reliable so far and is genuinely useful — it is the
+fastest way to settle handedness. But **never let a detail field override the
+description.** Where they conflict, the description wins.
+
+So: **never score a multi-item or plural-sounding listing from the card alone.**
+Anything whose title contains "lot", "and", "bundle", a plural, or several named
+products must have its detail page opened before it is stored. If the price turns
+out to belong to a different item than the title, record the listing against what
+the price actually buys — usually that means failing a `must_have` and a
+`disqualify_reason`, not a bargain.
+
+Golf listings do not do this nearly as much, but they have their own version:
+sets advertised at a single price where the description reveals a per-club or
+per-item breakdown. Same rule applies.
 
 Wait `pacing.seconds_between_listings` before the next one.
 
@@ -140,12 +232,29 @@ Rules that matter, in order of how much damage getting them wrong does:
   "Wilson" to the clubs promoted it a whole price tier and invented a discount
   that wasn't there. If only an accessory carries a brand, **leave `brand`
   unset.** Same trap: "Titleist headcover", "TaylorMade stand bag".
+- **(2026-07-29) Two further shapes of the same trap, both seen live:**
+  - *The brand covers some clubs but not the ones that matter.* "Men's RH Complete
+    Golf Club Set Graphite Irons **Wilson** Driver Top Flite Stand Bag **Jazz**" —
+    Wilson is real, but it is only the driver and putter; the irons, wedge, wood
+    and utility are all Jazz, and the bag is Top Flite. The irons define a set, so
+    `brand` stays unset. A brand naming two of eleven clubs does not tier the set.
+  - *The brand is in a comparison, not the product.* A listing whose irons were
+    Powermax said they "play like the **Callaway** X22 irons". That is the seller's
+    performance claim. Never promote a tier on a simile.
+- **A vague title is not evidence of a thin listing — open it anyway.**
+  (2026-07-29) The most complete set of the run was titled "Men's Golf clubs." and
+  its description itemised fourteen clubs, shaft flex, fresh Golf Pride grips and a
+  Sun Mountain cart bag. Meanwhile the loudest, most brand-stuffed titles were the
+  keyword-spam ones. Title length correlates with nothing.
 - **Always set `distance_km`**, estimated from the town name. Code cannot
   geocode a place name, and Facebook's radius filter leaks badly, so this is the
   only thing keeping a two-hour drive off the list. Toronto reference points:
   Markham/Richmond Hill/Vaughan/Mississauga ~25–30, Oakville ~35, Brampton ~40,
   Clarington ~60, Barrie ~90, Waterloo/Woolwich ~105–110, Thorold/Niagara Falls
-  ~125–130, Norfolk ~150.
+  ~125–130, Norfolk ~150. Added 2026-07-29: Ajax ~40, Newmarket ~45, Whitby ~50,
+  East Gwillimbury/Caledon ~55, Burlington ~55, Hamilton ~70, Grimsby/Shelburne
+  ~85, Cambridge ~95, Brantford ~100, Pelham ~110, Springwater ~110,
+  Peterborough ~125, Kawartha Lakes ~150.
 - **Use `true`/`false` only when the listing actually says so. Omit when
   unknown.** Missing scores as half credit, which is right; an explicit `false`
   on a hard must-have kills the listing outright. Never infer `false` from
@@ -155,6 +264,37 @@ Rules that matter, in order of how much damage getting them wrong does:
   is not a disqualifier — scoring handles price.
 - `condition` ∈ `like_new`, `sealed`, `good`, `working`, `fair`, `untested`,
   `broken`.
+
+**(verified, 2026-07-27) An empty listing scores as a top deal. Distrust the
+ranking when `notes` say there was nothing to read.** The highest-scoring result
+of the second run — "50% under" — was a listing whose entire description was
+"Cash and pick up only". Unknown must-haves score as half credit and an unknown
+brand falls to the entry tier, so a listing with *no information at all* collects
+partial credit everywhere and gets marked down against a floor value. Three of
+these, from one seller who posted four descriptionless golf listings in an hour,
+took the top three slots.
+
+This is a scoring weakness, not a Marketplace one, so it cannot be fixed by
+browsing more carefully. What browsing *can* do is set `confidence` honestly
+(0.3–0.4 for a listing with no description) and say plainly in `notes` that
+nothing was verifiable. Then call it out in the summary rather than presenting it
+as the day's best find.
+
+**(2026-07-29) Those same three listings still hold the top three golf slots**,
+two runs later, because dedupe keeps them in the store and nothing has out-scored
+them. Expect them at the top of every golf run until either the config gains a
+minimum-information rule or the listings expire. Say so in the summary each time
+rather than re-explaining them as new. The first genuinely-earned entry on the
+board is whatever sits below them.
+
+**(2026-07-29) Recording an honest `years_old` can push a real find below the
+threshold — that is working correctly, but flag it.** A Titleist set (909D2
+driver, DCI irons, complete, RH-confirmed, CA$279) landed at ~17% under after the
+`generation_10plus_years_old` 0.8 multiplier — just under the 20% surface bar.
+Omitting the age would have shown it as 33% under and second on the board. The
+adjustment is right; late-2000s clubs are not worth a current major-brand FMV. But
+a listing that misses the bar *because* you documented it well deserves a mention
+in the summary, or the care is invisible.
 
 **(verified) Expect most listings to be rejects, and expect that to be correct.**
 The first golf run: 24 results → 15 captured → 4 plausible → 0 above threshold.
