@@ -1,11 +1,11 @@
 import { loadAll, upsert } from './_lib/supabase.mjs';
 import { guard } from './_lib/auth.mjs';
 
-export default guard(async (req, res) => {
+export default guard(async (req, res, user) => {
   res.setHeader('cache-control', 'no-store');
 
   if (req.method === 'GET') {
-    const { searches } = await loadAll();
+    const { searches } = await loadAll(user.id);
     res.status(200).json(searches ?? { error: 'no config pushed yet' });
     return;
   }
@@ -16,7 +16,9 @@ export default guard(async (req, res) => {
       res.status(400).json({ error: 'refusing to save a config with no searches' });
       return;
     }
-    await upsert('config', { key: 'searches', payload: body, updated_at: new Date().toISOString() });
+    await upsert('config', {
+      user_id: user.id, key: 'searches', payload: body, updated_at: new Date().toISOString(),
+    });
     // Note this only changes the hosted copy. The next `node scripts/push.mjs`
     // pushes the local searches.json back up and overwrites it — edit in one
     // place or the other, not both between runs.

@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { lastRun, searches } = await loadAll();
+    const { lastRun, searches } = await loadAll(user.id);
     const minHours = searches?.global?.pacing?.min_hours_between_runs ?? 18;
     const hoursSince = lastRun?.started
       ? (Date.now() - new Date(lastRun.started).getTime()) / 36e5

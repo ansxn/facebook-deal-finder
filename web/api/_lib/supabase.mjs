@@ -73,16 +73,21 @@ export const remove = (table, query, env) =>
   request(`${table}?${query}`, { method: 'DELETE', prefer: 'return=minimal', env });
 
 /**
- * Everything the dashboard needs, in three round trips instead of one per
+ * Everything the dashboard needs, in four round trips instead of one per
  * listing. Serverless functions are billed on wall-clock time, so the shape of
  * this matters more than it would locally.
+ *
+ * Every query is scoped to one user — the tables are shared by everyone who
+ * signed up, and the composite primary keys mean the same Marketplace listing
+ * id can exist once per user.
  */
-export async function loadAll(env) {
+export async function loadAll(userId, env) {
+  const u = `user_id=eq.${encodeURIComponent(userId)}`;
   const [listingRows, verdictRows, configRows, runRows] = await Promise.all([
-    select('listings', 'select=id,search_id,payload,first_seen,last_seen', env),
-    select('verdicts', 'select=listing_id,state,updated_at', env),
-    select('config', 'select=payload&key=eq.searches', env),
-    select('runs', 'select=payload&order=started.desc&limit=1', env),
+    select('listings', `select=id,search_id,payload,first_seen,last_seen&${u}`, env),
+    select('verdicts', `select=listing_id,state,updated_at&${u}`, env),
+    select('config', `select=payload&key=eq.searches&${u}`, env),
+    select('runs', `select=payload&order=started.desc&limit=1&${u}`, env),
   ]);
 
   const listings = { version: 1, listings: {} };

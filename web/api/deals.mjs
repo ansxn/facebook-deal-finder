@@ -5,8 +5,8 @@ import { guard } from './_lib/auth.mjs';
 // Scoring runs here rather than being baked in at push time, so editing your
 // searches from the phone re-ranks everything you've ever seen immediately —
 // same behaviour as locally.
-export default guard(async (req, res) => {
-  const { listings, verdicts, searches } = await loadAll();
+export default guard(async (req, res, user) => {
+  const { listings, verdicts, searches } = await loadAll(user.id);
   if (!searches) {
     res.status(503).json({ error: 'No searches config in the database yet. Run: node scripts/push.mjs' });
     return;
