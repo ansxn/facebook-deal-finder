@@ -7,6 +7,12 @@
 // Scores are always recomputed from stored assessments, never persisted as
 // truth. Improving this file re-ranks your entire history instead of only
 // affecting listings found after the change.
+//
+// Nothing is auto-rejected. A listing that fails a rule — over your ceiling,
+// too far, missing a hard must-have, an assessor dealbreaker — still gets a
+// score; the failure becomes a visible, explained penalty that pushes it down
+// the ranking. Only the user's own Pass removes something from view. Every
+// result carries a `breakdown` so the dashboard can show exactly why.
 
 import { estimateFairValue } from './fairvalue.mjs';
 
@@ -23,6 +29,18 @@ const CONDITION_SCORE = {
   fair: 0.85, untested: 0.35, broken: 0.15,
 };
 
+// Penalty multipliers on the final score. Ordered by how much they should hurt:
+// an assessor dealbreaker (wrong handedness, kids' set) is nearly a no; a price
+// over your ceiling is a maybe-negotiate.
+const PENALTY = {
+  dealbreaker: 0.25,
+  missing_hard_must_have: 0.4,
+  below_min_price: 0.4,
+  over_ceiling: 0.5,
+  too_far: 0.6,
+  condition_below_floor: 0.7,
+};
+
 export function scoreListing(listing, search) {
   const a = listing.assessment;
   const price = listing.price;
@@ -31,9 +49,6 @@ export function scoreListing(listing, search) {
   // matters: a zero score would bury an un-assessed listing forever.
   if (!a) return pending(listing, 'not assessed yet');
   if (price == null) return pending(listing, 'no price found');
-
-  const dq = disqualify(listing, search, a, price);
-  if (dq) return { ...base(listing), status: 'disqualified', reason: dq, score: null, discount_pct: null };
 
   const fv = estimateFairValue(listing, search);
   if (fv.fmv == null || fv.fmv <= 0) return pending(listing, `no fair value: ${fv.basis}`);
@@ -45,88 +60,119 @@ export function scoreListing(listing, search) {
   // genuine steals still outrank merely-good ones, but a 90%-off listing does
   // not get to dominate purely on price — those are usually scams or typos.
   const valueScore = clamp(discountPct / greatAt, -0.5, 1.2);
-  const specScore = scoreSpecs(a, search);
+  const spec = scoreSpecs(a, search);
   const condScore = CONDITION_SCORE[a.condition] ?? 0.5;
 
-  const raw = WEIGHTS.value * valueScore + WEIGHTS.spec * specScore + WEIGHTS.condition * condScore;
-  const score = Math.round(clamp(raw, 0, 1.2) * 100);
+  const raw = clamp(
+    WEIGHTS.value * valueScore + WEIGHTS.spec * spec.score + WEIGHTS.condition * condScore,
+    0, 1.2
+  );
+  const flags = penalties(search, a, price);
+  const penaltyMult = flags.reduce((m, f) => m * f.multiplier, 1);
+  const score = Math.round(raw * penaltyMult * 100);
 
   const surfaceAt = search.surface_threshold_pct ?? 20;
   return {
     ...base(listing),
-    status: discountPct >= surfaceAt ? 'surface' : 'below_threshold',
+    status: flags.length === 0 && discountPct >= surfaceAt ? 'surface' : 'ranked',
     score,
     discount_pct: Math.round(discountPct * 10) / 10,
     fair_value: fv.fmv,
     fair_value_basis: fv.basis,
     fair_value_confidence: fv.confidence,
-    components: {
-      value: round2(valueScore),
-      spec: round2(specScore),
-      condition: round2(condScore),
-    },
     label: labelFor(discountPct, search),
+    flags,
+    components: { value: round2(valueScore), spec: round2(spec.score), condition: round2(condScore) },
+    breakdown: {
+      raw: round2(raw),
+      penalty_multiplier: round2(penaltyMult),
+      final: score,
+      surface_threshold_pct: surfaceAt,
+      value: {
+        score: round2(valueScore), weight: WEIGHTS.value,
+        discount_pct: Math.round(discountPct * 10) / 10,
+        great_deal_pct: greatAt,
+        fair_value: fv.fmv, base_fmv: fv.base_fmv ?? null,
+        condition_multiplier: fv.condition_multiplier ?? null,
+        adjustments: fv.adjustments ?? [],
+        basis: fv.basis, confidence: fv.confidence,
+      },
+      spec: { score: round2(spec.score), weight: WEIGHTS.spec, checks: spec.checks },
+      condition: { score: round2(condScore), weight: WEIGHTS.condition, condition: a.condition ?? null },
+      penalties: flags,
+    },
   };
 }
 
-function disqualify(listing, search, a, price) {
-  if (a.disqualified) return a.disqualify_reason || 'assessed as disqualified';
+/**
+ * Rule failures as penalties. Each entry explains itself in plain words —
+ * the text is what the user reads on the card and in the detail sheet.
+ */
+function penalties(search, a, price) {
+  const out = [];
+  const add = (code, text, key = code) => out.push({ code, text, multiplier: PENALTY[key] });
+
+  if (a.disqualified) add('dealbreaker', a.disqualify_reason || 'assessed as a dealbreaker');
 
   const max = search.pricing?.max;
-  if (max != null && price > max) return `$${price} is over your $${max} ceiling`;
+  if (max != null && price > max) add('over_ceiling', `over your $${max} ceiling by $${price - max}`);
 
   const min = search.filters?.min_price;
-  if (min != null && price < min) return `$${price} is below $${min} — almost certainly not the real item`;
+  if (min != null && price < min) add('below_min_price', `$${price} is below $${min} — almost certainly not the real item`);
 
-  // Spec failures are checked before distance because they're the more useful
-  // thing to be told. "No driver" tells you the listing is wrong; "too far"
-  // only tells you where it is, and you'd still wonder whether it was any good.
+  // Spec failures come before distance because they're the more useful thing
+  // to be told: "no driver" says the listing is wrong; "too far" only says
+  // where it is.
   for (const rule of search.must_have ?? []) {
     if (rule.hard !== true) continue;
-    if (a.must_have?.[rule.spec] === false) return `missing required: ${rule.spec.replace(/_/g, ' ')}`;
+    if (a.must_have?.[rule.spec] === false) {
+      add(`missing_hard_must_have:${rule.spec}`, `missing required: ${rule.spec.replace(/_/g, ' ')}`, 'missing_hard_must_have');
+    }
   }
 
   // Facebook's radius setting leaks badly — a 65km radius returned listings from
   // Niagara Falls and Norfolk, both well over 100km out. Distance is estimated
-  // by the assessor from the listing's town (code can't geocode a place name),
-  // and enforced here so a great price two hours away doesn't top the list.
+  // by the assessor from the listing's town (code can't geocode a place name).
   if (search.max_km != null && a.distance_km != null && a.distance_km > search.max_km) {
-    return `~${a.distance_km}km away — past your ${search.max_km}km limit`;
+    add('too_far', `~${a.distance_km} km away, past your ${search.max_km} km limit`);
   }
 
   const accepted = search.condition?.accept;
   if (accepted?.length && a.condition && !accepted.includes(a.condition)) {
-    return `condition "${a.condition}" is below your floor`;
+    add('condition_below_floor', `condition "${a.condition}" is below your floor`);
   }
-  return null;
+  return out;
 }
 
 /**
- * Spec match, 0–1. Soft must-haves are the floor of this score; nice-to-haves
- * add on top. Unknown (neither true nor false) counts as half credit rather
- * than zero — Marketplace sellers omit details constantly, and punishing
- * silence as hard as a real "no" throws away most good listings.
+ * Spec match, 0–1, plus the per-spec checklist behind it. Soft must-haves are
+ * the floor of this score; nice-to-haves add on top. Unknown (neither true nor
+ * false) counts as half credit rather than zero — Marketplace sellers omit
+ * details constantly, and punishing silence as hard as a real "no" throws away
+ * most good listings. Hard must-haves are listed but scored by penalties().
  */
 function scoreSpecs(a, search) {
   let earned = 0;
   let possible = 0;
+  const checks = [];
 
   for (const rule of search.must_have ?? []) {
-    if (rule.hard === true) continue; // already handled by disqualify()
+    const v = a.must_have?.[rule.spec] ?? null;
+    checks.push({ spec: rule.spec, kind: 'must', hard: rule.hard === true, weight: 1, value: v, test: rule.test ?? null });
+    if (rule.hard === true) continue; // penalised, not scored
     possible += 1;
-    const v = a.must_have?.[rule.spec];
     earned += v === true ? 1 : v === false ? 0 : 0.5;
   }
 
   for (const rule of search.nice_to_have ?? []) {
     const w = rule.weight ?? 0.25;
+    const v = a.nice_to_have?.[rule.spec] ?? null;
+    checks.push({ spec: rule.spec, kind: 'nice', hard: false, weight: w, value: v, test: rule.test ?? null });
     possible += w;
-    const v = a.nice_to_have?.[rule.spec];
     earned += v === true ? w : v === false ? 0 : w * 0.5;
   }
 
-  if (possible === 0) return 1;
-  return clamp(earned / possible, 0, 1);
+  return { score: possible === 0 ? 1 : clamp(earned / possible, 0, 1), checks };
 }
 
 function labelFor(discountPct, search) {
@@ -139,11 +185,11 @@ function labelFor(discountPct, search) {
 }
 
 const base = (l) => ({ id: l.id, search_id: l.search_id, title: l.title, price: l.price });
-const pending = (l, reason) => ({ ...base(l), status: 'pending', reason, score: null, discount_pct: null });
+const pending = (l, reason) => ({ ...base(l), status: 'pending', reason, score: null, discount_pct: null, flags: [] });
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const round2 = (n) => Math.round(n * 100) / 100;
 
-/** Score every listing and return them ranked, with verdicts applied. */
+/** Score every listing and return them ranked, with verdicts and ranks applied. */
 export function scoreAll({ listings, searches, verdicts = {}, includeDismissed = false }) {
   const byId = Object.fromEntries(searches.searches.map((s) => [s.id, s]));
   const globalThreshold = searches.global?.surface_threshold_pct;
@@ -164,8 +210,12 @@ export function scoreAll({ listings, searches, verdicts = {}, includeDismissed =
       verdict,
       url: listing.url,
       photo: listing.photos?.[0] ?? null,
+      photos: listing.photos ?? [],
       location: listing.location ?? null,
       miles: listing.miles ?? null,
+      description: listing.description ?? null,
+      seller: listing.seller ?? null,
+      posted: listing.posted ?? null,
       first_seen: listing.first_seen,
       last_seen: listing.last_seen,
       price_history: listing.price_history ?? [],
@@ -173,11 +223,20 @@ export function scoreAll({ listings, searches, verdicts = {}, includeDismissed =
     });
   }
 
-  const rank = { surface: 0, below_threshold: 1, pending: 2, disqualified: 3 };
+  // Attractiveness order: scored listings by score, pending last, newest first
+  // within ties. Passed (dismissed) listings keep their rank slot so "bring
+  // back" doesn't reshuffle everything, but they're excluded above by default.
   scored.sort((a, b) =>
-    (rank[a.status] - rank[b.status]) ||
     ((b.score ?? -1) - (a.score ?? -1)) ||
     String(b.first_seen).localeCompare(String(a.first_seen))
   );
+
+  const perSearch = {};
+  scored.forEach((d, i) => {
+    d.rank = i + 1;
+    perSearch[d.search_id] = (perSearch[d.search_id] ?? 0) + 1;
+    d.rank_in_search = perSearch[d.search_id];
+  });
+  for (const d of scored) d.total_in_search = perSearch[d.search_id];
   return scored;
 }

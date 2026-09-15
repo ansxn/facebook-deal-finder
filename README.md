@@ -1,8 +1,8 @@
 # Facebook Marketplace Deal Finder
 
 A personal tool that browses Facebook Marketplace once a day for the items I'm
-hunting, scores each listing against fair market value, and surfaces only the
-genuinely good new ones.
+hunting, scores each listing against fair market value, and ranks everything it
+finds by attractiveness — with the reasoning shown, and nothing auto-rejected.
 
 Not a scraper. It drives **my own signed-in Chrome** through Claude in Chrome, at
 human pace — a handful of searches once a day. See
@@ -28,8 +28,8 @@ node scripts/serve.mjs        # → http://localhost:3000
 or in the terminal:
 
 ```bash
-node scripts/deals.mjs        # ranked deals above threshold
-node scripts/deals.mjs --all  # everything, including rejects and why
+node scripts/deals.mjs        # top 10 per search, ranked, flags in brackets
+node scripts/deals.mjs --all  # every listing, including ones you passed on
 node scripts/run.mjs status   # when the last run happened
 ```
 

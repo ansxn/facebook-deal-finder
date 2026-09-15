@@ -42,9 +42,10 @@ export function estimateFairValue(listing, search) {
 
   return {
     ...estimate,
-    fmv: Math.round(adjusted),
+    fmv: Math.round(adjusted.fmv),
     base_fmv: Math.round(estimate.fmv),
     condition_multiplier: mult,
+    adjustments: adjusted.applied,
     // A seed number stays a seed number no matter how much math we do to it.
     confidence: cfg.confidence === 'low_seed' ? 'low' : estimate.confidence,
   };
@@ -117,22 +118,28 @@ function byModelLookup(assessment, cfg) {
 // sign the tier itself is wrong, not that the item is nearly worthless.
 const ADJUSTMENT_FLOOR = 0.65;
 
+/** Returns `{ fmv, applied }` so the dashboard can show which adjustments fired. */
 function applyAdjustments(fmv, assessment, adjustments) {
-  if (!adjustments) return fmv;
+  const applied = [];
+  if (!adjustments) return { fmv, applied };
   let multiplier = 1;
   const nice = assessment.nice_to_have ?? {};
   for (const [key, mult] of Object.entries(adjustments)) {
     if (typeof mult !== 'number') continue;
+    let fires = false;
     const missing = key.match(/^missing_nice_to_have_(.+)$/);
-    if (missing && nice[missing[1]] === false) multiplier *= mult;
+    if (missing && nice[missing[1]] === false) fires = true;
     // Age thresholds must sit above the category norm. "5+ years old" fired on
     // nearly every listing, so it stopped being an adjustment and became a
     // blanket markdown of the whole tier.
     const age = key.match(/^generation_(\d+)plus_years_old$/);
-    if (age && assessment.years_old >= Number(age[1])) multiplier *= mult;
-    if (key === 'sealed_but_damaged_box' && assessment.box_damaged) multiplier *= mult;
+    if (age && assessment.years_old >= Number(age[1])) fires = true;
+    if (key === 'sealed_but_damaged_box' && assessment.box_damaged) fires = true;
+    if (fires) { multiplier *= mult; applied.push({ key, multiplier: mult }); }
   }
-  return fmv * Math.max(multiplier, ADJUSTMENT_FLOOR);
+  const floored = Math.max(multiplier, ADJUSTMENT_FLOOR);
+  if (floored !== multiplier) applied.push({ key: 'floor', multiplier: ADJUSTMENT_FLOOR / multiplier, note: `stack floored at ${ADJUSTMENT_FLOOR}` });
+  return { fmv: fmv * floored, applied };
 }
 
 const slug = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');

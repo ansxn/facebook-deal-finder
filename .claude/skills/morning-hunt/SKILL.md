@@ -18,7 +18,9 @@ browse Facebook at all.
    the next run is allowed.
 
 4. Either way, finish with a short digest:
-   - new listings above threshold since yesterday, best first
+   - the top of the ranking: new listings since yesterday first, best first,
+     each with its flags if it has any (nothing is auto-rejected — a flagged
+     listing is a low-ranked one, not a hidden one)
    - any price drops on listings already seen
    - anything that needs a decision from them (a low-confidence valuation, a
      listing whose specs couldn't be read)

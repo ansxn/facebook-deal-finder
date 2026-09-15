@@ -296,10 +296,17 @@ adjustment is right; late-2000s clubs are not worth a current major-brand FMV. B
 a listing that misses the bar *because* you documented it well deserves a mention
 in the summary, or the care is invisible.
 
-**(verified) Expect most listings to be rejects, and expect that to be correct.**
-The first golf run: 24 results → 15 captured → 4 plausible → 0 above threshold.
+**(verified) Expect most listings to rank low, and expect that to be correct.**
+The first golf run: 24 results → 15 captured → 4 plausible → 0 worth a look.
 Left-handed, ladies' and junior sets alone were 7 of 15. A quiet day is a real
 result, not a failure to find anything.
+
+**Nothing is auto-rejected.** Scoring never hides a listing: a dealbreaker,
+a price over the ceiling, a missing hard must-have or a too-far distance is a
+*penalty with a reason*, shown as a flag on the ranking. So keep recording
+`disqualified: true` and honest `false`s exactly as before — they push a
+listing to the bottom with its reason attached, which is what the user wants
+to see. Only the user's own Pass removes something.
 
 ### 6. Store it
 
@@ -319,8 +326,9 @@ Dedupe is automatic on Marketplace listing id, and price changes are recorded.
 node scripts/run.mjs finish --seen <n> --new <n> --searches <ids>
 ```
 
-Summarize: what's new and worth looking at, what was rejected and why, and
-**anything that fought back** — filters that didn't apply, selectors that
+Summarize: the top few listings by attractiveness (new ones first, with their
+flags — `deals.mjs` prints the flags in brackets), anything that ranked low for
+a reason worth a human glance, and **anything that fought back** — filters that didn't apply, selectors that
 missed, results that looked location-wrong. That last part is the most valuable
 thing in the summary. When Marketplace's markup shifts, update this file's
 **(verified)** notes so the next run doesn't repeat the discovery.

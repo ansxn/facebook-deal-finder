@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(gh auth *)"
+      "Bash(gh auth *)",
+      "Bash(awk '{printf \"%d\\\\t%s\\\\n\", $1+29, substr\\($0, index\\($0,$2\\)\\)}')"
     ]
   }
 }
