@@ -1,6 +1,20 @@
 # `searches.json` field reference
 
-Edit this file by hand any time. The dashboard (Phase 5) writes the same shape.
+The dashboard's Searches page is the normal way to change this file now:
+sliders and toggles for the numbers, chips for search terms and dealbreakers,
+a live "would be worth a look" preview, and one Save that re-ranks everything.
+Editing by hand still works. Both paths stamp a top-level `updated_at`; the
+newer copy wins when `scripts/pull-config.mjs` / `scripts/push.mjs` sync the
+laptop and the hosted dashboard.
+
+## `penalties` (per search, optional)
+
+Each rule failure multiplies the score by a fixed factor (dealbreaker ×0.25,
+missing hard must-have ×0.4, below min price ×0.4, over ceiling ×0.5, too far
+×0.6, condition below floor ×0.7). `penalties` overrides any of those per
+search, from `0.05` (near-fatal) to `1` (ignore the rule). This is the one
+lever that changes verdicts on listings you have *already* seen — dealbreakers
+and must-have wording only apply to listings assessed from the next hunt on.
 
 ## `global`
 

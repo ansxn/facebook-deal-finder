@@ -13,14 +13,10 @@
 //   DEALFINDER_API_URL=https://<your-instance>.vercel.app
 //   DEALFINDER_PUSH_TOKEN=dfp_...   (shown once at signup; regen from Account)
 
-import { readFileSync, existsSync } from 'node:fs';
-import { join } from 'node:path';
-import { loadListings, loadSearches, loadRuns, loadVerdicts, saveVerdicts, ROOT } from './lib/store.mjs';
+import { loadListings, loadSearches, loadRuns, loadVerdicts, saveVerdicts } from './lib/store.mjs';
+import { apiEnv, apiCall as api, pullConfig } from './lib/config-sync.mjs';
 
-loadDotEnv();
-
-const API_URL = (process.env.DEALFINDER_API_URL ?? '').replace(/\/$/, '');
-const TOKEN = process.env.DEALFINDER_PUSH_TOKEN;
+const { apiUrl: API_URL, token: TOKEN } = apiEnv();
 
 if (!API_URL || !TOKEN) {
   console.error(
@@ -30,6 +26,10 @@ if (!API_URL || !TOKEN) {
   );
   process.exit(1);
 }
+
+// Config edited on the website is newer than the laptop's copy more often
+// than not now — pull it first so the push below never overwrites it.
+const cfgSync = await pullConfig();
 
 const listings = loadListings().listings ?? {};
 const searches = loadSearches();
@@ -79,42 +79,8 @@ for (let i = 0; i < batches.length; i++) {
 
 console.log(`pushed ${rows.length} listings, ${verdictRows.length} verdicts, searches config, last run`);
 if (pulled) console.log(`pulled ${pulled} newer verdict(s) down from the dashboard first`);
-
-async function api(method, path, body) {
-  const res = await fetch(`${API_URL}${path}`, {
-    method,
-    headers: {
-      authorization: `Bearer ${TOKEN}`,
-      'content-type': 'application/json',
-    },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  });
-  const text = await res.text();
-  let parsed;
-  try { parsed = text ? JSON.parse(text) : {}; }
-  catch {
-    throw new Error(
-      `${method} ${path} → ${res.status}: non-JSON response. If this is a\n` +
-      'Vercel login page, the deployment still has Deployment Protection on —\n' +
-      'turn it off in Vercel → Settings → Deployment Protection.'
-    );
-  }
-  if (!res.ok) throw new Error(`${method} ${path} → ${res.status}: ${parsed.error ?? text.slice(0, 200)}`);
-  return parsed;
-}
+if (cfgSync.action === 'pulled') console.log(`pulled newer searches config from the dashboard first (saved ${cfgSync.updated_at})`);
 
 function* chunks(arr, size) {
   for (let i = 0; i < arr.length; i += size) yield arr.slice(i, i + size);
-}
-
-// Minimal .env.local reader — avoids a dotenv dependency for four lines of work.
-function loadDotEnv() {
-  const path = join(ROOT, '.env.local');
-  if (!existsSync(path)) return;
-  for (const line of readFileSync(path, 'utf8').split('\n')) {
-    const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)$/);
-    if (!m) continue;
-    const value = m[2].trim().replace(/^["']|["']$/g, '');
-    if (!process.env[m[1]]) process.env[m[1]] = value;
-  }
 }

@@ -107,7 +107,13 @@ export function scoreListing(listing, search) {
  */
 function penalties(search, a, price) {
   const out = [];
-  const add = (code, text, key = code) => out.push({ code, text, multiplier: PENALTY[key] });
+  // Per-search overrides let the user soften a rule from the dashboard without
+  // waiting for a re-assessment: 1 means "no penalty at all".
+  const mult = (key) => {
+    const v = Number(search.penalties?.[key]);
+    return Number.isFinite(v) ? clamp(v, 0.05, 1) : PENALTY[key];
+  };
+  const add = (code, text, key = code) => out.push({ code, text, multiplier: mult(key) });
 
   if (a.disqualified) add('dealbreaker', a.disqualify_reason || 'assessed as a dealbreaker');
 
@@ -179,6 +185,46 @@ function labelFor(discountPct, search) {
   if (discountPct >= good) return 'good deal';
   if (discountPct >= 0) return 'fair price';
   return 'overpriced';
+}
+
+export const PENALTY_DEFAULTS = { ...PENALTY };
+export const CONDITIONS = Object.keys(CONDITION_SCORE);
+
+/**
+ * Sanity checks shared by the local server and the hosted API before a config
+ * is written. Returns a list of plain-English problems; empty means fine.
+ */
+export function validateSearches(cfg) {
+  const errs = [];
+  if (!cfg || typeof cfg !== 'object') return ['config must be an object'];
+  if (!Array.isArray(cfg.searches) || !cfg.searches.length) return ['at least one search is required'];
+  const g = cfg.global ?? {};
+  const pct = (v, name, lo = 0, hi = 95) => { if (v != null && !(Number(v) >= lo && Number(v) <= hi)) errs.push(`${name} must be between ${lo} and ${hi}`); };
+  pct(g.surface_threshold_pct, 'worth-a-look threshold', 0, 90);
+  if (g.max_km != null && !(Number(g.max_km) > 0)) errs.push('max distance must be above 0 km');
+  const seen = new Set();
+  for (const s of cfg.searches) {
+    const name = s.label || s.id || '(unnamed)';
+    if (!s.id) errs.push(`${name}: missing id`);
+    if (seen.has(s.id)) errs.push(`${name}: duplicate id`);
+    seen.add(s.id);
+    if (!Array.isArray(s.queries) || !s.queries.filter(Boolean).length) errs.push(`${name}: needs at least one search term`);
+    const p = s.pricing ?? {};
+    pct(p.good_deal_pct, `${name}: good-deal %`); pct(p.great_deal_pct, `${name}: steal %`);
+    if (p.good_deal_pct != null && p.great_deal_pct != null && Number(p.good_deal_pct) > Number(p.great_deal_pct)) errs.push(`${name}: good-deal % can’t be above steal %`);
+    const min = s.filters?.min_price;
+    if (p.max != null && min != null && Number(p.max) <= Number(min)) errs.push(`${name}: ceiling must be above the minimum price`);
+    for (const r of s.must_have ?? []) if (!r.spec) errs.push(`${name}: a must-have has no name`);
+    for (const r of s.nice_to_have ?? []) {
+      if (!r.spec) errs.push(`${name}: a nice-to-have has no name`);
+      if (r.weight != null && !(Number(r.weight) >= 0 && Number(r.weight) <= 1)) errs.push(`${name}: nice-to-have weights go from 0 to 1`);
+    }
+    for (const [k, v] of Object.entries(s.penalties ?? {})) {
+      if (!(k in PENALTY)) errs.push(`${name}: unknown penalty "${k}"`);
+      else if (!(Number(v) >= 0.05 && Number(v) <= 1)) errs.push(`${name}: penalty "${k}" must be between 0.05 and 1`);
+    }
+  }
+  return errs;
 }
 
 const base = (l) => ({ id: l.id, search_id: l.search_id, title: l.title, price: l.price });

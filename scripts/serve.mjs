@@ -12,12 +12,28 @@ import { createServer } from 'node:http';
 import { readFileSync, existsSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, extname } from 'node:path';
 import { loadListings, loadSearches, loadVerdicts, saveSearches, setVerdict, ROOT, DATA } from './lib/store.mjs';
-import { scoreAll } from './lib/score.mjs';
+import { scoreAll, validateSearches } from './lib/score.mjs';
 import { loadRuns } from './lib/store.mjs';
 
 const PORT = Number(process.env.PORT ?? 3000);
 const PUBLIC = join(ROOT, 'dashboard');
 const MIME = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.json': 'application/json', '.svg': 'image/svg+xml' };
+
+// Headline numbers for a config: how many listings it would surface, per hunt.
+export function previewCounts(scored) {
+  const by = {};
+  for (const d of scored) {
+    by[d.search_id] = by[d.search_id] ?? { surface: 0, total: 0 };
+    by[d.search_id].total++;
+    if (d.status === 'surface') by[d.search_id].surface++;
+  }
+  return {
+    surface: scored.filter((d) => d.status === 'surface').length,
+    ranked: scored.filter((d) => d.status === 'ranked').length,
+    pending: scored.filter((d) => d.status === 'pending').length,
+    by_search: by,
+  };
+}
 
 const json = (res, code, body) => {
   res.writeHead(code, { 'content-type': 'application/json', 'cache-control': 'no-store' });
@@ -85,10 +101,17 @@ const server = createServer(async (req, res) => {
       return json(res, 200, loadSearches());
     }
 
+    // ?dry_run=1 scores the proposed config against the current store and
+    // reports counts without writing anything — the dashboard's live preview.
     if (path === '/api/searches' && req.method === 'PUT') {
       const body = await readBody(req);
+      const problems = validateSearches(body);
+      if (problems.length) return json(res, 400, { error: problems[0], problems });
+      const preview = previewCounts(scoreAll({ listings: loadListings(), searches: body, verdicts: loadVerdicts() }));
+      if (url.searchParams.get('dry_run') === '1') return json(res, 200, { ok: true, dry_run: true, ...preview });
+      body.updated_at = new Date().toISOString();
       saveSearches(body);
-      return json(res, 200, { ok: true });
+      return json(res, 200, { ok: true, saved: true, updated_at: body.updated_at, ...preview });
     }
 
     if (path === '/api/verdict' && req.method === 'POST') {

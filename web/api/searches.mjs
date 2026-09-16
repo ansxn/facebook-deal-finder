@@ -1,5 +1,22 @@
 import { loadAll, upsert } from './_lib/supabase.mjs';
+import { scoreAll, validateSearches } from './_lib/score.mjs';
 import { guard } from './_lib/auth.mjs';
+
+// Headline numbers for a config: how many listings it would surface, per hunt.
+function previewCounts(scored) {
+  const by = {};
+  for (const d of scored) {
+    by[d.search_id] = by[d.search_id] ?? { surface: 0, total: 0 };
+    by[d.search_id].total++;
+    if (d.status === 'surface') by[d.search_id].surface++;
+  }
+  return {
+    surface: scored.filter((d) => d.status === 'surface').length,
+    ranked: scored.filter((d) => d.status === 'ranked').length,
+    pending: scored.filter((d) => d.status === 'pending').length,
+    by_search: by,
+  };
+}
 
 export default guard(async (req, res, user) => {
   res.setHeader('cache-control', 'no-store');
@@ -10,19 +27,28 @@ export default guard(async (req, res, user) => {
     return;
   }
 
+  // PUT saves the whole config. With ?dry_run=1 it only scores the proposed
+  // config against this user's listings and returns the counts, which is what
+  // the dashboard's sliders show while you drag.
   if (req.method === 'PUT') {
     const body = req.body;
-    if (!body?.searches?.length) {
-      res.status(400).json({ error: 'refusing to save a config with no searches' });
+    const problems = validateSearches(body);
+    if (problems.length) {
+      res.status(400).json({ error: problems[0], problems });
       return;
     }
-    await upsert('config', {
-      user_id: user.id, key: 'searches', payload: body, updated_at: new Date().toISOString(),
-    });
-    // Note this only changes the hosted copy. The next `node scripts/push.mjs`
-    // pushes the local searches.json back up and overwrites it — edit in one
-    // place or the other, not both between runs.
-    res.status(200).json({ ok: true, note: 'saved to the hosted config' });
+    const { listings, verdicts } = await loadAll(user.id);
+    const preview = previewCounts(scoreAll({ listings, searches: body, verdicts }));
+    if (req.query?.dry_run === '1') {
+      res.status(200).json({ ok: true, dry_run: true, ...preview });
+      return;
+    }
+    const updated_at = new Date().toISOString();
+    body.updated_at = updated_at;
+    await upsert('config', { user_id: user.id, key: 'searches', payload: body, updated_at });
+    // scripts/push.mjs and scripts/pull-config.mjs pull this copy down before
+    // the next hunt when it is newer than the laptop's searches.json.
+    res.status(200).json({ ok: true, saved: true, updated_at, ...preview });
     return;
   }
 
