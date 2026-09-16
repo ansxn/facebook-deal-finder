@@ -20,7 +20,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { lastRun, searches } = await loadAll(user.id);
+    const { lastRun, runs, searches } = await loadAll(user.id);
+    const pick = (r) => r && ({ started: r.started, finished: r.finished ?? null, status: r.status ?? null, listings_seen: r.listings_seen ?? 0, new_listings: r.new_listings ?? 0, searches: r.searches ?? [] });
     const minHours = searches?.global?.pacing?.min_hours_between_runs ?? 18;
     const hoursSince = lastRun?.started
       ? (Date.now() - new Date(lastRun.started).getTime()) / 36e5
@@ -31,6 +32,7 @@ export default async function handler(req, res) {
       auth_required: true,
       email: user.email,
       last_run: lastRun,
+      runs: (runs ?? []).map(pick),
       hours_since: hoursSince,
       min_hours: minHours,
       can_run: hoursSince == null || hoursSince >= minHours,

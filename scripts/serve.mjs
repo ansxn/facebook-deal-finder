@@ -57,8 +57,12 @@ const server = createServer(async (req, res) => {
       const last = runs.at(-1) ?? null;
       const minHours = loadSearches()?.global?.pacing?.min_hours_between_runs ?? 18;
       const hoursSince = last ? (Date.now() - new Date(last.started).getTime()) / 36e5 : null;
+      // Recent runs, newest first, trimmed to what the dashboard's calendar
+      // and activity widgets need.
+      const pick = (r) => r && ({ started: r.started, finished: r.finished ?? null, status: r.status ?? null, listings_seen: r.listings_seen ?? 0, new_listings: r.new_listings ?? 0, searches: r.searches ?? [] });
       return json(res, 200, {
         last_run: last,
+        runs: runs.slice(-30).reverse().map(pick),
         hours_since: hoursSince,
         min_hours: minHours,
         can_run: hoursSince == null || hoursSince >= minHours,
