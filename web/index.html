@@ -6,7 +6,7 @@
 <title>Deal Finder</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 /* ---------------------------------------------------------------------------
    Liquid glass × exhibit. One atmosphere, glass panels above it, and a green
@@ -32,6 +32,14 @@
   --mist-b: #f4f8f5;
   --glow-1: rgba(88, 171, 134, .32);
   --glow-2: rgba(178, 214, 170, .38);
+  /* Ribbon + hero */
+  --rb-1: #9fdbbd; --rb-2: #4fb08a; --rb-3: #1f6f50;
+  --bk-1: #123f2e; --bk-2: #1f6a4c;
+  --am-1: #f4bd60; --am-2: #cf8a1c;
+  --hero-ink: #ffffff;
+  /* Categorical (hunts) — validated with the dataviz palette script */
+  --cat-1: #1a8a63; --cat-2: #c98a1f; --cat-3: #4a6fd1; --cat-4: #a8443c;
+  --card: rgba(255, 255, 255, .86);
   --r: 18px;
   --display: "Hanken Grotesk", -apple-system, system-ui, sans-serif;
   --body: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
@@ -58,6 +66,12 @@
     --mist-b: #101e17;
     --glow-1: rgba(38, 92, 68, .5);
     --glow-2: rgba(52, 78, 58, .45);
+    --rb-1: #4a9d78; --rb-2: #1f6a4c; --rb-3: #0f3b2b;
+    --bk-1: #0a2419; --bk-2: #0e3325;
+    --am-1: #c98d2e; --am-2: #8a5a12;
+    --hero-ink: #eef6f0;
+    --cat-1: #2a9466; --cat-2: #b5812e; --cat-3: #6383d4; --cat-4: #c06a62;
+    --card: rgba(22, 36, 28, .82);
   }
 }
 
@@ -73,12 +87,15 @@ body {
 }
 body.sheet-open { overflow: hidden; }
 
-.atmosphere { position: fixed; inset: 0; z-index: -1; overflow: hidden; }
-.atmosphere::before, .atmosphere::after { content: ""; position: absolute; border-radius: 50%; filter: blur(80px); }
-.atmosphere::before { width: 55vmax; height: 55vmax; top: -18vmax; right: -12vmax; background: var(--glow-1); animation: drift1 46s ease-in-out infinite alternate; }
-.atmosphere::after { width: 45vmax; height: 45vmax; bottom: -15vmax; left: -10vmax; background: var(--glow-2); animation: drift2 58s ease-in-out infinite alternate; }
-@keyframes drift1 { to { transform: translate(-9vmax, 7vmax); } }
-@keyframes drift2 { to { transform: translate(8vmax, -6vmax); } }
+/* The ribbon: one flowing band of green sweeping across the hero, a darker
+   band behind it and a warm amber lobe tucked under the widget row. Below the
+   hero it fades into mist so cards sit on something calm. */
+.atmosphere { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: linear-gradient(160deg, var(--mist-a), var(--mist-b)); }
+.atmosphere .ribbon { position: absolute; inset: 0; width: 100%; height: 100%; transition: opacity .4s; }
+.atmosphere .glow { animation: drift1 60s ease-in-out infinite alternate; }
+.atmosphere .fade { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 38%, var(--mist-b) 74%); }
+body:not([data-view="overview"]) .atmosphere .ribbon { opacity: .38; }
+@keyframes drift1 { to { transform: translate(-40px, 30px); } }
 
 .glass {
   background: var(--glass);
@@ -111,23 +128,34 @@ input[type=email], input[type=password], input[type=text] {
 }
 input::placeholder { color: var(--pine-3); }
 
-/* ---- layout ---- */
+/* ---- layout: floating pill shell ---- */
 header.top {
-  position: sticky; top: 0; z-index: 20;
-  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
-  margin: 14px clamp(16px, 4vw, 28px) 0; padding: 12px 18px;
+  position: fixed; top: 14px; left: 0; right: 0; z-index: 20;
+  display: flex; align-items: center; gap: 12px;
+  padding: 0 clamp(16px, 3vw, 28px); pointer-events: none;
 }
-.brand { display: flex; align-items: baseline; gap: 9px; }
-.brand h1 { font: 800 17px/1 var(--display); letter-spacing: -.02em; margin: 0; }
-.brand .who { font-size: 12.5px; color: var(--pine-3); }
-.spacer { flex: 1; }
-.huntline { font-size: 12.5px; color: var(--pine-2); font-variant-numeric: tabular-nums; border: none; background: none; box-shadow: none; padding: 0; }
-.huntline strong { color: var(--pine); font-weight: 650; }
-nav.seg { display: flex; gap: 2px; padding: 3px; border-radius: 14px; background: var(--well); }
-nav.seg button { border: none; background: transparent; box-shadow: none; padding: 7px 13px; color: var(--pine-2); }
-nav.seg button[aria-selected="true"] { background: var(--glass-strong); color: var(--pine); box-shadow: 0 2px 8px -3px rgba(14,42,31,.25); }
+header.top > * { pointer-events: auto; }
+.brand { display: flex; align-items: center; gap: 9px; padding: 7px 14px 7px 8px; border-radius: 999px; }
+.brand .mark { width: 28px; height: 28px; border-radius: 9px; background: var(--bcg); color: #fff; display: grid; place-items: center; font: 800 15px var(--display); }
+.brand h1 { font: 800 15.5px/1 var(--display); letter-spacing: -.02em; margin: 0; }
+.brand .who { font-size: 12px; color: var(--pine-3); }
+.pillbar { position: absolute; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; padding: 5px; border-radius: 999px; }
+.pillbar button { border: none; box-shadow: none; background: transparent; width: 40px; height: 40px; padding: 0; justify-content: center; border-radius: 999px; color: var(--pine-2); }
+.pillbar button:hover { background: var(--well); box-shadow: none; }
+.pillbar button svg { width: 18px; height: 18px; flex-shrink: 0; }
+.pillbar button .lab { display: none; }
+.pillbar button[aria-selected="true"] { width: auto; padding: 0 16px 0 12px; gap: 8px; background: var(--glass-strong); color: var(--pine); box-shadow: 0 2px 10px -4px rgba(14,42,31,.3); font-weight: 650; }
+.pillbar button[aria-selected="true"] .lab { display: inline; }
+.cluster { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.circ { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; padding: 0; position: relative; }
+.circ svg { width: 18px; height: 18px; }
+.circ .dot { position: absolute; top: 9px; right: 9px; width: 8px; height: 8px; border-radius: 50%; background: var(--pine-3); border: 2px solid var(--glass-strong); }
+.circ.open .dot { background: var(--bcg); }
+.avatar { font: 700 13px var(--display); color: var(--bcg); background: var(--bcg-soft); border: 1px solid var(--glass-line); }
+button.pill { border-radius: 999px; padding: 11px 18px; }
+nav.seg { display: none; }
 
-main { padding: 20px clamp(16px, 4vw, 28px) 110px; max-width: 1180px; margin: 0 auto; }
+main { padding: 84px clamp(16px, 3vw, 28px) 160px; max-width: 1360px; margin: 0 auto; }
 
 .exhibit { margin: 6px 0 16px; }
 .exhibit h2 { font: 800 clamp(21px, 3.4vw, 27px)/1.15 var(--display); letter-spacing: -.025em; margin: 0; }
@@ -135,6 +163,9 @@ main { padding: 20px clamp(16px, 4vw, 28px) 110px; max-width: 1180px; margin: 0 
 .exhibit p { margin: 5px 0 0; color: var(--pine-2); font-size: 13.5px; }
 
 .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+.chips.seg-pill, .winseg { display: inline-flex; gap: 2px; padding: 4px; border-radius: 999px; background: var(--glass); border: 1px solid var(--glass-line); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+.winseg button, .chips.seg-pill button { border: none; box-shadow: none; background: transparent; border-radius: 999px; padding: 8px 14px; color: var(--pine-2); font-weight: 600; white-space: nowrap; }
+.winseg button[aria-pressed="true"], .chips.seg-pill button[aria-pressed="true"] { background: var(--glass-strong); color: var(--pine); box-shadow: 0 2px 8px -3px rgba(14,42,31,.25); }
 .chips button { border-radius: 999px; padding: 7px 14px; font-weight: 600; }
 .chips button[aria-pressed="true"] { background: var(--bcg); border-color: transparent; color: #fff; }
 @media (prefers-color-scheme: dark) { .chips button[aria-pressed="true"] { color: #0c1712; } }
@@ -145,58 +176,62 @@ main { padding: 20px clamp(16px, 4vw, 28px) 110px; max-width: 1180px; margin: 0 
 .card { overflow: hidden; display: flex; flex-direction: column; position: relative; cursor: pointer;
         transition: transform .2s cubic-bezier(.22,1,.36,1), box-shadow .2s; }
 @media (hover: hover) { .card:hover { transform: translateY(-3px); box-shadow: inset 0 1px 0 var(--glass-hilite), 0 20px 40px -16px rgba(14,42,31,.3); } }
-.photo { position: relative; aspect-ratio: 4 / 3; background: var(--well); overflow: hidden; }
-.photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.photo .none { position: absolute; inset: 0; display: grid; place-items: center; color: var(--pine-3); font-size: 12px; }
-.photo::after { content: ""; position: absolute; inset: 55% 0 0; background: linear-gradient(to top, rgba(8,20,14,.72), transparent); pointer-events: none; }
-.rank {
-  position: absolute; top: 10px; left: 10px; z-index: 2;
-  font: 800 13px/1 var(--display); letter-spacing: -.02em; padding: 6px 9px; border-radius: 10px;
-  background: var(--glass-strong); color: var(--pine); border: 1px solid var(--glass-line);
-  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
-}
+.rank { font: 800 12px/1 var(--display); letter-spacing: -.01em; padding: 5px 8px; border-radius: 8px; white-space: nowrap;
+        background: var(--well); color: var(--pine-2); border: 1px solid var(--glass-line); }
 .rank.top { background: var(--bcg); color: #fff; border-color: transparent; }
 @media (prefers-color-scheme: dark) { .rank.top { color: #0c1712; } }
-.price-on { position: absolute; left: 14px; bottom: 10px; z-index: 2; color: #fff; font: 800 26px/1 var(--display); letter-spacing: -.03em; font-variant-numeric: tabular-nums; text-shadow: 0 1px 8px rgba(0,0,0,.4); }
-.card .body { padding: 12px 16px 10px; display: flex; flex-direction: column; gap: 7px; flex: 1; }
-.meter { display: flex; align-items: center; gap: 10px; }
-.meter .bar { flex: 1; height: 5px; border-radius: 999px; background: var(--well); position: relative; overflow: visible; }
+.card .body { padding: 14px 16px 6px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.card-head { display: flex; align-items: center; gap: 6px; }
+.card-head .score { margin-left: auto; display: flex; align-items: baseline; gap: 4px; font-variant-numeric: tabular-nums; }
+.card-head .score b { font: 800 20px/1 var(--display); letter-spacing: -.03em; }
+.card-head .score small { font-size: 10.5px; color: var(--pine-3); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+.meter { height: 4px; border-radius: 999px; background: var(--well); position: relative; overflow: visible; }
 .meter .fill { height: 100%; border-radius: 999px; background: var(--bcg); }
 .meter .fill.mid { background: var(--amber); }
 .meter .fill.low { background: var(--pine-3); }
-.meter .tick { position: absolute; top: -3px; width: 1px; height: 11px; background: var(--pine-3); opacity: .6; }
-.meter .num { font: 800 15px/1 var(--display); font-variant-numeric: tabular-nums; min-width: 28px; text-align: right; }
+.meter .tick { position: absolute; top: -3px; width: 1px; height: 10px; background: var(--pine-3); opacity: .6; }
+.stats { display: grid; grid-template-columns: 1fr 1fr 1.35fr; gap: 8px; padding: 10px 12px; border-radius: 12px; background: var(--well); }
+.stats .k i { font-style: normal; color: var(--amber); }
+.stats .k { font: 700 10px/1 var(--body); text-transform: uppercase; letter-spacing: .07em; color: var(--pine-3); margin-bottom: 6px; white-space: nowrap; }
+.stats .v { font: 800 19px/1 var(--display); letter-spacing: -.03em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.stats .v.dim { color: var(--pine-3); font-weight: 700; font-size: 15px; }
+.stats .v.under { color: var(--bcg); } .stats .v.over { color: var(--clay); }
+.stats .v small { font: 650 11.5px var(--body); letter-spacing: 0; margin-left: 4px; }
+.flaglist { display: flex; flex-direction: column; gap: 5px; }
+.flagline { display: flex; gap: 8px; font-size: 12.5px; line-height: 1.4; color: var(--pine-2); }
+.flagline::before { content: ""; width: 7px; height: 7px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; background: var(--amber); }
+.flagline.clay::before { background: var(--clay); }
+.flagline.more { color: var(--pine-3); } .flagline.more::before { background: var(--pine-3); }
+.flagline span { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .pillrow { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 .pill { font: 700 10.5px/1 var(--body); text-transform: uppercase; letter-spacing: .06em; padding: 4px 9px; border-radius: 999px; }
 .pill.steal { background: var(--bcg); color: #fff; }
 @media (prefers-color-scheme: dark) { .pill.steal { color: #0c1712; } }
 .pill.good { background: var(--amber-soft); color: var(--amber); }
+.pill.clay { background: var(--clay-soft); color: var(--clay); }
 .pill.hollow { background: transparent; border: 1px solid var(--glass-line); color: var(--pine-3); }
 .pill.flag-amber { background: var(--amber-soft); color: var(--amber); text-transform: none; letter-spacing: 0; font-weight: 600; font-size: 11.5px; }
 .pill.flag-clay { background: var(--clay-soft); color: var(--clay); text-transform: none; letter-spacing: 0; font-weight: 600; font-size: 11.5px; }
-.saved-flag { margin-left: auto; font-size: 12px; color: var(--bcg); font-weight: 700; }
-.title { font-size: 14px; line-height: 1.35; }
-.thesis { font-size: 13px; font-variant-numeric: tabular-nums; }
-.thesis strong { font-weight: 750; }
-.thesis .under { color: var(--bcg); } .thesis .over { color: var(--clay); }
-.evidence { font-size: 12px; color: var(--pine-3); }
-.logistics { font-size: 12px; color: var(--pine-2); display: flex; gap: 8px; flex-wrap: wrap; font-variant-numeric: tabular-nums; }
-.flag { font-size: 12px; color: var(--amber); font-weight: 600; }
+.saved-flag { font-size: 12px; color: var(--bcg); font-weight: 700; }
+.title { font: 600 15.5px/1.35 var(--display); letter-spacing: -.01em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.meta { display: flex; gap: 0 6px; flex-wrap: wrap; font-size: 12px; color: var(--pine-3); font-variant-numeric: tabular-nums; margin-top: auto; }
+.meta span + span::before { content: "·"; margin-right: 6px; }
+.meta .drop { color: var(--bcg); font-weight: 650; }
 .card .acts { display: flex; gap: 8px; padding: 10px 16px 14px; }
 .card .acts .btn, .card .acts button { font-size: 12.5px; padding: 8px 12px; flex-shrink: 0; }
 .card .acts .open { margin-right: auto; color: var(--bcg); }
 button.saved-on { background: var(--bcg-soft); border-color: transparent; color: var(--bcg); }
 
 /* Frost-to-pass: pass on a deal and its glass frosts over. */
-.card .content { transition: filter .5s ease, opacity .5s ease; }
-.card.frosting .content { filter: blur(7px) saturate(.4); opacity: .55; }
+.card .content, .row .content { transition: filter .5s ease, opacity .5s ease; }
+.card.frosting .content, .row.frosting .content { filter: blur(7px) saturate(.4); opacity: .55; }
 .card.frosting { transform: scale(.98); transition: transform .5s ease; }
 .frost-veil { position: absolute; inset: 0; z-index: 3; display: grid; place-items: center; background: color-mix(in srgb, var(--mist-b) 30%, transparent);
   -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); opacity: 0; pointer-events: none; transition: opacity .5s ease; }
-.card.frosting .frost-veil { opacity: 1; pointer-events: auto; }
+.frosting .frost-veil { opacity: 1; pointer-events: auto; }
 .frost-veil button { background: var(--glass-strong); }
 .card.collapsing { opacity: 0; transform: scale(.9); transition: opacity .35s, transform .35s; }
-.card.passed .content { filter: blur(4px) saturate(.35); opacity: .5; }
+.card.passed .content, .row.passed .content { filter: blur(4px) saturate(.35); opacity: .5; }
 .passed-note { position: absolute; left: 12px; right: 12px; bottom: 62px; z-index: 3; padding: 9px 12px; border-radius: 12px; font-size: 12.5px; color: var(--pine); background: var(--glass-strong); border: 1px solid var(--glass-line); }
 
 /* ---- detail sheet ---- */
@@ -213,13 +248,10 @@ button.saved-on { background: var(--bcg-soft); border-color: transparent; color:
   #sheet { left: 0; right: 0; top: auto; bottom: 0; width: 100%; height: 92vh; border-radius: var(--r) var(--r) 0 0; transform: translateY(100%); }
   #sheet.on { transform: none; }
 }
-.sheet-hero { position: relative; aspect-ratio: 16 / 10; background: var(--well); overflow: hidden; border-radius: var(--r) 0 0 0; }
-@media (max-width: 640px) { .sheet-hero { border-radius: var(--r) var(--r) 0 0; } }
-.sheet-hero img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.sheet-hero::after { content: ""; position: absolute; inset: 45% 0 0; background: linear-gradient(to top, rgba(8,20,14,.78), transparent); pointer-events: none; }
-.sheet-hero .over { position: absolute; left: 20px; right: 20px; bottom: 16px; z-index: 2; color: #fff; }
-.sheet-hero .over .t { font-size: 14px; line-height: 1.35; opacity: .95; text-shadow: 0 1px 6px rgba(0,0,0,.5); }
-.sheet-hero .over .p { font: 800 34px/1 var(--display); letter-spacing: -.03em; text-shadow: 0 1px 8px rgba(0,0,0,.45); margin-top: 6px; }
+.sheet-head { position: relative; padding: 22px 60px 18px 22px; border-bottom: 1px solid var(--glass-line); }
+.sheet-head .t { font: 600 16px/1.35 var(--display); letter-spacing: -.01em; }
+.sheet-head .p { font: 800 34px/1 var(--display); letter-spacing: -.03em; font-variant-numeric: tabular-nums; margin-top: 8px; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.sheet-head .p small { font: 600 13px var(--body); color: var(--pine-3); letter-spacing: 0; }
 .sheet-close { position: absolute; top: 12px; right: 12px; z-index: 3; width: 34px; height: 34px; padding: 0; justify-content: center; border-radius: 50%; }
 .sheet-body { padding: 18px 22px 0; display: flex; flex-direction: column; gap: 22px; }
 .rankline { font: 700 13px var(--display); color: var(--pine-2); font-variant-numeric: tabular-nums; }
@@ -228,8 +260,8 @@ button.saved-on { background: var(--bcg-soft); border-color: transparent; color:
 .scorebig { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
 .scorebig .n { font: 800 44px/1 var(--display); letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
 .scorebig .of { color: var(--pine-3); font-size: 13px; }
-.comp { display: grid; grid-template-columns: 92px 1fr 44px; gap: 10px; align-items: center; font-size: 13px; margin: 6px 0; }
-.comp .k { color: var(--pine-2); }
+.comp { display: grid; grid-template-columns: auto 1fr 44px; gap: 10px; align-items: center; font-size: 13px; margin: 6px 0; }
+.comp .k { color: var(--pine-2); white-space: nowrap; }
 .comp .k small { color: var(--pine-3); margin-left: 4px; }
 .comp .bar { height: 6px; border-radius: 999px; background: var(--well); overflow: hidden; }
 .comp .bar i { display: block; height: 100%; background: var(--bcg); border-radius: 999px; }
@@ -296,7 +328,7 @@ dialog::backdrop { background: rgba(10, 22, 16, .45); -webkit-backdrop-filter: b
 dialog .glass { padding: 24px; }
 dialog h2 { font: 700 18px var(--display); margin: 0 0 8px; }
 dialog p { color: var(--pine-2); font-size: 13.5px; margin: 0 0 10px; }
-dialog .row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+dialog .dlg-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 
 /* ---- mobile dock ---- */
 nav.dock { display: none; position: fixed; z-index: 30; left: 50%; transform: translateX(-50%); bottom: calc(12px + env(safe-area-inset-bottom)); padding: 6px; gap: 2px; border-radius: 22px; }
@@ -304,12 +336,224 @@ nav.dock button { border: none; background: transparent; box-shadow: none; displ
 nav.dock button svg { width: 21px; height: 21px; }
 nav.dock button[aria-selected="true"] { background: var(--bcg-soft); color: var(--bcg); }
 @media (max-width: 640px) {
-  nav.seg { display: none; }
   nav.dock { display: flex; }
-  header.top { margin: 10px 12px 0; padding: 10px 14px; }
-  main { padding-left: 16px; padding-right: 16px; padding-bottom: 130px; }
-  .huntline { width: 100%; order: 3; text-align: left; }
+  header.top { top: 10px; padding: 0 12px; }
+  .pillbar, .brand .who, .avatar { display: none; }
+  main { padding: 72px 16px 210px; }
 }
+
+/* ---------------------------------------------------------------------------
+   Desktop (≥1024): one row per listing so the ranking reads top to bottom, and
+   (≥1200) the detail pane sits beside the list instead of sliding over it.
+--------------------------------------------------------------------------- */
+.kbd-hint, .list-head, .sortwrap { display: none; }
+.toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+@media (min-width: 1024px) {
+  nav.dock { display: none !important; }
+  .sortwrap { display: inline-flex; }
+  .chips { margin: 0; }
+  main { max-width: none; margin: 0; padding: 84px 28px 160px; min-width: 0; }
+  .exhibit-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin: 4px 0 18px; }
+  .exhibit-row .exhibit { margin: 0; min-width: 0; }
+  .exhibit h2 { font-size: clamp(24px, 2.2vw, 30px); }
+  .toolbar { flex-shrink: 0; padding-bottom: 4px; }
+  .sortwrap { position: relative; align-items: center; gap: 8px; font-size: 12.5px; color: var(--pine-3); }
+  .sortwrap select { appearance: none; -webkit-appearance: none; font: 600 13px var(--body); color: var(--pine); padding: 8px 28px 8px 12px; border-radius: 12px; border: 1px solid var(--glass-line); background: var(--glass-strong); cursor: pointer; }
+  .sortwrap::after { content: "▾"; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--pine-3); font-size: 12px; }
+
+  .list { --cols: 44px minmax(0, 1fr) 84px 104px 112px; padding: 0 0 4px; }
+  .list-head, .row .content { display: grid; grid-template-columns: var(--cols); gap: 12px; align-items: center; }
+  .list-head { position: sticky; top: 0; z-index: 2; padding: 10px 16px; font: 700 10px/1 var(--body); text-transform: uppercase; letter-spacing: .07em; color: var(--pine-3); background: var(--glass-strong); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); border-bottom: 1px solid var(--glass-line); border-radius: var(--r) var(--r) 0 0; }
+  .list-head .fair, .list-head .ac, .row .cell.fair { display: none; }
+  .row { position: relative; border-top: 1px solid var(--glass-line); cursor: pointer; transition: background .15s; scroll-margin: 60px 0 20px; }
+  .list-head + .row { border-top: none; }
+  .row .content { padding: 11px 16px; }
+  .row:hover, .row:focus-visible, .row.cursor { background: var(--well); outline: none; }
+  .row.selected { background: var(--bcg-soft); }
+  .row:focus-visible::before, .row.cursor::before, .row.selected::before { content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px; border-radius: 0 3px 3px 0; background: var(--pine-3); }
+  .row.selected::before { background: var(--bcg); }
+  .row .rt { min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+  .row .meta2 { display: none; }
+  .row .title { -webkit-line-clamp: 1; font-size: 14.5px; }
+  .rmeta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: 12px; color: var(--pine-3); font-variant-numeric: tabular-nums; }
+  .rmeta .m + .m::before { content: "·"; margin-right: 8px; }
+  .rmeta .fl { display: inline-flex; align-items: center; gap: 6px; color: var(--pine-2); max-width: 100%; }
+  .rmeta .fl::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--amber); flex-shrink: 0; }
+  .rmeta .fl.clay::before { background: var(--clay); }
+  .rmeta .fl .more { color: var(--pine-3); }
+  .rmeta .hunt { font-weight: 600; border: 1px solid var(--glass-line); border-radius: 999px; padding: 2px 8px; max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rmeta .drop { color: var(--bcg); font-weight: 650; }
+  .row .cell .v { font: 800 17px/1 var(--display); letter-spacing: -.03em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .row .cell .v small { font: 650 11px var(--body); letter-spacing: 0; margin-left: 3px; }
+  .row .cell .v.dim { color: var(--pine-3); font-weight: 700; font-size: 13px; }
+  .row .cell .v.under { color: var(--bcg); } .row .cell .v.over { color: var(--clay); }
+  .row .cell .rough { display: block; font: 700 9.5px/1 var(--body); text-transform: uppercase; letter-spacing: .06em; color: var(--amber); margin-top: 5px; }
+  .row .sc { display: flex; flex-direction: column; gap: 6px; }
+  .row .sc .score b { font: 800 18px/1 var(--display); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+  .row .acts { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display: flex; gap: 6px; padding: 4px; border-radius: 14px; background: var(--glass-strong); box-shadow: var(--shadow); opacity: 0; pointer-events: none; transition: opacity .15s; }
+  .row .acts .btn, .row .acts button { font-size: 12.5px; padding: 7px 11px; flex-shrink: 0; }
+  .row .acts .open { color: var(--bcg); }
+  .row:hover .acts { opacity: 1; pointer-events: auto; }
+  .row.collapsing { height: 0 !important; opacity: 0; overflow: hidden; border-top-width: 0; transition: height .35s cubic-bezier(.22,1,.36,1), opacity .25s, border-top-width .35s; }
+  .kbd-hint { display: block; margin: 10px 6px 0; font-size: 12px; color: var(--pine-3); }
+  .kbd-hint kbd { font: 600 11px var(--mono); border: 1px solid var(--glass-line); border-radius: 5px; padding: 1px 5px; margin: 0 2px; }
+  .empty { padding: 60px 24px; }
+}
+/* Wide desktop: full column set, actions get their own column, detail sits beside the list. */
+@media (min-width: 1200px) {
+  body { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; }
+  body:not(.has-detail) .list { --cols: 44px minmax(0, 1fr) 88px 104px 108px 118px 176px; }
+  body:not(.has-detail) .row .meta2 { display: flex; }
+  body:not(.has-detail) .list-head .fair, body:not(.has-detail) .list-head .ac, body:not(.has-detail) .row .cell.fair { display: block; }
+  body:not(.has-detail) .row .acts { position: static; transform: none; padding: 0; background: none; box-shadow: none; justify-content: flex-end; }
+  body:not(.has-detail) .row:focus-within .acts, body:not(.has-detail) .row.cursor .acts, body:not(.has-detail) .row.selected .acts { opacity: 1; pointer-events: auto; }
+  body.has-detail .exhibit h2 { font-size: 22px; }
+  #sheet { position: sticky; top: 20px; right: auto; bottom: auto; width: 440px; height: calc(100vh - 40px); margin: 20px 20px 20px 0; border-radius: var(--r); transform: none; opacity: 0; transition: opacity .22s ease; }
+  #sheet.on { opacity: 1; }
+  #sheet-backdrop { display: none !important; }
+  body.sheet-open { overflow: visible; }
+  .sheet-head { padding: 18px 56px 16px 20px; }
+  .sheet-head .p { font-size: 28px; }
+  .sheet-body { padding: 16px 20px 0; gap: 18px; }
+  .sheet-acts { padding: 12px 20px 14px; }
+  .panels { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 16px; margin-bottom: 16px; }
+  .panels .panel { margin-bottom: 0; }
+}
+/* Detail open on a mid-size desktop: the list keeps rank, title, asking and score only. */
+@media (min-width: 1200px) and (max-width: 1439px) {
+  body.has-detail .list { --cols: 40px minmax(0, 1fr) 76px 56px; }
+  body.has-detail .list-head .vs, body.has-detail .row .cell.vs, body.has-detail .row .meter, body.has-detail .rmeta .fl { display: none; }
+}
+
+/* ---- overview ---- */
+.ov { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 20px; align-items: start; }
+.ov > * { min-width: 0; }
+.hero { grid-column: 1 / -1; padding-top: 6px; }
+.hero .upd { font-size: 12.5px; color: var(--hero-ink); opacity: .82; font-variant-numeric: tabular-nums; }
+.hero h2 { font: 300 clamp(38px, 5vw, 64px)/1.02 var(--display); letter-spacing: -.035em; color: var(--hero-ink); margin: 2px 0 0; text-shadow: 0 2px 24px rgba(0,0,0,.2); }
+.winseg { grid-column: 1 / -1; justify-self: start; }
+.card { background: var(--card); }
+.wh { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.wh b { font: 600 14px var(--display); letter-spacing: -.01em; }
+.wbtns { margin-left: auto; display: flex; gap: 4px; }
+button.mini { width: 28px; height: 28px; padding: 0; justify-content: center; border-radius: 9px; background: transparent; border-color: transparent; color: var(--pine-3); }
+button.mini:hover { background: var(--well); box-shadow: none; color: var(--pine); }
+button.mini svg { width: 15px; height: 15px; }
+.summary { grid-column: 1 / -1; padding: 10px; }
+.summary .inner { padding: 18px 18px 16px; border-radius: 14px; background: linear-gradient(160deg, var(--rb-1), color-mix(in srgb, var(--rb-2) 55%, var(--card))); color: var(--pine); }
+@media (prefers-color-scheme: dark) { .summary .inner { background: linear-gradient(160deg, var(--bk-2), var(--bk-1)); } }
+.summary .k { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; }
+.summary .k .id { color: var(--pine-2); font-variant-numeric: tabular-nums; }
+.summary .big { font: 500 38px/1 var(--display); letter-spacing: -.03em; margin: 14px 0 8px; font-variant-numeric: tabular-nums; }
+.summary .st { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--pine-2); }
+.summary .st i { width: 7px; height: 7px; border-radius: 50%; background: var(--pine-3); }
+.summary .st.open i { background: var(--bcg); }
+.qa { display: flex; justify-content: space-around; padding: 14px 4px 6px; }
+.qa button { flex-direction: column; gap: 6px; background: transparent; border: none; box-shadow: none; color: var(--pine-2); font-size: 11.5px; padding: 4px 8px; }
+.qa button .ic { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--bcg-soft); color: var(--bcg); border: 1px solid var(--glass-line); }
+.qa button .ic svg { width: 16px; height: 16px; }
+.qa button:hover .ic { background: var(--bcg); color: #fff; }
+.qa button .n { position: absolute; }
+.cal { grid-column: 1 / -1; padding: 16px 18px 14px; }
+.cal .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 12px; }
+.cal .day { text-align: center; font-size: 11px; color: var(--pine-3); display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; }
+.cal .day .dd { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font: 600 13px var(--body); color: var(--pine); font-variant-numeric: tabular-nums; }
+.cal .day.today .dd { background: var(--bcg); color: #fff; }
+.cal .day .rd { width: 5px; height: 5px; border-radius: 50%; background: transparent; }
+.cal .day.run .rd { background: var(--bcg); }
+.cal .day.run { cursor: default; }
+.movers { grid-column: 1 / -1; padding: 16px 18px 10px; }
+.mrow { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto auto; gap: 10px; align-items: center; padding: 9px 0; border-top: 1px solid var(--glass-line); cursor: pointer; font-size: 13px; }
+.mrow:first-of-type { border-top: none; }
+.mrow:hover .mt { color: var(--bcg); }
+.mrow .mi { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font: 700 12px var(--display); color: #fff; background: var(--c); }
+.mrow .mt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.mrow .md { color: var(--pine-3); font-size: 11.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.mrow .mv { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 52px; text-align: right; }
+.mrow .mv.under { color: var(--bcg); } .mrow .mv.over { color: var(--clay); } .mrow .mv.dim { color: var(--pine-3); font-weight: 600; }
+.widgets { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 16px; margin-top: 4px; }
+.widget { grid-column: 1 / -1; padding: 16px 18px 14px; display: flex; flex-direction: column; min-height: 200px; }
+.wbig { display: flex; align-items: baseline; gap: 8px; font: 500 26px/1 var(--display); letter-spacing: -.03em; font-variant-numeric: tabular-nums; margin-bottom: 14px; }
+.wbig small { font: 500 12px var(--body); color: var(--pine-3); letter-spacing: 0; }
+.legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 11px; color: var(--pine-3); margin-left: auto; }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend i { width: 7px; height: 7px; border-radius: 50%; background: var(--c); }
+.bars { position: relative; display: flex; align-items: flex-end; gap: 4px; height: 72px; margin-top: auto; }
+.bars i { position: relative; flex: 1; min-height: 2px; border-radius: 3px 3px 0 0; background: var(--pine-3); opacity: .55; }
+.bars i.hi { background: var(--bcg); opacity: 1; }
+.bars .pair { flex: 1; display: flex; gap: 2px; align-items: flex-end; height: 100%; }
+.bars .pair i { flex: 1; }
+.bars .th { position: absolute; top: -6px; bottom: -2px; width: 1px; background: var(--pine-2); opacity: .7; }
+.bars .th::after { content: "bar"; position: absolute; top: -12px; left: 4px; font: 600 9.5px var(--body); color: var(--pine-3); text-transform: uppercase; letter-spacing: .06em; }
+[data-tip] { cursor: default; }
+[data-tip]:hover::after { content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 6px); transform: translateX(-50%); white-space: nowrap; font: 600 11px var(--body); color: var(--pine); background: var(--glass-strong); border: 1px solid var(--glass-line); border-radius: 8px; padding: 4px 8px; z-index: 5; pointer-events: none; box-shadow: var(--shadow); }
+.wfoot { display: flex; justify-content: space-between; gap: 4px; margin-top: 8px; font-size: 10.5px; color: var(--pine-3); font-variant-numeric: tabular-nums; }
+.wfoot span { flex: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dots { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 14px; margin-top: auto; }
+.dcol { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.dcol b { font: 600 12px var(--body); font-variant-numeric: tabular-nums; }
+.dcol b small { color: var(--pine-3); font-weight: 500; }
+.dm { display: grid; grid-template-columns: repeat(5, 6px); gap: 4px; }
+.dm i { width: 6px; height: 6px; border-radius: 50%; background: var(--c); }
+.dm i.off { background: var(--well); }
+.dcol .dl { font-size: 11px; color: var(--pine-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.frow { display: flex; justify-content: space-between; gap: 10px; font-size: 12.5px; margin-top: 10px; }
+.frow .fpct { font-variant-numeric: tabular-nums; font-weight: 700; }
+.frow + .dm { grid-template-columns: repeat(20, 6px); margin-top: 6px; }
+.ruler { display: flex; gap: 10px; flex: 1; min-height: 240px; margin-top: 6px; }
+.ruler svg { width: 100%; height: 100%; min-height: 240px; overflow: visible; }
+.ruler text { font: 600 10.5px var(--body); fill: var(--pine-3); }
+.ruler text.px { font: 700 13px var(--display); fill: var(--pine); }
+.ruler .tick { stroke: var(--pine-3); stroke-opacity: .45; }
+.ruler .ceil { stroke: var(--c); stroke-width: 2; }
+.ruler .best { fill: var(--c); }
+.mini-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) 70px 80px 90px; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--glass-line); cursor: pointer; font-size: 13px; }
+.mini-row:first-of-type { border-top: none; }
+.mini-row .t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.mini-row:hover .t { color: var(--bcg); }
+.mini-row .v { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.mini-row .v.under { color: var(--bcg); } .mini-row .v.over { color: var(--clay); } .mini-row .v.dim { color: var(--pine-3); font-weight: 600; }
+.mini-row .s { display: flex; align-items: center; gap: 8px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.mini-row .s .meter { flex: 1; }
+.wempty { color: var(--pine-3); font-size: 13px; margin: auto 0; }
+.ov-note { font-size: 12px; color: var(--pine-3); margin-top: auto; }
+@media (min-width: 720px) {
+  .summary { grid-column: span 6; } .cal { grid-column: span 6; } .movers { grid-column: span 6; }
+  .widget { grid-column: span 6; }
+}
+@media (min-width: 1024px) {
+  .ov { row-gap: 22px; }
+  .hero { grid-column: 1 / 7; grid-row: 1; }
+  .winseg { grid-column: 7 / 10; grid-row: 1; justify-self: center; align-self: start; margin-top: 10px; }
+  .cal { grid-column: 10 / 13; grid-row: 1; }
+  .summary { grid-column: 1 / 4; grid-row: 2; }
+  .movers { grid-column: 10 / 13; grid-row: 2; }
+  .widgets { grid-row: 3; }
+  .widget { grid-column: span 4; }
+  .w-ceil { grid-column: span 4; }
+  .w-worth { grid-column: span 8; }
+  .w-flags { grid-column: span 4; }
+}
+@media (min-width: 1200px) {
+  .widget { grid-column: span 3; }
+  .w-ceil { grid-column: 10 / 13; grid-row: 1 / 3; }
+  .w-worth { grid-column: 1 / 7; }
+  .w-flags { grid-column: 7 / 10; }
+}
+
+/* ---- ask bar ---- */
+.askbar { position: fixed; left: 50%; transform: translateX(-50%); bottom: 22px; width: min(720px, calc(100% - 40px)); z-index: 30; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.chiprow { display: flex; gap: 6px; max-width: 100%; overflow-x: auto; scrollbar-width: none; padding: 2px; }
+.chiprow::-webkit-scrollbar { display: none; }
+.chiprow button { border-radius: 999px; padding: 6px 12px; font-size: 12px; white-space: nowrap; background: var(--glass); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+.chiprow button[aria-pressed="true"] { background: var(--bcg); border-color: transparent; color: #fff; }
+@media (prefers-color-scheme: dark) { .chiprow button[aria-pressed="true"] { color: #0c1712; } }
+.askrow { display: flex; align-items: center; gap: 10px; width: 100%; padding: 7px 8px 7px 16px; border-radius: 999px; }
+.askrow svg { width: 18px; height: 18px; color: var(--pine-3); flex-shrink: 0; }
+.askrow input { flex: 1; min-width: 0; border: none; background: transparent; padding: 8px 0; font: 14.5px var(--body); color: var(--pine); outline: none; }
+.askrow kbd { font: 600 11px var(--mono); color: var(--pine-3); border: 1px solid var(--glass-line); border-radius: 6px; padding: 2px 6px; }
+.askrow .mini { width: 30px; height: 30px; border-radius: 50%; }
+@media (max-width: 640px) { .askbar { bottom: calc(88px + env(safe-area-inset-bottom)); width: calc(100% - 24px); } .askrow kbd { display: none; } }
 
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 .rise { animation: rise .45s cubic-bezier(.22,1,.36,1) both; }
@@ -320,7 +564,33 @@ nav.dock button[aria-selected="true"] { background: var(--bcg-soft); color: var(
 </style>
 </head>
 <body>
-<div class="atmosphere" aria-hidden="true"></div>
+<div class="atmosphere" aria-hidden="true">
+  <svg class="ribbon" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMin slice">
+    <defs>
+      <linearGradient id="g-band" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" style="stop-color:var(--rb-1)"/><stop offset=".5" style="stop-color:var(--rb-2)"/><stop offset="1" style="stop-color:var(--rb-3)"/>
+      </linearGradient>
+      <linearGradient id="g-back" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" style="stop-color:var(--bk-2)"/><stop offset="1" style="stop-color:var(--bk-1)"/>
+      </linearGradient>
+      <linearGradient id="g-amber" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" style="stop-color:var(--am-1)"/><stop offset="1" style="stop-color:var(--am-2)"/>
+      </linearGradient>
+      <filter id="soft" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="70"/></filter>
+      <filter id="edge" x="-5%" y="-20%" width="110%" height="140%"><feGaussianBlur stdDeviation="1.4"/></filter>
+    </defs>
+    <g class="glow" filter="url(#soft)">
+      <ellipse cx="1040" cy="140" rx="560" ry="280" style="fill:var(--rb-2)" opacity=".5"/>
+      <ellipse cx="640" cy="600" rx="380" ry="220" style="fill:var(--am-1)" opacity=".38"/>
+    </g>
+    <path fill="url(#g-back)" d="M-120 80 C 280 -60, 640 300, 980 120 C 1200 10, 1360 60, 1560 -40 L 1560 300 C 1320 360, 1180 300, 960 400 C 700 520, 340 400, -120 560 Z"/>
+    <path fill="url(#g-band)" d="M-120 250 C 240 110, 520 470, 820 320 C 1060 200, 1280 380, 1560 220 L 1560 470 C 1280 560, 1080 440, 840 560 C 560 700, 260 520, -120 660 Z"/>
+    <path fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="3" filter="url(#edge)" d="M-120 250 C 240 110, 520 470, 820 320 C 1060 200, 1280 380, 1560 220"/>
+    <path fill="url(#g-amber)" opacity=".92" d="M 470 520 C 520 400, 780 380, 880 480 C 980 580, 900 720, 720 720 C 560 720, 420 660, 470 520 Z"/>
+    <path fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="2" filter="url(#edge)" d="M 500 500 C 560 420, 760 400, 860 470"/>
+  </svg>
+  <div class="fade"></div>
+</div>
 
 <div id="gate" hidden>
   <div class="glass gate-panel rise">
@@ -350,15 +620,28 @@ nav.dock button[aria-selected="true"] { background: var(--bcg-soft); color: var(
   </div>
 </div>
 
-<header class="top glass rise" id="chrome-header" hidden>
-  <div class="brand"><h1>Deal Finder</h1><span class="who" id="who"></span></div>
-  <button class="huntline" id="huntline"></button>
-  <span class="spacer"></span>
-  <nav class="seg" id="seg" aria-label="Views"></nav>
+<header class="top" id="chrome-header" hidden>
+  <div class="brand glass"><span class="mark">d</span><h1>Deal Finder</h1><span class="who" id="who"></span></div>
+  <nav class="pillbar glass" id="seg" aria-label="Views"></nav>
+  <div class="cluster">
+    <button class="circ glass" id="huntline" aria-label="Hunt status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><i class="dot"></i></button>
+    <span class="circ glass avatar" id="avatar" aria-hidden="true"></span>
+    <button class="primary pill" id="run-btn">Run hunt</button>
+  </div>
 </header>
 
 <main id="main" hidden></main>
 <nav class="dock glass" id="dock" aria-label="Views" hidden></nav>
+
+<div class="askbar" id="askbar" hidden>
+  <div class="chiprow" id="quick"></div>
+  <form class="askrow glass" id="askform">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>
+    <input id="q" type="search" placeholder="Search listings" autocomplete="off" aria-label="Search listings">
+    <button type="button" class="mini" id="q-clear" aria-label="Clear search" hidden>✕</button>
+    <kbd>/</kbd>
+  </form>
+</div>
 
 <div id="sheet-backdrop" hidden></div>
 <aside id="sheet" class="glass" role="dialog" aria-modal="true" aria-label="Listing detail" hidden></aside>
@@ -368,7 +651,7 @@ nav.dock button[aria-selected="true"] { background: var(--bcg-soft); color: var(
     <h2>Hunts run in Claude, not here</h2>
     <p>Browsing Marketplace takes your own Chrome and hands-off pacing — that's Claude Code's job. To hunt now, run:</p>
     <p style="margin:12px 0"><code style="font:13px var(--mono);background:var(--well);padding:4px 10px;border-radius:8px">/hunt</code></p>
-    <div class="row"><button onclick="this.closest('dialog').close()">Got it</button></div>
+    <div class="dlg-row"><button onclick="this.closest('dialog').close()">Got it</button></div>
   </div>
 </dialog>
 
@@ -378,7 +661,7 @@ nav.dock button[aria-selected="true"] { background: var(--bcg-soft); color: var(
     <p>Your old token stopped working the moment this one was made. Update
        <code style="font-family:var(--mono);font-size:12px">DEALFINDER_PUSH_TOKEN</code> in .env.local. Shown only once.</p>
     <div class="token-well" id="regen-text"></div>
-    <div class="row"><button id="regen-copy">Copy token</button><button class="primary" onclick="this.closest('dialog').close()">Done</button></div>
+    <div class="dlg-row"><button id="regen-copy">Copy token</button><button class="primary" onclick="this.closest('dialog').close()">Done</button></div>
   </div>
 </dialog>
 
@@ -386,9 +669,23 @@ nav.dock button[aria-selected="true"] { background: var(--bcg-soft); color: var(
 const $ = (s, el = document) => el.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-const state = { deals: [], searches: [], view: 'ranking', filter: 'all', hosted: false, authRequired: true, email: null, status: null, open: null };
+const state = { deals: [], searches: [], cfg: null, view: 'overview', filter: 'all', sort: 'score', window: '7d', q: '', quick: new Set(), cursor: null, hosted: false, authRequired: true, email: null, status: null, open: null };
+
+// Desktop gets a sidebar and ranked rows; below that, cards and the dock.
+const mqDesktop = matchMedia('(min-width: 1024px)');
+const desktop = () => mqDesktop.matches;
+mqDesktop.addEventListener('change', () => { if (!$('#main').hidden) { renderNav(); render(); } });
+
+const SORTS = {
+  score: null,
+  discount: (a, b) => (b.discount_pct ?? -Infinity) - (a.discount_pct ?? -Infinity),
+  price: (a, b) => (a.price ?? Infinity) - (b.price ?? Infinity),
+  newest: (a, b) => new Date(b.first_seen ?? 0) - new Date(a.first_seen ?? 0),
+};
+const SORT_LABELS = { score: 'Score', discount: 'Biggest discount', price: 'Lowest price', newest: 'Newest' };
 
 const VIEWS = [
+  { id: 'overview', label: 'Overview', icon: 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z' },
   { id: 'ranking', label: 'Ranking',  icon: 'M3 12l3-8 4 10 3-6 3 4h5' },
   { id: 'saved',   label: 'Saved',    icon: 'M6 3h12v18l-6-4.5L6 21z' },
   { id: 'passed',  label: 'Passed',   icon: 'M5 5l14 14M19 5L5 19' },
@@ -425,6 +722,7 @@ async function boot() {
   state.email = data.email ?? null;
   state.status = data;
   await refreshDeals();
+  api('/api/searches').then(r => { if (r.ok) { state.cfg = r.data; if (state.view === 'overview') render(); } });
   showApp();
   routeFromHash();
 }
@@ -440,38 +738,86 @@ async function refreshDeals() {
 
 function showApp() {
   $('#gate').hidden = true; $('#chrome-header').hidden = false; $('#main').hidden = false; $('#dock').hidden = false;
-  $('#who').textContent = state.email ? state.email.split('@')[0] : (state.hosted ? '' : 'local');
-  renderHuntline(); renderNav(); render();
+  const who = state.email ? state.email.split('@')[0] : (state.hosted ? '' : 'local');
+  $('#who').textContent = who; $('#avatar').textContent = (who || 'd')[0].toUpperCase();
+  renderHuntline(); renderNav(); renderQuick(); render();
 }
 function showFatal(msg) {
   $('#main').hidden = false;
   $('#main').innerHTML = `<div class="empty glass panel"><div class="big">Something broke</div><p>${esc(msg)}</p></div>`;
 }
-function renderHuntline() {
-  const s = state.status, el = $('#huntline');
-  if (!s?.last_run) { el.innerHTML = 'No hunts yet — run <strong>/hunt</strong> in Claude Code'; return; }
-  const next = s.can_run ? 'window open' : `next window in ${Math.max(0, s.min_hours - s.hours_since).toFixed(1)}h`;
-  el.innerHTML = `Last hunt <strong>${ago(s.last_run.started)}</strong> · ${next}`;
+function huntStatusText() {
+  const s = state.status;
+  if (!s?.last_run) return 'No hunts yet — run /hunt in Claude Code';
+  return `Last hunt ${ago(s.last_run.started)} · ${s.can_run ? 'window open' : `next window in ${Math.max(0, s.min_hours - s.hours_since).toFixed(1)}h`}`;
 }
-$('#huntline').onclick = async () => {
+function renderHuntline() {
+  const el = $('#huntline');
+  el.title = huntStatusText();
+  el.classList.toggle('open', Boolean(state.status?.can_run));
+}
+const requestRun = async () => {
   if (!state.hosted) await api('/api/request-run', { method: 'POST' });
   $('#run-dialog').showModal();
 };
+$('#huntline').onclick = requestRun; $('#run-btn').onclick = requestRun;
 
 /* ---------------- navigation ---------------- */
+const icon = (v) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${v.icon}"/></svg>`;
 function renderNav() {
   const views = VIEWS.filter(v => v.id !== 'account' || state.authRequired);
-  $('#seg').innerHTML = views.map(v => `<button role="tab" aria-selected="${state.view === v.id}" data-v="${v.id}">${v.label}</button>`).join('');
-  $('#dock').innerHTML = views.map(v =>
-    `<button role="tab" aria-selected="${state.view === v.id}" data-v="${v.id}">
-       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${v.icon}"/></svg>${v.label}</button>`).join('');
-  document.querySelectorAll('[data-v]').forEach(b => b.onclick = () => { closeSheet(); state.view = b.dataset.v; renderNav(); render(); window.scrollTo({ top: 0 }); });
+  $('#seg').innerHTML = views.map(v => `<button role="tab" aria-selected="${state.view === v.id}" data-v="${v.id}" title="${v.label}">${icon(v)}<span class="lab">${v.label}</span></button>`).join('');
+  $('#dock').innerHTML = views.map(v => `<button role="tab" aria-selected="${state.view === v.id}" data-v="${v.id}">${icon(v)}${v.label}</button>`).join('');
+  document.querySelectorAll('[data-v]').forEach(b => b.onclick = () => go(b.dataset.v));
 }
+function go(view) { closeSheet(); state.view = view; state.cursor = null; renderNav(); render(); window.scrollTo({ top: 0 }); }
+
+/* ---------------- filters: search text, quick chips, time window ---------------- */
+const QUICK = [
+  { id: 'steal',    label: 'Steals only',    f: d => d.label === 'steal' },
+  { id: 'good',     label: 'Good or better', f: d => d.label === 'steal' || d.label === 'good deal' },
+  { id: 'under100', label: 'Under $100',     f: d => d.price != null && d.price < 100 },
+  { id: 'dropped',  label: 'Price dropped',  f: d => d.price_history?.length > 1 && d.price_history.at(-1).price < d.price_history[0].price },
+  { id: 'pending',  label: 'Needs info',     f: d => d.status === 'pending' },
+  { id: 'near',     label: 'Within 30 km',   f: d => d.assessment?.distance_km != null && d.assessment.distance_km <= 30 },
+];
+const WINDOWS = [['today', 'Today'], ['7d', '7 days'], ['30d', '30 days'], ['all', 'All']];
+const filtersActive = () => Boolean(state.q.trim()) || state.quick.size > 0;
+function applyFilters(list) {
+  const q = state.q.trim().toLowerCase();
+  const fns = [...state.quick].map(id => QUICK.find(x => x.id === id)?.f).filter(Boolean);
+  return list.filter(d => (!q || (d.title ?? '').toLowerCase().includes(q) || (d.location ?? '').toLowerCase().includes(q)) && fns.every(f => f(d)));
+}
+function inWindow(list) {
+  if (state.window === 'all') return list;
+  const cut = state.window === 'today' ? new Date().setHours(0, 0, 0, 0) : Date.now() - { '7d': 168, '30d': 720 }[state.window] * 36e5;
+  return list.filter(d => new Date(d.first_seen ?? 0) >= cut);
+}
+function describeFilters() {
+  const parts = [...state.quick].map(id => QUICK.find(x => x.id === id)?.label.toLowerCase()).filter(Boolean);
+  if (state.q.trim()) parts.unshift(`“${esc(state.q.trim())}”`);
+  return parts.join(' · ');
+}
+function renderQuick() {
+  $('#quick').innerHTML = QUICK.map(c => `<button aria-pressed="${state.quick.has(c.id)}" data-quick="${c.id}">${c.label}</button>`).join('');
+  $('#quick').querySelectorAll('[data-quick]').forEach(b => b.onclick = () => {
+    const id = b.dataset.quick; state.quick.has(id) ? state.quick.delete(id) : state.quick.add(id); renderQuick(); render();
+  });
+  $('#q-clear').hidden = !state.q;
+}
+let qTimer = null;
+$('#q').oninput = (e) => { clearTimeout(qTimer); qTimer = setTimeout(() => { state.q = e.target.value; $('#q-clear').hidden = !state.q; render(); }, 150); };
+function submitSearch() { clearTimeout(qTimer); state.q = $('#q').value; $('#q-clear').hidden = !state.q; if (state.view === 'overview') go('ranking'); else render(); }
+$('#askform').onsubmit = (e) => { e.preventDefault(); submitSearch(); };
+$('#q-clear').onclick = () => { $('#q').value = ''; state.q = ''; $('#q-clear').hidden = true; render(); $('#q').focus(); };
 
 /* ---------------- views ---------------- */
 function render() {
   const m = $('#main');
+  document.body.dataset.view = state.view;
+  $('#askbar').hidden = !['overview', 'ranking'].includes(state.view);
   if (state.dealsError) { m.innerHTML = `<div class="empty glass panel rise"><div class="big">Nothing here yet</div><p>${esc(state.dealsError)}</p></div>`; return; }
+  if (state.view === 'overview') return renderOverview();
   if (state.view === 'config') return renderConfig();
   if (state.view === 'account') return renderAccount();
   renderRanking();
@@ -495,30 +841,48 @@ function renderRanking() {
   } else {
     list = state.deals.filter(live);
     if (state.filter !== 'all') list = list.filter(d => d.search_id === state.filter);
+    list = applyFilters(list);
     const worth = list.filter(d => d.status === 'surface').length;
     const rest = list.length - worth;
     const where = state.filter === 'all' ? '' : ' in ' + searchLabel(state.filter);
-    exhibit = {
+    exhibit = filtersActive() ? {
+      h: `${list.length} match${where} <span class="dim">· ${describeFilters()}</span>`,
+      p: `${worth} above your bar. Clear the search or chips to see everything.`,
+    } : {
       h: worth ? `${worth} worth a look${where} <span class="dim">· ${rest} more ranked below</span>` : `${list.length} ranked${where} <span class="dim">· none above your bar yet</span>`,
-      p: 'Every listing found, ordered by attractiveness. Rule misses lower a score and say why — they never hide anything. Tap a card for the full reasoning.',
+      p: 'Every listing found, ordered by attractiveness. Rule misses lower a score and say why — nothing is hidden. Open a listing for the full reasoning.',
     };
   }
+  if (SORTS[state.sort]) list = [...list].sort(SORTS[state.sort]);
 
-  const chips = state.view === 'ranking' ? `<div class="chips rise">
+  const chips = state.view === 'ranking' ? `<div class="chips${desktop() ? ' seg-pill' : ''} rise">
       <button aria-pressed="${state.filter === 'all'}" data-f="all">All<span class="n">${state.deals.filter(live).length}</span></button>
       ${state.searches.map(s => `<button aria-pressed="${state.filter === s.id}" data-f="${esc(s.id)}">${esc(s.label)}<span class="n">${state.deals.filter(d => live(d) && d.search_id === s.id).length}</span></button>`).join('')}
     </div>` : '';
 
-  m.innerHTML = `<div class="exhibit rise"><h2>${exhibit.h}</h2><p>${exhibit.p}</p></div>${chips}
-    ${list.length ? `<div class="grid">${list.map(d => card(d, passedView)).join('')}</div>`
-      : `<div class="empty glass panel rise"><div class="big">Nothing found yet</div><p>Run <code>/hunt</code> in Claude Code to check Marketplace.</p></div>`}`;
+  const toolbar = `<div class="toolbar">${chips}<label class="sortwrap"><span>Sort</span><select id="sort" aria-label="Sort listings">
+      ${Object.entries(SORT_LABELS).map(([k, l]) => `<option value="${k}"${state.sort === k ? ' selected' : ''}>${l}</option>`).join('')}</select></label></div>`;
+  const hint = `<div class="kbd-hint"><kbd>j</kbd><kbd>k</kbd> move · <kbd>↵</kbd> open · ${passedView ? '<kbd>b</kbd> bring back' : '<kbd>s</kbd> save · <kbd>x</kbd> pass · <kbd>u</kbd> undo'} · <kbd>esc</kbd> close</div>`;
+  const body = !list.length ? `<div class="empty glass panel rise"><div class="big">Nothing found yet</div><p>Run <code>/hunt</code> in Claude Code to check Marketplace.</p></div>`
+    : desktop() ? `<div class="list glass rise">${listHead()}${list.map(d => row(d, passedView)).join('')}</div>${hint}`
+    : `<div class="grid">${list.map(d => card(d, passedView)).join('')}</div>`;
 
-  m.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { state.filter = b.dataset.f; render(); });
+  m.innerHTML = `<div class="exhibit-row rise"><div class="exhibit"><h2>${exhibit.h}</h2><p>${exhibit.p}</p></div>${toolbar}</div>${body}`;
+
+  m.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { state.filter = b.dataset.f; state.cursor = null; render(); });
+  $('#sort').onchange = (e) => { state.sort = e.target.value; render(); };
   wireCards(m);
+  restoreCursor();
 }
 
+const listHead = () => `<div class="list-head" aria-hidden="true"><span>#</span><span>Listing</span><span>Asking</span><span class="fair">Fair value</span><span class="vs">vs fair</span><span>Score</span><span class="ac"></span></div>`;
+
+// The pill answers "what is this?" — a rule miss outranks a price label,
+// otherwise an empty display case priced like an ETB reads as a "steal".
 function pillFor(d) {
   if (d.status === 'pending') return '<span class="pill hollow">needs info</span>';
+  const clay = (d.flags ?? []).find(isFlagClay);
+  if (clay) return `<span class="pill clay">${clay.code.startsWith('dealbreaker') ? 'dealbreaker' : clay.code.startsWith('below_min_price') ? 'suspicious price' : 'fails must-have'}</span>`;
   if (d.label === 'steal') return '<span class="pill steal">steal</span>';
   if (d.label === 'good deal') return '<span class="pill good">good deal</span>';
   if (d.label === 'overpriced') return '<span class="pill hollow">overpriced</span>';
@@ -533,29 +897,52 @@ function meter(d) {
   // The tick is where "worth a look" starts: the score a flawless listing
   // exactly at the surface threshold would get.
   const th = d.breakdown ? Math.round((0.6 * (d.breakdown.surface_threshold_pct / d.breakdown.value.great_deal_pct) + 0.25 + 0.15 * 0.95) * 100) : null;
-  return `<div class="meter"><div class="bar"><div class="fill ${cls}" style="width:${Math.min(100, d.score)}%"></div>${th ? `<div class="tick" style="left:${Math.min(100, th)}%"></div>` : ''}</div><span class="num">${d.score}</span></div>`;
+  return `<div class="meter" aria-hidden="true"><div class="fill ${cls}" style="width:${Math.min(100, d.score)}%"></div>${th ? `<div class="tick" style="left:${Math.min(100, th)}%"></div>` : ''}</div>`;
+}
+
+const condLabel = (c) => c ? c.replace(/_/g, ' ') : null;
+const roughEstimate = (d) => /low|none/.test(d.fair_value_confidence ?? '');
+
+// Asking / fair value / how far apart. The one block to read on a card.
+function stats(d) {
+  const fair = d.fair_value != null;
+  const vs = d.discount_pct == null ? `<span class="v dim">needs info</span>`
+    : `<span class="v ${d.discount_pct >= 0 ? 'under' : 'over'}">${Math.round(Math.abs(d.discount_pct))}%<small>${d.discount_pct >= 0 ? 'under' : 'over'}</small></span>`;
+  return `<div class="stats">
+    <div><div class="k">Asking</div><span class="v">${fmtPrice(d.price)}</span></div>
+    <div><div class="k" title="${esc(d.fair_value_basis ?? '')}">Fair value${fair && roughEstimate(d) ? ' <i>· rough</i>' : ''}</div><span class="v${fair ? '' : ' dim'}">${fair ? fmtPrice(d.fair_value) : '—'}</span></div>
+    <div><div class="k">vs fair</div>${vs}</div>
+  </div>`;
+}
+
+// Why it ranks where it does: full sentences, not truncated pills.
+function flagLines(d, max = 2) {
+  const flags = d.flags ?? [];
+  if (!flags.length) return '';
+  const lines = flags.slice(0, max).map(f => `<div class="flagline${isFlagClay(f) ? ' clay' : ''}"><span>${esc(cap(f.text))}</span></div>`);
+  if (flags.length > max) lines.push(`<div class="flagline more"><span>${flags.length - max} more — tap for details</span></div>`);
+  return `<div class="flaglist">${lines.join('')}</div>`;
 }
 
 function card(d, passed) {
   const dropped = d.price_history?.length > 1 && d.price_history.at(-1).price < d.price_history[0].price;
   const km = d.assessment?.distance_km;
+  const cond = condLabel(d.assessment?.condition);
   return `<article class="card glass rise${passed ? ' passed' : ''}" data-id="${esc(d.id)}" tabindex="0" aria-label="${esc(d.title ?? 'Listing')}">
     <div class="content">
-      <div class="photo">
-        ${d.photo ? `<img src="${esc(d.photo)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}
-        <div class="none">${d.photo ? '' : 'no photo'}</div>
-        <span class="rank${d.status === 'surface' ? ' top' : ''}">#${d.rank_in_search}</span>
-        <span class="price-on">${fmtPrice(d.price)}</span>
-      </div>
       <div class="body">
+        <div class="card-head">
+          <span class="rank${d.status === 'surface' ? ' top' : ''}">#${d.rank_in_search}</span>
+          ${pillFor(d)}
+          ${d.verdict === 'saved' ? '<span class="saved-flag">Saved</span>' : ''}
+          ${d.score != null ? `<span class="score"><b>${d.score}</b><small>score</small></span>` : ''}
+        </div>
         ${meter(d)}
-        <div class="pillrow">${pillFor(d)}${flagPills(d)}${d.verdict === 'saved' ? '<span class="saved-flag">Saved</span>' : ''}</div>
         <div class="title">${esc(d.title ?? 'Untitled')}</div>
-        ${d.discount_pct != null ? `<div class="thesis"><strong class="${d.discount_pct >= 0 ? 'under' : 'over'}">${Math.abs(d.discount_pct)}% ${d.discount_pct >= 0 ? 'under' : 'over'}</strong> fair value ${fmtPrice(d.fair_value)}</div>`
-          : `<div class="evidence">${esc(d.reason ?? '')}</div>`}
-        ${d.fair_value_basis ? `<div class="evidence">${esc(d.fair_value_basis)}${/low|none/.test(d.fair_value_confidence) ? ' · <b>low confidence</b>' : ''}</div>` : ''}
-        <div class="logistics">${d.location ? `<span>${esc(d.location)}</span>` : ''}${km != null ? `<span>~${km} km</span>` : ''}<span>seen ${ago(d.first_seen)}</span></div>
-        ${dropped ? `<div class="flag">Price dropped from ${fmtPrice(d.price_history[0].price)}</div>` : ''}
+        ${stats(d)}
+        ${flagLines(d)}
+        ${d.status === 'pending' && !d.flags?.length ? `<div class="flagline"><span>${esc(cap(d.reason ?? ''))}</span></div>` : ''}
+        <div class="meta">${d.location ? `<span>${esc(d.location)}</span>` : ''}${km != null ? `<span>~${km} km</span>` : ''}${cond ? `<span>${esc(cond)}</span>` : ''}<span>seen ${ago(d.first_seen)}</span>${dropped ? `<span class="drop">was ${fmtPrice(d.price_history[0].price)}</span>` : ''}</div>
       </div>
     </div>
     ${passed ? '<div class="passed-note">You passed on this</div>' : ''}
@@ -568,14 +955,73 @@ function card(d, passed) {
   </article>`;
 }
 
+// Desktop row: the same facts as a card, laid out on one line so the ranking
+// reads top to bottom. Column labels live once in the list head.
+function row(d, passed) {
+  const dropped = d.price_history?.length > 1 && d.price_history.at(-1).price < d.price_history[0].price;
+  const km = d.assessment?.distance_km;
+  const cond = condLabel(d.assessment?.condition);
+  const fair = d.fair_value != null;
+  const flags = d.flags ?? [];
+  const first = flags[0];
+  const selected = state.open === d.id;
+  const vs = d.discount_pct == null ? '<span class="v dim">needs info</span>'
+    : `<span class="v ${d.discount_pct >= 0 ? 'under' : 'over'}">${Math.round(Math.abs(d.discount_pct))}%<small>${d.discount_pct >= 0 ? 'under' : 'over'}</small></span>`;
+  const why = first ? `<span class="fl${isFlagClay(first) ? ' clay' : ''}">${esc(cap(first.text))}${flags.length > 1 ? ` <span class="more">+${flags.length - 1}</span>` : ''}</span>`
+    : d.status === 'pending' && d.reason ? `<span class="fl">${esc(cap(d.reason))}</span>` : '';
+  const meta = [
+    d.location ? `<span class="m">${esc(d.location)}</span>` : '',
+    km != null ? `<span class="m">~${km} km</span>` : '',
+    cond ? `<span class="m">${esc(cond)}</span>` : '',
+    `<span class="m">seen ${ago(d.first_seen)}</span>`,
+    dropped ? `<span class="m drop">was ${fmtPrice(d.price_history[0].price)}</span>` : '',
+  ].join('');
+  const showHunt = state.view !== 'ranking' || state.filter === 'all';
+  return `<article class="row rise${passed ? ' passed' : ''}${selected ? ' selected' : ''}${state.cursor === d.id ? ' cursor' : ''}" data-id="${esc(d.id)}" tabindex="0" aria-label="${esc(d.title ?? 'Listing')}" aria-selected="${selected}">
+    <div class="content">
+      <span class="rank${d.status === 'surface' ? ' top' : ''}">#${d.rank_in_search}</span>
+      <div class="rt">
+        <div class="title">${esc(d.title ?? 'Untitled')}</div>
+        <div class="rmeta">${pillFor(d)}${passed ? '<span class="pill hollow">passed by you</span>' : ''}${d.verdict === 'saved' ? '<span class="saved-flag">Saved</span>' : ''}${showHunt ? `<span class="hunt">${esc(searchLabel(d.search_id))}</span>` : ''}${why}</div>
+        <div class="rmeta meta2">${meta}</div>
+      </div>
+      <div class="cell"><span class="v">${fmtPrice(d.price)}</span></div>
+      <div class="cell fair"><span class="v${fair ? '' : ' dim'}" title="${esc(d.fair_value_basis ?? '')}">${fair ? fmtPrice(d.fair_value) : '—'}</span>${fair && roughEstimate(d) ? '<span class="rough">rough</span>' : ''}</div>
+      <div class="cell vs">${vs}</div>
+      <div class="cell sc">${d.score != null ? `<span class="score"><b>${d.score}</b></span>` : '<span class="v dim">—</span>'}${meter(d)}</div>
+      <div class="acts">
+        <a class="btn open" href="${esc(d.url ?? '#')}" target="_blank" rel="noopener noreferrer">Open ↗</a>
+        ${passed ? '<button data-act="restore">Bring back</button>'
+          : `<button data-act="save" class="${d.verdict === 'saved' ? 'saved-on' : ''}">${d.verdict === 'saved' ? 'Saved' : 'Save'}</button><button data-act="pass" class="quiet">Pass</button>`}
+      </div>
+    </div>
+    <div class="frost-veil"><button data-act="undo">Frosted — undo</button></div>
+  </article>`;
+}
+
 function wireCards(root) {
-  root.querySelectorAll('.card').forEach(el => {
+  root.querySelectorAll('.card, .row').forEach(el => {
     const id = el.dataset.id;
     el.querySelectorAll('[data-act]').forEach(b => b.onclick = (e) => { e.stopPropagation(); act(el, id, b.dataset.act); });
     el.querySelector('.acts a').onclick = (e) => e.stopPropagation();
-    el.onclick = () => openSheet(id);
+    el.onclick = () => { if (el.classList.contains('row')) setCursor(el, false); openSheet(id); };
     el.onkeydown = (e) => { if (e.key === 'Enter' && e.target === el) openSheet(id); };
   });
+}
+
+/* ---------------- keyboard cursor (desktop rows) ---------------- */
+function setCursor(el, scroll = true) {
+  document.querySelectorAll('#main .row.cursor').forEach(r => r.classList.remove('cursor'));
+  state.cursor = el?.dataset.id ?? null;
+  if (!el) return;
+  el.classList.add('cursor');
+  el.focus({ preventScroll: true });
+  if (scroll) el.scrollIntoView({ block: 'nearest' });
+}
+function restoreCursor() {
+  if (!state.cursor) return;
+  const el = document.querySelector(`#main .row[data-id="${CSS.escape(state.cursor)}"]`);
+  if (el) { el.classList.add('cursor'); el.focus({ preventScroll: true }); } else state.cursor = null;
 }
 
 async function setVerdict(id, verdict) {
@@ -593,9 +1039,13 @@ function act(el, id, action) {
     if (!el) { d.verdict = 'dismissed'; setVerdict(id, 'dismissed'); render(); return; }
     el.classList.add('frosting');
     el._timer = setTimeout(async () => {
+      const isRow = el.classList.contains('row');
+      if (isRow) { el.style.height = el.getBoundingClientRect().height + 'px'; void el.offsetHeight; }
+      const next = [el.nextElementSibling, el.previousElementSibling].find(s => s?.classList.contains('row')) ?? null;
       el.classList.add('collapsing');
-      setTimeout(() => el.remove(), 350);
+      setTimeout(() => { el.remove(); if (isRow && state.cursor === id) setCursor(next); }, 350);
       d.verdict = 'dismissed';
+      renderNav();
       await setVerdict(id, 'dismissed');
     }, 4000);
   } else if (action === 'undo') {
@@ -612,11 +1062,14 @@ function openSheet(id) {
   if (location.hash !== '#l/' + id) { location.hash = 'l/' + id; return; }
   renderSheet(id);
 }
+let sheetCloseTimer = null;
 function closeSheet() {
   if (location.hash.startsWith('#l/')) { history.replaceState(null, '', location.pathname); }
   $('#sheet').classList.remove('on'); $('#sheet-backdrop').classList.remove('on');
   document.body.classList.remove('sheet-open');
-  setTimeout(() => { $('#sheet').hidden = true; $('#sheet-backdrop').hidden = true; }, 320);
+  document.querySelectorAll('#main .row.selected').forEach(r => { r.classList.remove('selected'); r.setAttribute('aria-selected', 'false'); });
+  clearTimeout(sheetCloseTimer);
+  sheetCloseTimer = setTimeout(() => { $('#sheet').hidden = true; $('#sheet-backdrop').hidden = true; document.body.classList.remove('has-detail'); }, 320);
   state.open = null;
 }
 function routeFromHash() {
@@ -625,7 +1078,42 @@ function routeFromHash() {
 }
 window.addEventListener('hashchange', routeFromHash);
 $('#sheet-backdrop').onclick = closeSheet;
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && state.open) closeSheet(); });
+document.addEventListener('keydown', (e) => {
+  if (e.target === $('#q')) {
+    if (e.key === 'Escape') { e.preventDefault(); $('#q').value = ''; state.q = ''; $('#q-clear').hidden = true; $('#q').blur(); render(); }
+    else if (e.key === 'Enter') { e.preventDefault(); submitSearch(); }
+    return;
+  }
+  if (e.key === '/' && !$('#askbar').hidden && !e.target.closest?.('input, select, textarea, dialog, [contenteditable]')) { e.preventDefault(); $('#q').focus(); return; }
+  if (e.key === 'Escape') {
+    if (state.open) closeSheet(); else if (state.cursor) { document.activeElement?.blur?.(); setCursor(null); }
+    return;
+  }
+  if (!desktop() || !['ranking', 'saved', 'passed'].includes(state.view)) return;
+  if (e.metaKey || e.ctrlKey || e.altKey || e.target.closest?.('input, select, textarea, dialog, [contenteditable]')) return;
+  const rows = [...document.querySelectorAll('#main .row:not(.collapsing)')];
+  if (!rows.length) return;
+  const i = rows.findIndex(r => r.dataset.id === state.cursor);
+  const cur = i >= 0 ? rows[i] : null;
+  const k = e.key;
+  if (k === 'j' || k === 'ArrowDown' || k === 'k' || k === 'ArrowUp') {
+    e.preventDefault();
+    let n;
+    if (i < 0) { const o = rows.findIndex(r => r.dataset.id === state.open); n = o >= 0 ? o : 0; }
+    else n = Math.max(0, Math.min(rows.length - 1, i + (k === 'j' || k === 'ArrowDown' ? 1 : -1)));
+    setCursor(rows[n]);
+    // With the detail pane open, the cursor drives it.
+    if (state.open && rows[n].dataset.id !== state.open) openSheet(rows[n].dataset.id);
+    return;
+  }
+  if (!cur) return;
+  const id = cur.dataset.id;
+  if ((k === 'Enter' || k === 'o') && e.target !== cur) { e.preventDefault(); openSheet(id); }
+  else if (k === 's' && state.view !== 'passed') act(cur, id, 'save');
+  else if (k === 'x' && state.view !== 'passed' && !cur.classList.contains('frosting')) act(cur, id, 'pass');
+  else if (k === 'u' && cur.classList.contains('frosting')) act(cur, id, 'undo');
+  else if (k === 'b' && state.view === 'passed') act(null, id, 'restore');
+});
 
 function renderSheet(id) {
   const d = state.deals.find(x => x.id === id);
@@ -641,7 +1129,7 @@ function renderSheet(id) {
       <div class="scorebig"><span class="n">${d.score}</span><span class="of">of 100 · ${d.status === 'surface' ? 'worth a look' : d.flags.length ? 'held down by ' + d.flags.length + (d.flags.length === 1 ? ' flag' : ' flags') : 'below your bar'}</span></div>
       ${compRow('Value', b.value.weight, b.value.score, `${b.value.discount_pct}% under, target ${b.value.great_deal_pct}%`)}
       ${compRow('Spec match', b.spec.weight, b.spec.score, `${b.spec.checks.filter(c => c.value === true).length} of ${b.spec.checks.length} confirmed`)}
-      ${compRow('Condition', b.condition.weight, b.condition.score, b.condition.condition ?? 'unknown')}
+      ${compRow('Condition', b.condition.weight, b.condition.score, condLabel(b.condition.condition) ?? 'unknown')}
       ${b.penalties.length ? `<div style="margin-top:12px">${b.penalties.map(p => `<div class="penalty"><span>${esc(cap(p.text))}</span><span class="m">×${p.multiplier}</span></div>`).join('')}
         <div class="penalty"><span class="sub">Raw ${pct(b.raw)} × penalties ${b.penalty_multiplier}</span><span class="m" style="color:var(--pine)">= ${b.final}</span></div></div>` : ''}
     </section>` : `<section class="sec"><h4>Score</h4><p class="prose">Can’t score this yet: ${esc(d.reason)}.</p></section>`;
@@ -649,7 +1137,7 @@ function renderSheet(id) {
   const valSec = b ? `
     <section class="sec"><h4>Valuation</h4><div class="chain">
       <div class="row"><span>${esc(cap(b.value.basis))}<div class="sub">confidence ${b.value.confidence}${/low|none/.test(b.value.confidence) ? ' — check comps yourself' : ''}</div></span><span class="v">${fmtPrice(b.value.base_fmv ?? b.value.fair_value)}</span></div>
-      ${b.value.condition_multiplier != null && b.value.condition_multiplier !== 1 ? `<div class="row"><span>Condition: ${esc(b.condition.condition)}</span><span class="v">×${b.value.condition_multiplier.toFixed(2)}</span></div>` : ''}
+      ${b.value.condition_multiplier != null && b.value.condition_multiplier !== 1 ? `<div class="row"><span>Condition: ${esc(condLabel(b.condition.condition))}</span><span class="v">×${b.value.condition_multiplier.toFixed(2)}</span></div>` : ''}
       ${b.value.adjustments.map(a => `<div class="row"><span>${esc(adjLabel(a))}</span><span class="v">×${Number(a.multiplier).toFixed(2)}</span></div>`).join('')}
       <div class="row total"><span>Fair value</span><span class="v">${fmtPrice(b.value.fair_value)}</span></div>
       <div class="row"><span>Asking ${fmtPrice(d.price)}</span><span class="v ${d.discount_pct >= 0 ? '' : ''}" style="color:${d.discount_pct >= 0 ? 'var(--bcg)' : 'var(--clay)'}">${Math.abs(d.discount_pct)}% ${d.discount_pct >= 0 ? 'under' : 'over'}</span></div>
@@ -680,9 +1168,10 @@ function renderSheet(id) {
 
   sh.innerHTML = `
     <div class="sheet-scroll" id="sheet-scroll">
-    <div class="sheet-hero">${d.photo ? `<img src="${esc(d.photo)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">` : ''}
+    <div class="sheet-head">
       <button class="sheet-close" id="sheet-close" aria-label="Close">✕</button>
-      <div class="over"><div class="t">${esc(d.title ?? 'Untitled')}</div><div class="p">${fmtPrice(d.price)}</div></div>
+      <div class="t">${esc(d.title ?? 'Untitled')}</div>
+      <div class="p">${fmtPrice(d.price)}${d.fair_value != null ? `<small>fair value ${fmtPrice(d.fair_value)}${roughEstimate(d) ? ' (rough)' : ''}</small>` : ''}</div>
     </div>
     <div class="sheet-body">
       <div><div class="pillrow" style="margin-bottom:8px">${pillFor(d)}${flagPills(d, 5)}${d.verdict === 'saved' ? '<span class="saved-flag">Saved</span>' : ''}</div>
@@ -696,18 +1185,142 @@ function renderSheet(id) {
         : `<button id="sh-save" class="${d.verdict === 'saved' ? 'saved-on' : ''}">${d.verdict === 'saved' ? 'Saved' : 'Save'}</button><button id="sh-pass" class="quiet">Pass</button>`}
     </div>`;
 
+  clearTimeout(sheetCloseTimer);
   sh.hidden = false; $('#sheet-backdrop').hidden = false;
+  document.body.classList.add('has-detail');
   requestAnimationFrame(() => { sh.classList.add('on'); $('#sheet-backdrop').classList.add('on'); document.body.classList.add('sheet-open'); });
   $('#sheet-scroll').scrollTop = 0;
+  document.querySelectorAll('#main .row.selected').forEach(r => { if (r.dataset.id !== id) { r.classList.remove('selected'); r.setAttribute('aria-selected', 'false'); } });
+  const rowEl = document.querySelector(`#main .row[data-id="${CSS.escape(id)}"]`);
+  if (rowEl) { rowEl.classList.add('selected'); rowEl.setAttribute('aria-selected', 'true'); rowEl.scrollIntoView({ block: 'nearest' }); }
   $('#sheet-close').onclick = closeSheet;
   $('#sh-save') && ($('#sh-save').onclick = () => { act(null, id, 'save'); renderSheet(id); });
-  $('#sh-pass') && ($('#sh-pass').onclick = () => { closeSheet(); const el = document.querySelector(`.card[data-id="${CSS.escape(id)}"]`); act(el, id, 'pass'); });
+  $('#sh-pass') && ($('#sh-pass').onclick = () => { closeSheet(); const el = document.querySelector(`#main [data-id="${CSS.escape(id)}"]`); act(el, id, 'pass'); });
   $('#sh-restore') && ($('#sh-restore').onclick = () => { act(null, id, 'restore'); closeSheet(); });
 }
 const compRow = (k, w, s, note) => `<div class="comp"><span class="k">${k}<small>${pct(w)}%</small></span><span class="bar"><i style="width:${Math.max(0, Math.min(100, pct(s)))}%"></i></span><span class="v">${pct(s)}</span></div>
   <div class="sub" style="margin:-4px 0 6px;font-size:12px;color:var(--pine-3)">${esc(note)}</div>`;
 const cap = (s) => s ? s[0].toUpperCase() + s.slice(1) : s;
 const adjLabel = (a) => a.key === 'floor' ? 'Adjustment floor' : a.key.replace(/^missing_nice_to_have_/, 'missing ').replace(/^generation_(\d+)plus_years_old$/, '$1+ years old').replace(/_/g, ' ');
+
+/* ---------------- overview ---------------- */
+const catVar = (i) => `var(--cat-${(i % 4) + 1})`;
+const catOf = (searchId) => catVar(Math.max(0, state.searches.findIndex(s => s.id === searchId)));
+const pctOf = (n, total) => total ? Math.round(n / total * 100) : 0;
+const median = (xs) => { if (!xs.length) return null; const a = [...xs].sort((x, y) => x - y); const m = a.length >> 1; return a.length % 2 ? a[m] : Math.round((a[m - 1] + a[m]) / 2); };
+// The score a flawless listing exactly at the surface threshold would get — the "bar".
+function barScore(list) {
+  const b = list.find(d => d.breakdown)?.breakdown;
+  return b ? Math.round((0.6 * (b.surface_threshold_pct / b.value.great_deal_pct) + 0.25 + 0.15 * 0.95) * 100) : null;
+}
+const vsCell = (d, cls = 'v') => d.discount_pct == null ? `<span class="${cls} dim">needs info</span>`
+  : `<span class="${cls} ${d.discount_pct >= 0 ? 'under' : 'over'}">${d.discount_pct >= 0 ? '−' : '+'}${Math.round(Math.abs(d.discount_pct))}%</span>`;
+const goBtn = (view, label, path) => `<button class="mini" data-go="${view}" title="${label}" aria-label="${label}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${path}"/></svg></button>`;
+const wHead = (title) => `<div class="wh"><b>${title}</b><span class="wbtns">${goBtn('ranking', 'Open in ranking', 'M4 7h16M4 12h16M4 17h10')}${goBtn('ranking', 'Expand', 'M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7')}</span></div>`;
+
+function renderOverview() {
+  const m = $('#main');
+  const s = state.status ?? {};
+  const runs = (s.runs ?? (s.last_run ? [s.last_run] : [])).filter(r => r?.started);
+  const liveDeals = state.deals.filter(live);
+  const win = applyFilters(inWindow(liveDeals));
+  const worth = win.filter(d => d.status === 'surface');
+  const scored = win.filter(d => d.score != null);
+  const last = s.last_run;
+  const upd = last ? `updated ${ago(last.finished ?? last.started)} · ${last.listings_seen ?? 0} seen · ${last.new_listings ?? 0} new` : 'no hunts yet — run /hunt in Claude Code';
+  const winLabel = WINDOWS.find(w => w[0] === state.window)[1].toLowerCase();
+
+  // Calendar: the 7 days ending today, dotted where a hunt ran.
+  const byDay = {};
+  for (const r of runs) { const k = new Date(r.started).toDateString(); byDay[k] = byDay[k] ?? { seen: 0, fresh: 0, n: 0 }; byDay[k].seen += r.listings_seen ?? 0; byDay[k].fresh += r.new_listings ?? 0; byDay[k].n++; }
+  const today = new Date();
+  const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(today); d.setDate(today.getDate() - 6 + i); return d; });
+  const cal = `<section class="cal glass card rise"><div class="wh"><b>${today.toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}</b><span class="wbtns">${goBtn('ranking', 'Open ranking', 'M9 6l6 6-6 6')}</span></div>
+    <div class="days">${days.map(d => { const r = byDay[d.toDateString()]; const isT = d.toDateString() === today.toDateString();
+      return `<div class="day${isT ? ' today' : ''}${r ? ' run' : ''}"${r ? ` data-tip="${r.seen} seen · ${r.fresh} new"` : ''}><span class="dn">${d.toLocaleDateString(undefined, { weekday: 'short' })}</span><span class="dd">${d.getDate()}</span><i class="rd"></i></div>`; }).join('')}</div>
+    <div class="ov-note" style="margin-top:12px">${esc(huntStatusText())}</div></section>`;
+
+  const summary = `<section class="summary glass rise">
+    <div class="inner"><div class="k"><span>Worth a look</span><span class="id">of ${win.length} ranked</span></div><div class="big">${worth.length}</div>
+      <span class="st${s.can_run ? ' open' : ''}"><i></i>${last ? (s.can_run ? 'Hunt window open' : `Next window in ${Math.max(0, s.min_hours - s.hours_since).toFixed(1)}h`) : 'No hunts yet'}</span></div>
+    <div class="qa">
+      <button data-go="hunt"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>Run hunt</button>
+      <button data-go="saved"><span class="ic">${icon(VIEWS[2])}</span>Saved${state.deals.filter(d => d.verdict === 'saved').length ? ` · ${state.deals.filter(d => d.verdict === 'saved').length}` : ''}</button>
+      <button data-go="ranking"><span class="ic">${icon(VIEWS[1])}</span>Ranking</button>
+    </div></section>`;
+
+  const top3 = [...win].sort((a, b) => (b.score ?? -1) - (a.score ?? -1)).slice(0, 3);
+  const movers = `<section class="movers glass card rise"><div class="wh"><b>Top of the board</b><span class="wbtns">${goBtn('ranking', 'Open ranking', 'M5 12h.01M12 12h.01M19 12h.01')}</span></div>
+    ${top3.length ? top3.map(d => `<div class="mrow" data-open="${esc(d.id)}"><span class="mi" style="--c:${catOf(d.search_id)}">${esc(searchLabel(d.search_id)[0] ?? '?')}</span><span class="mt">${esc(d.title ?? 'Untitled')}</span><span class="md">${fmtPrice(d.price)} · ${ago(d.first_seen)}</span>${vsCell(d, 'mv')}</div>`).join('')
+      : `<div class="wempty">Nothing found in ${winLabel}.</div>`}</section>`;
+
+  // Widget 1 — score spread
+  const bar = barScore(liveDeals);
+  const buckets = Array.from({ length: 10 }, () => 0);
+  for (const d of scored) buckets[Math.min(9, Math.floor(d.score / 10))]++;
+  const maxB = Math.max(1, ...buckets);
+  const wScore = `<section class="widget glass card w-score rise">${wHead('Score spread')}
+    <div class="wbig">${scored.length ? Math.max(...scored.map(d => d.score)) : '—'}<small>best · median ${median(scored.map(d => d.score)) ?? '—'}</small></div>
+    <div class="bars">${buckets.map((n, i) => `<i class="${bar != null && i * 10 >= bar ? 'hi' : ''}" style="height:${Math.round(n / maxB * 100)}%" data-tip="${i * 10}–${i * 10 + 9}: ${n}"></i>`).join('')}${bar != null ? `<span class="th" style="left:${bar}%"></span>` : ''}</div>
+    <div class="wfoot"><span>0</span><span></span><span></span><span></span><span>50</span><span></span><span></span><span></span><span></span><span>100</span></div></section>`;
+
+  // Widget 2 — hunt activity (last 8 runs, oldest first)
+  const recent = [...runs].sort((a, b) => new Date(a.started) - new Date(b.started)).slice(-8);
+  const maxR = Math.max(1, ...recent.map(r => r.listings_seen ?? 0));
+  const wAct = `<section class="widget glass card w-act rise">${wHead('Hunt activity')}
+    <div class="wbig">${last?.listings_seen ?? 0}<small>seen last run · ${last?.new_listings ?? 0} new</small><span class="legend"><span><i style="--c:var(--pine-3)"></i>seen</span><span><i style="--c:var(--bcg)"></i>new</span></span></div>
+    <div class="bars">${recent.length ? recent.map(r => `<span class="pair"><i style="height:${Math.round((r.listings_seen ?? 0) / maxR * 100)}%" data-tip="${r.listings_seen ?? 0} seen"></i><i class="hi" style="height:${Math.round((r.new_listings ?? 0) / maxR * 100)}%" data-tip="${r.new_listings ?? 0} new"></i></span>`).join('') : '<div class="wempty">No runs yet.</div>'}</div>
+    <div class="wfoot">${recent.map(r => `<span>${new Date(r.started).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' })}</span>`).join('')}</div></section>`;
+
+  // Widget 3 — by hunt (dot matrix, 1 dot = 2 listings)
+  const wHunt = `<section class="widget glass card w-hunt rise">${wHead('By hunt')}
+    <div class="wbig">${win.length}<small>listings in ${winLabel}</small></div>
+    <div class="dots">${state.searches.map((sr, i) => { const n = win.filter(d => d.search_id === sr.id).length; const dots = Math.min(40, Math.ceil(n / 2));
+      return `<div class="dcol"><b>${pctOf(n, win.length)}%<small> · ${n}</small></b><div class="dm" style="--c:${catVar(i)}" data-tip="${esc(sr.label)}: ${n}">${'<i></i>'.repeat(dots)}</div><span class="dl">${esc(sr.label)}</span></div>`; }).join('')}</div></section>`;
+
+  // Widget 4 — price ceilings (tall ruler)
+  const cfgS = state.cfg?.searches ?? [];
+  const ceils = cfgS.filter(x => x.pricing?.max != null).map((x, i) => ({ id: x.id, label: x.label ?? x.id, max: x.pricing.max, c: catOf(x.id),
+    best: liveDeals.filter(d => d.search_id === x.id && (d.label === 'steal' || d.label === 'good deal') && d.price != null).reduce((m, d) => Math.min(m, d.price), Infinity) }));
+  const top = Math.max(1, ...ceils.map(c => c.max)) * 1.08;
+  const H = 260, W = 220, X = 150, y = (v) => Math.round(H - v / top * H);
+  const ticks = Array.from({ length: 41 }, (_, i) => i);
+  const wCeil = `<section class="widget glass card w-ceil rise">${wHead('Price ceilings')}
+    <div class="wbig">${ceils.length ? fmtPrice(Math.max(...ceils.map(c => c.max))) : '—'}<small>highest ceiling</small></div>
+    <div class="ruler"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-label="Price ceilings and cheapest deals per hunt">
+      ${ticks.map(i => `<line class="tick" x1="${X}" x2="${i % 5 ? X + 14 : X + 22}" y1="${Math.round(i / 40 * H)}" y2="${Math.round(i / 40 * H)}"/>`).join('')}
+      ${[0, .25, .5, .75, 1].map(f => `<text x="${X + 30}" y="${Math.max(10, y(f * top) + 4)}">${'$' + Math.round(f * top / 10) * 10}</text>`).join('')}
+      ${ceils.map(c => `<g style="--c:${c.c}"><line class="ceil" x1="${X - 8}" x2="${X + 22}" y1="${y(c.max)}" y2="${y(c.max)}"/><text x="${X - 14}" y="${y(c.max) + 4}" text-anchor="end">${fmtPrice(c.max)} ceiling</text>
+        ${Number.isFinite(c.best) ? `<circle class="best" cx="${X}" cy="${y(c.best)}" r="5"/><text class="px" x="${X - 14}" y="${y(c.best) + 5}" text-anchor="end">${fmtPrice(c.best)}</text>` : ''}</g>`).join('')}
+    </svg></div>
+    <div class="legend" style="margin:12px 0 0">${ceils.map(c => `<span><i style="--c:${c.c}"></i>${esc(c.label)}</span>`).join('') || '<span>Loading searches…</span>'}</div></section>`;
+
+  // Widget 5 — worth a look list
+  const wWorth = `<section class="widget glass card w-worth rise">${wHead('Worth a look')}
+    <div class="wbig">${worth.length}<small>of ${win.length} above your bar in ${winLabel}</small></div>
+    ${worth.length ? worth.slice(0, 5).map(d => `<div class="mini-row" data-open="${esc(d.id)}"><span class="rank top">#${d.rank_in_search}</span><span class="t">${esc(d.title ?? 'Untitled')}</span><span class="v">${fmtPrice(d.price)}</span>${vsCell(d)}<span class="s">${d.score ?? '—'}${meter(d)}</span></div>`).join('')
+      : `<div class="wempty">Nothing above your bar in ${winLabel}. Every listing is still ranked — open the ranking to see why.</div>`}</section>`;
+
+  // Widget 6 — why things rank low
+  const fc = {};
+  for (const d of win) for (const f of d.flags ?? []) { const k = f.text; fc[k] = fc[k] ?? { n: 0, clay: isFlagClay(f) }; fc[k].n++; }
+  const topFlags = Object.entries(fc).sort((a, b) => b[1].n - a[1].n).slice(0, 4);
+  const wFlags = `<section class="widget glass card w-flags rise">${wHead('Why things rank low')}
+    <div class="wbig">${topFlags.length ? pctOf(win.filter(d => d.flags?.length).length, win.length) + '%' : '—'}<small>of listings carry a flag</small></div>
+    ${topFlags.length ? topFlags.map(([text, v]) => { const pc = pctOf(v.n, win.length); const on = Math.round(pc / 5);
+      return `<div class="frow"><span>${esc(cap(text))}</span><span class="fpct">${pc}%</span></div><div class="dm" style="--c:${v.clay ? 'var(--clay)' : 'var(--amber)'}" data-tip="${v.n} listings">${Array.from({ length: 20 }, (_, i) => `<i class="${i < on ? '' : 'off'}"></i>`).join('')}</div>`; }).join('')
+      : '<div class="wempty">No flags in this window.</div>'}</section>`;
+
+  m.innerHTML = `<div class="ov">
+    <div class="hero rise"><div class="upd">${esc(upd)}</div><h2>Overview</h2></div>
+    <div class="winseg rise" role="group" aria-label="Time window">${WINDOWS.map(([k, l]) => `<button aria-pressed="${state.window === k}" data-win="${k}">${l}</button>`).join('')}</div>
+    ${cal}${summary}${movers}
+    <div class="widgets">${wScore}${wAct}${wHunt}${wCeil}${wWorth}${wFlags}</div>
+  </div>`;
+  m.querySelectorAll('[data-win]').forEach(b => b.onclick = () => { state.window = b.dataset.win; render(); });
+  m.querySelectorAll('[data-go]').forEach(b => b.onclick = () => b.dataset.go === 'hunt' ? requestRun() : go(b.dataset.go));
+  m.querySelectorAll('[data-open]').forEach(el => el.onclick = () => openSheet(el.dataset.open));
+}
 
 /* ---------------- searches ---------------- */
 async function renderConfig() {
@@ -725,7 +1338,7 @@ async function renderConfig() {
         ${s.must_have?.length ? `<div class="fact"><div class="k">Must-haves</div><div class="v">${s.must_have.length}</div></div>` : ''}
       </div></div>`).join('');
   m.innerHTML = `<div class="exhibit rise"><h2>What you’re hunting</h2><p>Change a number here and every listing you’ve ever seen re-ranks instantly. Rules lower a score and explain themselves — they never hide a listing.</p></div>
-    ${cards}
+    <div class="panels">${cards}</div>
     <details class="rawcfg rise"><summary>Edit raw config (JSON)</summary>
       <div class="editor-bar"><button class="primary" id="save-cfg">Save searches</button><span class="msg" id="cfg-msg" role="status"></span></div>
       <textarea id="cfg" spellcheck="false">${esc(JSON.stringify(cfg, null, 2))}</textarea>
@@ -780,7 +1393,7 @@ async function renderAccount() {
 
 /* ---------------- gate ---------------- */
 let gateMode = 'signin';
-function showGate() { $('#chrome-header').hidden = true; $('#main').hidden = true; $('#dock').hidden = true; $('#gate').hidden = false; }
+function showGate() { $('#chrome-header').hidden = true; $('#main').hidden = true; $('#dock').hidden = true; $('#askbar').hidden = true; $('#gate').hidden = false; }
 $('#swap-btn').onclick = () => {
   gateMode = gateMode === 'signin' ? 'signup' : 'signin';
   const signup = gateMode === 'signup';

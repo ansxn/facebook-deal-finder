@@ -87,7 +87,7 @@ export async function loadAll(userId, env) {
     select('listings', `select=id,search_id,payload,first_seen,last_seen&${u}`, env),
     select('verdicts', `select=listing_id,state,updated_at&${u}`, env),
     select('config', `select=payload&key=eq.searches&${u}`, env),
-    select('runs', `select=payload&order=started.desc&limit=1&${u}`, env),
+    select('runs', `select=payload&order=started.desc&limit=30&${u}`, env),
   ]);
 
   const listings = { version: 1, listings: {} };
@@ -111,5 +111,6 @@ export async function loadAll(userId, env) {
     verdicts,
     searches: configRows?.[0]?.payload ?? null,
     lastRun: runRows?.[0]?.payload ?? null,
+    runs: (runRows ?? []).map(r => r.payload),
   };
 }

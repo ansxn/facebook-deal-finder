@@ -123,7 +123,7 @@ function penalties(search, a, price) {
   for (const rule of search.must_have ?? []) {
     if (rule.hard !== true) continue;
     if (a.must_have?.[rule.spec] === false) {
-      add(`missing_hard_must_have:${rule.spec}`, `missing required: ${rule.spec.replace(/_/g, ' ')}`, 'missing_hard_must_have');
+      add(`missing_hard_must_have:${rule.spec}`, `fails must-have: ${rule.spec.replace(/_/g, ' ')}`, 'missing_hard_must_have');
     }
   }
 
@@ -206,8 +206,6 @@ export function scoreAll({ listings, searches, verdicts = {}, includeDismissed =
       ...result,
       verdict,
       url: listing.url,
-      photo: listing.photos?.[0] ?? null,
-      photos: listing.photos ?? [],
       location: listing.location ?? null,
       miles: listing.miles ?? null,
       description: listing.description ?? null,

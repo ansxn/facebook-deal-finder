@@ -117,9 +117,9 @@ Two things about that:
 returns **no ids and no links**, so it can't be the primary source. Use it as a
 cross-check for how many results loaded.
 
-**(known gap)** Neither tool exposes result-card image URLs, so listings
-currently store no photo and the dashboard shows a placeholder. Everything else
-works without it; don't block a run trying to solve this.
+**(settled 2026-09-15)** Neither tool exposes result-card image URLs, and
+Facebook's CDN links expire anyway, so listings store no photos and the
+dashboard has no photo slot. Don't spend run time trying to capture images.
 
 Scroll a few times to load more, pausing between scrolls. Stop at ~25–30 cards.
 
@@ -319,6 +319,32 @@ node scripts/deals.mjs --search <search-id>
 ```
 
 Dedupe is automatic on Marketplace listing id, and price changes are recorded.
+
+**(verified, 2026-09-15) Resubmitting an already-stored listing through ingest
+stores the price as the raw string (`"CA$325"`), which turns its score into
+`NaN` in deals.mjs.** The new-listing path parses the currency prefix; the
+update path does not. Until ingest is fixed, pass a bare number in `price` for
+any listing you know is already in the store — or skip resubmitting repeats
+entirely unless the price changed.
+
+## Mechanics learned 2026-09-15
+
+- **The Chrome extension disconnects mid-run routinely** (service-worker
+  restarts). It reconnects on retry within a few seconds. A `browser_batch`
+  that dies mid-way may have completed its navigate — check `tabs_context_mcp`
+  for where the tab actually is before re-navigating, or you double-visit.
+- **`computer` `wait` rejects durations over 10 s** and the failure kills the
+  rest of the batch. Chain multiple 10 s waits for between-search pacing.
+- **A Messenger chat popup can open over the results page** and flood
+  `read_page` with the user's private conversation. Close it via its "Close
+  chat" button, ignore its contents entirely, and re-read.
+- **Video-first listings return "No text content found"** from `get_page_text`
+  while the player has focus. A screenshot still shows the details panel; read
+  it from there (or retry after a beat).
+- **(2026-09-15) `kanto speakers` returned a genuine "No listings found within
+  65 kilometers" empty state** — a real empty page with an illustration, not
+  the sortBy relevance bug (no sort was applied). Distinguish the two before
+  re-running: the bug shows off-topic results; the empty state shows none.
 
 ### 7. Close out
 
