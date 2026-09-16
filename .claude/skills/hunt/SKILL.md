@@ -30,8 +30,13 @@ note says so — those are the expensive lessons, don't re-learn them.
 ### 1. Gate and set up
 
 ```bash
+node scripts/pull-config.mjs
 node scripts/run.mjs check && node scripts/run.mjs start
 ```
+
+`pull-config` brings down thresholds, dealbreakers, must-haves and search
+terms the user tuned on the website, when that copy is newer. Run it before
+reading the config, every time — the site is where rules get changed now.
 
 Read `searches.json`. Note `global.currency` — **listings are in CAD** and every
 fair-value number in the config is CAD too. Do not convert. (verified: the
@@ -346,11 +351,46 @@ entirely unless the price changed.
   the sortBy relevance bug (no sort was applied). Distinguish the two before
   re-running: the bug shows off-topic results; the empty state shows none.
 
+## Mechanics learned 2026-09-16
+
+- **(verified) Every results page stalled at exactly 15 cards.** All eleven
+  searches this run loaded 15 cards and then sat on five "Loading..." spinners
+  no matter how long or how far I scrolled. Treat 15 as the practical ceiling
+  and stop scrolling after the second read; the time is better spent on
+  detail pages.
+- **(verified) `kanto speakers` returned 13 real results.** The empty state on
+  2026-09-15 was transient, not a broken query.
+- **The Messenger popup's "Close chat" button did not respond to a ref click.**
+  Clicking the X by screenshot coordinate did. Take the screenshot first.
+- **`node scripts/deals.mjs --search <id>` prints headers only.** With
+  `--search` as the first argument and no `--top`, `val('--top')` resolves to
+  `args[0]` and `Number('--search')` is NaN, so the row loop slices to nothing.
+  Always pass `--top N` (or `--all`) alongside `--search`.
+- **Speaker `model` strings fuzzy-match by substring both ways.** A bare
+  `"Klipsch"` matched the config's Klipsch The Fives and scored a passive pair
+  at "71% under $660". Put the full model, or a deliberately long descriptive
+  string, never just the brand.
+- **Liquidation-store listings (BF Deals, Concord) add HST on top of the card
+  price and sell "untested".** Their CA$378 YU6MW is really ~CA$427.
+- **Pokémon bait prices, new shape:** a "Sealed Collection" carded at CA$100
+  whose cheapest ETB was CA$198 and whose Crown Zenith was CA$436. And a
+  "2x Pitch Black ETBs" at CA$120 with auto-generated text that may or may not
+  mean both boxes. Record the cheapest real ETB price and say so in notes.
+- **The same set gets cross-posted under two cities** (King Cobra/Callaway/
+  TaylorMade set in Milton at CA$500 and Hamilton at CA$400). Open the closer
+  one, record the other from the card with a note.
+
 ### 7. Close out
 
 ```bash
 node scripts/run.mjs finish --seen <n> --new <n> --searches <ids>
+node scripts/push.mjs
 ```
+
+**`push.mjs` is not optional.** The hosted dashboard only shows what has been
+pushed; the local JSON is the working copy. (2026-09-16: a full run was
+ingested and finished but never pushed, and the dashboard sat on "updated 27h
+ago · 0 seen · 0 new" until `push.mjs` was run by hand.)
 
 Summarize: the top few listings by attractiveness (new ones first, with their
 flags — `deals.mjs` prints the flags in brackets), anything that ranked low for

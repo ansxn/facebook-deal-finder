@@ -541,6 +541,94 @@ button.mini svg { width: 15px; height: 15px; }
   .w-flags { grid-column: 7 / 10; }
 }
 
+/* ---- searches: tuning form ---- */
+.tunebar { position: sticky; top: 74px; z-index: 15; display: flex; align-items: center; gap: 14px; padding: 10px 12px 10px 18px; margin: 0 0 16px; }
+.tunebar .tb-txt { flex: 1; min-width: 0; font-size: 13.5px; line-height: 1.35; }
+.tunebar .tb-txt b { font: 700 17px var(--display); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.tunebar .tb-txt .was, .tunebar .tb-txt .per { color: var(--pine-3); }
+.tunebar .tb-txt .per { font-size: 12px; margin-left: 8px; }
+.tunebar .tb-txt.err { color: var(--clay); }
+.tunebar .tb-txt.ok { color: var(--bcg); }
+.tunebar .tb-acts { display: flex; gap: 8px; flex-shrink: 0; }
+.tcard { padding: 18px 20px 12px; margin-bottom: 16px; }
+.tcard .th { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.tcard .th input.lbl { flex: 1; min-width: 0; font: 700 16px var(--display); letter-spacing: -.015em; border: none; background: transparent; color: var(--pine); padding: 4px 0; border-radius: 6px; }
+.tcard .th input.lbl:focus { outline: none; background: var(--well); padding: 4px 8px; }
+.tcard .th .id { font: 11.5px var(--mono); color: var(--pine-3); white-space: nowrap; }
+.tcard .th .cnt { font-size: 12.5px; color: var(--pine-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tcard .th .cnt b { color: var(--bcg); }
+.tcard .intro { font-size: 13px; color: var(--pine-2); margin: 0 0 6px; }
+.tsec { padding: 14px 0 6px; border-top: 1px solid var(--glass-line); }
+.tsec h4 { font: 700 11px/1 var(--body); text-transform: uppercase; letter-spacing: .09em; color: var(--pine-3); margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
+.tsec .note { font-size: 12.5px; color: var(--pine-3); margin: 0 0 10px; }
+.nh { font: 600 9.5px/1 var(--body); text-transform: uppercase; letter-spacing: .06em; color: var(--amber); background: var(--amber-soft); border-radius: 999px; padding: 3px 7px; white-space: nowrap; }
+.ctl { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 6px 18px; align-items: center; padding: 7px 0; }
+.ctl .cl { font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ctl .cl small { flex-basis: 100%; font-weight: 500; color: var(--pine-3); font-size: 12px; line-height: 1.35; }
+.slw { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.slw input[type=range] { flex: 1; min-width: 0; }
+input[type=range] { -webkit-appearance: none; appearance: none; height: 24px; background: transparent; margin: 0; width: 100%; }
+input[type=range]::-webkit-slider-runnable-track { height: 6px; border-radius: 999px; background: linear-gradient(90deg, var(--bcg) var(--p, 0%), var(--well) var(--p, 0%)); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; margin-top: -7px; border-radius: 50%; background: var(--glass-strong); border: 1px solid var(--glass-line); box-shadow: 0 2px 8px -2px rgba(14,42,31,.35); cursor: grab; }
+input[type=range]::-moz-range-track { height: 6px; border-radius: 999px; background: var(--well); }
+input[type=range]::-moz-range-progress { height: 6px; border-radius: 999px; background: var(--bcg); }
+input[type=range]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: var(--glass-strong); border: 1px solid var(--glass-line); box-shadow: 0 2px 8px -2px rgba(14,42,31,.35); cursor: grab; }
+input[type=range]:focus-visible { outline: none; } input[type=range]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--bcg); outline-offset: 2px; }
+.slw input[type=number], input.num { width: 92px; padding: 7px 10px; font: 600 13px var(--body); text-align: right; font-variant-numeric: tabular-nums; border-radius: 10px; border: 1px solid var(--glass-line); background: var(--glass-strong); color: var(--pine); }
+.slw .unit { font-size: 12px; color: var(--pine-3); width: 24px; flex-shrink: 0; }
+.pairw { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.pair { position: relative; height: 24px; }
+.pair::before { content: ""; position: absolute; left: 0; right: 0; top: 9px; height: 6px; border-radius: 999px; background: linear-gradient(90deg, var(--well) var(--a), var(--bcg) var(--a), var(--bcg) var(--b), var(--well) var(--b)); }
+.pair input[type=range] { position: absolute; inset: 0; pointer-events: none; }
+.pair input[type=range]::-webkit-slider-runnable-track { background: transparent; }
+.pair input[type=range]::-moz-range-track, .pair input[type=range]::-moz-range-progress { background: transparent; }
+.pair input[type=range]::-webkit-slider-thumb { pointer-events: auto; }
+.pair input[type=range]::-moz-range-thumb { pointer-events: auto; }
+.pair-vals { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--pine-2); font-variant-numeric: tabular-nums; }
+.pair-vals b { color: var(--pine); }
+.sw { position: relative; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.sw input { position: absolute; opacity: 0; width: 0; height: 0; }
+.sw i { width: 38px; height: 22px; border-radius: 999px; background: var(--well); position: relative; transition: background .2s; border: 1px solid var(--glass-line); flex-shrink: 0; }
+.sw i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--glass-strong); box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .2s; }
+.sw input:checked + i { background: var(--bcg); border-color: transparent; }
+.sw input:checked + i::after { transform: translateX(16px); background: #fff; }
+.sw input:focus-visible + i { outline: 2px solid var(--bcg); outline-offset: 2px; }
+.segc { display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px; background: var(--well); }
+.segc button { border: none; box-shadow: none; background: transparent; border-radius: 999px; padding: 6px 12px; font-size: 12.5px; color: var(--pine-2); }
+.segc button[aria-pressed="true"] { background: var(--glass-strong); color: var(--pine); box-shadow: 0 2px 8px -3px rgba(14,42,31,.25); }
+.rule { display: grid; grid-template-columns: 190px auto minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 10px 0; border-top: 1px dashed var(--glass-line); }
+.rule:first-of-type { border-top: none; }
+.rule input.spec { width: 100%; font: 600 12.5px var(--mono); padding: 8px 10px; border-radius: 10px; }
+#tune textarea { min-height: 0; height: auto; font: 13px/1.45 var(--body); padding: 8px 10px; border-radius: 10px; resize: vertical; width: 100%; }
+.rule .rw { display: flex; align-items: center; gap: 8px; width: 190px; }
+.rule .rw input[type=number] { width: 68px; }
+.rule .rm { width: 30px; height: 30px; padding: 0; justify-content: center; border-radius: 50%; color: var(--pine-3); background: transparent; border-color: transparent; }
+.rule .rm:hover { color: var(--clay); background: var(--clay-soft); box-shadow: none; }
+.addrow { margin-top: 6px; }
+.chipedit { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 6px; border-radius: 14px; border: 1px solid var(--glass-line); background: var(--glass-strong); }
+.chipedit .chip { display: inline-flex; align-items: center; gap: 4px; padding: 5px 6px 5px 11px; border-radius: 999px; background: var(--bcg-soft); color: var(--bcg); font-size: 12.5px; font-weight: 600; }
+.chipedit .chip.warn { background: var(--clay-soft); color: var(--clay); }
+.chipedit .chip button { border: none; background: transparent; box-shadow: none; padding: 0 5px; color: inherit; font-size: 14px; line-height: 1; }
+.chipedit input { flex: 1; min-width: 170px; border: none; background: transparent; padding: 6px 8px; font-size: 13.5px; color: var(--pine); }
+.chipedit input:focus { outline: none; }
+.cbrow { display: flex; flex-wrap: wrap; gap: 8px; }
+.cb { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; padding: 6px 11px; border-radius: 999px; border: 1px solid var(--glass-line); background: var(--glass-strong); cursor: pointer; color: var(--pine-2); }
+.cb:has(input:checked) { background: var(--bcg-soft); color: var(--bcg); border-color: transparent; }
+.cb input { accent-color: var(--bcg); margin: 0; }
+.pen { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 0 28px; }
+.pen .ctl { grid-template-columns: 170px minmax(0, 1fr); }
+.linkbtn { border: none; background: none; box-shadow: none; color: var(--bcg); padding: 0; font-size: 12.5px; font-weight: 600; }
+.fvline { font-size: 13px; color: var(--pine-2); display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.fvline .conf { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--pine-3); }
+@media (max-width: 700px) {
+  .ctl { grid-template-columns: 1fr; gap: 6px; }
+  .pen .ctl { grid-template-columns: 1fr; }
+  .rule { grid-template-columns: 1fr auto; }
+  .rule textarea { grid-column: 1 / -1; }
+  .tunebar { top: 62px; flex-wrap: wrap; padding: 10px 12px; }
+  .tunebar .tb-acts { width: 100%; justify-content: flex-end; }
+}
+
 /* ---- ask bar ---- */
 .askbar { position: fixed; left: 50%; transform: translateX(-50%); bottom: 22px; width: min(720px, calc(100% - 40px)); z-index: 30; display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .chiprow { display: flex; gap: 6px; max-width: 100%; overflow-x: auto; scrollbar-width: none; padding: 2px; }
@@ -770,7 +858,11 @@ function renderNav() {
   $('#dock').innerHTML = views.map(v => `<button role="tab" aria-selected="${state.view === v.id}" data-v="${v.id}">${icon(v)}${v.label}</button>`).join('');
   document.querySelectorAll('[data-v]').forEach(b => b.onclick = () => go(b.dataset.v));
 }
-function go(view) { closeSheet(); state.view = view; state.cursor = null; renderNav(); render(); window.scrollTo({ top: 0 }); }
+function go(view) {
+  if (state.view === 'config' && view !== 'config' && tune.dirty && !confirm('Discard unsaved search changes?')) return;
+  if (state.view === 'config' && view !== 'config') { tune.base = null; tune.draft = null; tune.dirty = false; clearTimeout(tune.timer); }
+  closeSheet(); state.view = view; state.cursor = null; renderNav(); render(); window.scrollTo({ top: 0 });
+}
 
 /* ---------------- filters: search text, quick chips, time window ---------------- */
 const QUICK = [
@@ -1322,35 +1414,267 @@ function renderOverview() {
   m.querySelectorAll('[data-open]').forEach(el => el.onclick = () => openSheet(el.dataset.open));
 }
 
-/* ---------------- searches ---------------- */
+/* ---------------- searches: tune everything on the site ----------------
+   The draft is a deep copy of the config; every control writes into it by
+   path. Numbers the scorer reads re-rank on Save; text the assessor reads
+   (search terms, tests, dealbreakers, location) applies from the next hunt
+   and is badged as such. A dry-run PUT keeps the preview honest while you
+   drag — nothing is written until Save. */
+const CONDITION_KEYS = ['sealed', 'like_new', 'good', 'working', 'fair', 'untested', 'broken'];
+const PENALTY_INFO = [
+  ['dealbreaker', 'Assessor dealbreaker', .25, 'The assessor marked it as one of your dealbreakers'],
+  ['missing_hard_must_have', 'Fails a hard must-have', .4, 'Per failed rule'],
+  ['below_min_price', 'Below minimum price', .4, 'Almost always a part, not the item'],
+  ['over_ceiling', 'Over your ceiling', .5, ''],
+  ['too_far', 'Too far away', .6, 'Past your max distance'],
+  ['condition_below_floor', 'Condition below floor', .7, ''],
+];
+const tune = { base: null, draft: null, dirty: false, preview: null, previewErr: null, pending: false, timer: null, msg: null, collapsed: new Set() };
+const getPath = (o, path) => path.split('.').reduce((x, k) => x?.[k], o);
+function setPath(o, path, v) {
+  const ks = path.split('.'); let x = o;
+  for (const k of ks.slice(0, -1)) { if (x[k] == null || typeof x[k] !== 'object') x[k] = /^\d+$/.test(ks[ks.indexOf(k) + 1]) ? [] : {}; x = x[k]; }
+  x[ks.at(-1)] = v;
+}
+const slug = (s) => String(s ?? '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+const pctOfRange = (v, min, max) => Math.max(0, Math.min(100, ((v - min) / (max - min)) * 100)) + '%';
+const nh = '<span class="nh" title="Read by the assessor while it browses — applies to listings found from the next hunt on">next hunt</span>';
+
+// ---- control renderers (all write to tune.draft by data-path) ----
+function sl(label, path, { min = 0, max = 100, step = 1, unit = '', hint = '', dflt = null } = {}) {
+  const raw = getPath(tune.draft, path); const v = raw == null ? (dflt ?? min) : Number(raw);
+  return `<label class="ctl"><span class="cl">${label}${hint ? `<small>${hint}</small>` : ''}</span>
+    <span class="slw"><input type="range" data-path="${path}" data-num min="${min}" max="${max}" step="${step}" value="${v}" style="--p:${pctOfRange(v, min, max)}">
+    <input type="number" data-path="${path}" data-num min="${min}" max="${max}" step="${step}" value="${v}">${unit ? `<span class="unit">${unit}</span>` : '<span class="unit"></span>'}</span></label>`;
+}
+function pair(label, pa, pb, { min = 0, max = 90, hint = '' } = {}) {
+  const a = Number(getPath(tune.draft, pa) ?? 20), b = Number(getPath(tune.draft, pb) ?? 35);
+  return `<div class="ctl"><span class="cl">${label}${hint ? `<small>${hint}</small>` : ''}</span>
+    <div class="pairw"><div class="pair" style="--a:${pctOfRange(a, min, max)};--b:${pctOfRange(b, min, max)}">
+      <input type="range" data-path="${pa}" data-num data-pair="lo" min="${min}" max="${max}" step="1" value="${a}" aria-label="good deal percent">
+      <input type="range" data-path="${pb}" data-num data-pair="hi" min="${min}" max="${max}" step="1" value="${b}" aria-label="steal percent"></div>
+      <div class="pair-vals"><span>good deal from <b data-pv="${pa}">${a}%</b> under</span><span>steal from <b data-pv="${pb}">${b}%</b> under</span></div></div></div>`;
+}
+const sw = (label, path) => `<label class="sw"><input type="checkbox" data-path="${path}" data-bool ${getPath(tune.draft, path) === true ? 'checked' : ''}><i></i>${label}</label>`;
+const segc = (path, opts) => `<span class="segc">${opts.map(([v, l]) => `<button type="button" aria-pressed="${getPath(tune.draft, path) === v}" data-seg="${path}" data-val="${esc(String(v))}">${l}</button>`).join('')}</span>`;
+function chips(path, placeholder, warn = false) {
+  const items = getPath(tune.draft, path) ?? [];
+  return `<div class="chipedit" data-chips="${path}">${items.map((x, i) => `<span class="chip${warn ? ' warn' : ''}">${esc(x)}<button type="button" data-chip-rm="${i}" aria-label="Remove">×</button></span>`).join('')}
+    <input type="text" data-chip-add="${path}" placeholder="${esc(placeholder)}" autocomplete="off"></div>`;
+}
+const ta = (path, placeholder = '') => `<textarea data-path="${path}" rows="2" placeholder="${esc(placeholder)}">${esc(getPath(tune.draft, path) ?? '')}</textarea>`;
+
+function tuneBarHtml() {
+  const p = tune.preview, base = state.deals.filter(live).filter(d => d.status === 'surface').length;
+  let txt;
+  if (tune.msg) txt = `<span class="ok">${esc(tune.msg)}</span>`;
+  else if (tune.previewErr) txt = `<span class="err">${esc(tune.previewErr)}</span>`;
+  else if (!p) txt = `<span class="was">Scoring your listings against these settings…</span>`;
+  else txt = `<b>${p.surface}</b> would be worth a look${p.surface !== base ? ` <span class="was">· was ${base}</span>` : ''}<span class="per">${(tune.draft.searches ?? []).map(s => `${esc(shortLabel(s))} ${p.by_search?.[s.id]?.surface ?? 0}`).join(' · ')}</span>`;
+  return `<div class="tb-txt${tune.pending ? ' pending' : ''}">${txt}</div>
+    <div class="tb-acts"><button type="button" class="quiet" id="tune-revert" ${tune.dirty ? '' : 'disabled'}>Revert</button><button type="button" class="primary" id="tune-save" ${tune.dirty && !tune.previewErr ? '' : 'disabled'}>Save &amp; re-rank</button></div>`;
+}
+const shortLabel = (s) => (s.label ?? s.id).split(/[\s(]/)[0];
+
+function renderTuneBar() { const el = $('#tunebar'); if (!el) return; el.innerHTML = tuneBarHtml(); wireTuneBar(); }
+function wireTuneBar() {
+  $('#tune-save') && ($('#tune-save').onclick = saveTune);
+  $('#tune-revert') && ($('#tune-revert').onclick = () => { tune.draft = structuredClone(tune.base); tune.dirty = false; tune.msg = null; tune.previewErr = null; renderTuneForm(); schedulePreview(0); });
+}
+
+function schedulePreview(delay = 350) {
+  clearTimeout(tune.timer); tune.pending = true;
+  tune.timer = setTimeout(async () => {
+    const snapshot = JSON.stringify(tune.draft);
+    const { ok, status, data } = await api('/api/searches?dry_run=1', { method: 'PUT', body: snapshot });
+    if (status === 401) return showGate();
+    if (JSON.stringify(tune.draft) !== snapshot) return; // a newer preview is already queued
+    tune.pending = false;
+    if (!ok) { tune.previewErr = data.error ?? 'Could not preview'; tune.preview = null; }
+    else { tune.previewErr = null; tune.preview = data; }
+    renderTuneBar();
+    // Per-hunt counts in the card headers.
+    document.querySelectorAll('[data-cnt]').forEach(el => { const c = tune.preview?.by_search?.[el.dataset.cnt]; el.innerHTML = c ? `<b>${c.surface}</b> of ${c.total} worth a look` : ''; });
+  }, delay);
+}
+function markDirty() { tune.dirty = true; tune.msg = null; renderTuneBar(); schedulePreview(); }
+
+async function saveTune() {
+  const btn = $('#tune-save'); if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+  const before = state.deals.filter(live).filter(d => d.status === 'surface').length;
+  const { ok, status, data } = await api('/api/searches', { method: 'PUT', body: JSON.stringify(tune.draft) });
+  if (status === 401) return showGate();
+  if (!ok) { tune.previewErr = data.error ?? 'Save failed'; renderTuneBar(); return; }
+  tune.base = structuredClone(tune.draft); tune.dirty = false; state.cfg = structuredClone(tune.draft);
+  await refreshDeals();
+  const after = state.deals.filter(live).filter(d => d.status === 'surface').length;
+  tune.msg = `Saved. Re-ranked everything: ${after} worth a look${after !== before ? ` (was ${before})` : ''}.`;
+  tune.preview = data; renderTuneBar();
+  setTimeout(() => { if (!tune.dirty) { tune.msg = null; renderTuneBar(); } }, 6000);
+}
+
 async function renderConfig() {
   const m = $('#main');
-  const { status, data: cfg } = await api('/api/searches');
-  if (status === 401) return showGate();
-  const cards = (cfg.searches ?? []).map(s => `
-    <div class="panel glass rise">
-      <h3>${esc(s.label ?? s.id)}${s.active === false ? '<span class="inactive-tag">paused</span>' : ''}</h3>
-      <p class="sub">${(s.queries ?? []).map(q => '“' + esc(q) + '”').join(' · ') || esc(s.id)}</p>
-      <div class="facts">
-        ${s.pricing?.max != null ? `<div class="fact"><div class="k">Ceiling</div><div class="v">${fmtPrice(s.pricing.max)}</div></div>` : ''}
-        ${s.pricing?.great_deal_pct != null ? `<div class="fact"><div class="k">Steal at</div><div class="v">${s.pricing.great_deal_pct}% under</div></div>` : ''}
-        <div class="fact"><div class="k">Valuation</div><div class="v">${esc((s.fair_value?.method ?? '—').replace(/_/g, ' '))}</div></div>
-        ${s.must_have?.length ? `<div class="fact"><div class="k">Must-haves</div><div class="v">${s.must_have.length}</div></div>` : ''}
-      </div></div>`).join('');
-  m.innerHTML = `<div class="exhibit rise"><h2>What you’re hunting</h2><p>Change a number here and every listing you’ve ever seen re-ranks instantly. Rules lower a score and explain themselves — they never hide a listing.</p></div>
-    <div class="panels">${cards}</div>
-    <details class="rawcfg rise"><summary>Edit raw config (JSON)</summary>
-      <div class="editor-bar"><button class="primary" id="save-cfg">Save searches</button><span class="msg" id="cfg-msg" role="status"></span></div>
-      <textarea id="cfg" spellcheck="false">${esc(JSON.stringify(cfg, null, 2))}</textarea>
-      <p class="sub" style="margin-top:8px">Field reference: docs/searches.schema.md. ${state.hosted ? 'The next push from your computer overwrites this copy — edit one place at a time.' : ''}</p>
+  if (!tune.base) {
+    const { status, data: cfg } = await api('/api/searches');
+    if (status === 401) return showGate();
+    if (!cfg?.searches) return empty(m, 'No searches yet', 'Push a config from your computer first: <code>node scripts/push.mjs</code>.');
+    tune.base = structuredClone(cfg); tune.draft = structuredClone(cfg); tune.dirty = false; tune.preview = null; tune.msg = null; tune.previewErr = null;
+    schedulePreview(0);
+  }
+  renderTuneForm();
+}
+
+function huntCard(s, i) {
+  const P = `searches.${i}`;
+  const open = !tune.collapsed.has(s.id);
+  const maxCeil = Math.max(1000, Math.ceil(((s.pricing?.max ?? 500) * 2) / 100) * 100);
+  const fv = s.fair_value ?? {};
+  const accept = s.condition?.accept ?? [];
+  return `<section class="tcard glass card" data-hunt="${esc(s.id)}">
+    <div class="th">
+      <button type="button" class="mini" data-collapse="${esc(s.id)}" aria-label="${open ? 'Collapse' : 'Expand'}" aria-expanded="${open}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${open ? 'M6 9l6 6 6-6' : 'M9 6l6 6-6 6'}"/></svg></button>
+      <input class="lbl" type="text" data-path="${P}.label" value="${esc(s.label ?? s.id)}" aria-label="Hunt name">
+      <span class="cnt" data-cnt="${esc(s.id)}"></span>
+      ${sw('Active', `${P}.active`)}
+    </div>
+    ${open ? `
+    <div class="tsec"><h4>Prices</h4>
+      ${sl('Ceiling', `${P}.pricing.max`, { min: 0, max: maxCeil, step: 10, unit: '$', hint: 'Above this a listing takes the over-ceiling penalty. Still ranked.' })}
+      ${sl('Minimum price', `${P}.filters.min_price`, { min: 0, max: Math.max(200, s.pricing?.max ?? 200), step: 5, unit: '$', hint: 'Below this it is almost certainly a part, not the item.' })}
+      ${pair('Deal labels', `${P}.pricing.good_deal_pct`, `${P}.pricing.great_deal_pct`, { hint: 'Percent under fair value that earns “good deal” and “steal”. The steal bar also drives the value score.' })}
+      ${sl('Target price', `${P}.pricing.target`, { min: 0, max: maxCeil, step: 10, unit: '$', hint: 'What you would happily pay. Informational.' })}
+    </div>
+    <div class="tsec"><h4>Search terms ${nh}</h4>${chips(`${P}.queries`, 'Add a search term and press Enter')}</div>
+    <div class="tsec"><h4>Must-haves</h4>
+      <p class="note">Hard rules penalise a confirmed miss (×0.4). Soft rules only lower the spec score, so a seller not mentioning it is a maybe, not a no. The sentence is what the assessor checks ${nh}</p>
+      ${(s.must_have ?? []).map((r, j) => `<div class="rule">
+        <input class="spec" type="text" data-path="${P}.must_have.${j}.spec" data-slug value="${esc(r.spec ?? '')}" placeholder="rule_name" aria-label="Rule name">
+        ${segc(`${P}.must_have.${j}.hard`, [[true, 'Hard'], [false, 'Soft']])}
+        ${ta(`${P}.must_have.${j}.test`, 'What the listing must show, in plain words')}
+        <button type="button" class="rm" data-rm-rule="${P}.must_have.${j}" aria-label="Remove rule">×</button></div>`).join('')}
+      <div class="addrow"><button type="button" data-add-rule="${P}.must_have" data-kind="must">+ Add must-have</button></div>
+    </div>
+    <div class="tsec"><h4>Nice-to-haves</h4>
+      <p class="note">Bonus points on the spec score. Weight is how much each one matters. ${nh}</p>
+      ${(s.nice_to_have ?? []).map((r, j) => `<div class="rule">
+        <input class="spec" type="text" data-path="${P}.nice_to_have.${j}.spec" data-slug value="${esc(r.spec ?? '')}" placeholder="rule_name" aria-label="Rule name">
+        <span class="rw"><input type="range" data-path="${P}.nice_to_have.${j}.weight" data-num min="0" max="1" step="0.05" value="${r.weight ?? .25}" style="--p:${pctOfRange(r.weight ?? .25, 0, 1)}" aria-label="Weight"><input type="number" data-path="${P}.nice_to_have.${j}.weight" data-num min="0" max="1" step="0.05" value="${r.weight ?? .25}"></span>
+        ${ta(`${P}.nice_to_have.${j}.test`, 'What earns the bonus')}
+        <button type="button" class="rm" data-rm-rule="${P}.nice_to_have.${j}" aria-label="Remove rule">×</button></div>`).join('')}
+      <div class="addrow"><button type="button" data-add-rule="${P}.nice_to_have" data-kind="nice">+ Add nice-to-have</button></div>
+    </div>
+    <div class="tsec"><h4>Dealbreakers ${nh}</h4>
+      <p class="note">The assessor marks a listing as disqualified when it matches one of these. Listings already seen keep their verdict until the next hunt — to stop old dealbreakers sinking the ranking now, soften the penalty below.</p>
+      ${chips(`${P}.dealbreakers`, 'Add a dealbreaker and press Enter', true)}
+    </div>
+    <div class="tsec"><h4>Condition</h4>
+      <div class="ctl"><span class="cl">Acceptable<small>Anything unticked takes the condition-below-floor penalty.</small></span>
+        <div class="cbrow">${CONDITION_KEYS.map(k => `<label class="cb"><input type="checkbox" data-cond="${k}" data-hunt="${i}" ${accept.includes(k) ? 'checked' : ''}>${k.replace('_', ' ')}</label>`).join('')}</div></div>
+      <div class="ctl"><span class="cl">Notes for the assessor ${nh}</span>${ta(`${P}.condition.note`, 'e.g. worn grips are fine if playable')}</div>
+    </div>
+    <div class="tsec"><h4>How hard each rule hits</h4>
+      <p class="note">Each failed rule multiplies the score. Slide right to soften a rule, all the way to 1 to ignore it. This re-ranks listings you have already seen. <button type="button" class="linkbtn" data-reset-pen="${i}">Reset to defaults</button></p>
+      <div class="pen">${PENALTY_INFO.map(([k, l, d, h]) => sl(l, `${P}.penalties.${k}`, { min: .05, max: 1, step: .05, unit: '×', hint: h, dflt: d })).join('')}</div>
+    </div>
+    <div class="tsec"><h4>Fair value</h4>
+      <div class="fvline"><span>${esc((fv.method ?? '—').replace(/_/g, ' '))}</span><span class="conf">confidence ${esc(fv.confidence ?? '—')}</span><span>${esc(fv.basis ?? '')}</span><button type="button" class="linkbtn" data-open-json>Edit the tables in JSON</button></div>
+    </div>` : ''}
+  </section>`;
+}
+
+function renderTuneForm() {
+  const m = $('#main'); const g = tune.draft.global ?? (tune.draft.global = {});
+  const y = window.scrollY;
+  m.innerHTML = `<div class="exhibit rise"><h2>What you’re hunting</h2><p>Numbers re-rank everything you’ve already seen the moment you save. Anything badged <span class="nh">next hunt</span> is read by the assessor while it browses, so it applies to listings found from the next run on.</p></div>
+    <div class="tunebar glass" id="tunebar">${tuneBarHtml()}</div>
+    <form id="tune" autocomplete="off" onsubmit="return false">
+    <section class="tcard glass card">
+      <div class="th"><span class="lbl" style="font:700 16px var(--display)">Everything</span><span class="id">${esc(g.currency ?? 'CAD')} · ${esc(g.location?.resolved ?? '')}</span></div>
+      ${sl('Worth-a-look threshold', 'global.surface_threshold_pct', { min: 0, max: 60, step: 1, unit: '%', hint: 'A listing this far under fair value, with no flags, counts as worth a look. Lower it to see more.' })}
+      ${sl('Max distance', 'global.max_km', { min: 5, max: 200, step: 5, unit: 'km', hint: 'Further than this takes the too-far penalty. Facebook’s own radius leaks, so this is what actually holds.' })}
+      <div class="ctl"><span class="cl">Marketplace location ${nh}<small>“Facebook default” uses whatever your account is set to. “Explicit” pins every search to a place.</small></span>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">${segc('global.location.mode', [['facebook_default', 'Facebook default'], ['explicit', 'Explicit']])}
+        ${g.location?.mode === 'explicit' ? `<input type="text" data-path="global.location.place" value="${esc(g.location?.place ?? '')}" placeholder="City, Province or postal code" style="max-width:260px">` : ''}
+        <span class="slw" style="gap:6px"><input type="number" class="num" data-path="global.location.radius_miles" data-num min="1" max="200" value="${g.location?.radius_miles ?? 30}" aria-label="Radius in miles"><span class="unit">mi</span></span></div></div>
+    </section>
+    ${(tune.draft.searches ?? []).map(huntCard).join('')}
+    </form>
+    <details class="rawcfg rise" id="rawcfg"><summary>Raw config (JSON)</summary>
+      <p class="sub" style="margin:8px 0">Same draft as the form. Edits here are picked up when you click away. Field reference: docs/searches.schema.md.</p>
+      <textarea id="cfg" spellcheck="false">${esc(JSON.stringify(tune.draft, null, 2))}</textarea>
     </details>`;
-  $('#save-cfg').onclick = async () => {
-    const msg = $('#cfg-msg'); let parsed;
-    try { parsed = JSON.parse($('#cfg').value); } catch (e) { msg.className = 'msg bad'; msg.textContent = 'Not valid JSON: ' + e.message; return; }
-    const { ok, data } = await api('/api/searches', { method: 'PUT', body: JSON.stringify(parsed) });
-    msg.className = 'msg ' + (ok ? 'good' : 'bad');
-    msg.textContent = ok ? 'Saved — everything re-ranked.' : (data.error ?? 'Save failed');
-    if (ok) await refreshDeals();
+  wireTuneBar(); wireTuneForm();
+  window.scrollTo({ top: y });
+  document.querySelectorAll('[data-cnt]').forEach(el => { const c = tune.preview?.by_search?.[el.dataset.cnt]; el.innerHTML = c ? `<b>${c.surface}</b> of ${c.total} worth a look` : ''; });
+}
+
+function wireTuneForm() {
+  const f = $('#tune');
+  f.addEventListener('input', (e) => {
+    const t = e.target;
+    if (t.dataset.chipAdd != null) return;
+    if (t.dataset.cond) {
+      const s = tune.draft.searches[Number(t.dataset.hunt)]; s.condition = s.condition ?? {};
+      const checked = [...f.querySelectorAll(`[data-cond][data-hunt="${t.dataset.hunt}"]`)].filter(c => c.checked).map(c => c.dataset.cond);
+      s.condition.accept = CONDITION_KEYS.filter(k => checked.includes(k));
+      s.condition.floor = s.condition.accept.at(-1) ?? null;
+      return markDirty();
+    }
+    const path = t.dataset.path; if (!path) return;
+    let v;
+    if (t.dataset.bool != null) v = t.checked;
+    else if (t.dataset.num != null) { v = t.value === '' ? null : Number(t.value); if (v != null && !Number.isFinite(v)) return; }
+    else v = t.value;
+    if (t.dataset.pair) {
+      const sib = t.dataset.pair === 'lo' ? t.nextElementSibling : t.previousElementSibling;
+      const other = Number(sib.value);
+      if (t.dataset.pair === 'lo' && v > other) { v = other; t.value = v; }
+      if (t.dataset.pair === 'hi' && v < other) { v = other; t.value = v; }
+      const wrap = t.parentElement, min = Number(t.min), max = Number(t.max);
+      wrap.style.setProperty(t.dataset.pair === 'lo' ? '--a' : '--b', pctOfRange(v, min, max));
+      const out = f.querySelector(`[data-pv="${path}"]`); if (out) out.textContent = v + '%';
+    }
+    setPath(tune.draft, path, v);
+    // Keep the twin control (range ↔ number) in step and the fill painted.
+    f.querySelectorAll(`[data-path="${path}"]`).forEach(el => {
+      if (el === t) { if (el.type === 'range') el.style.setProperty('--p', pctOfRange(v, Number(el.min), Number(el.max))); return; }
+      if (el.type === 'range') { el.value = v; el.style.setProperty('--p', pctOfRange(v, Number(el.min), Number(el.max))); }
+      else if (el.type === 'number') el.value = v;
+    });
+    markDirty();
+  });
+  f.addEventListener('change', (e) => {
+    const t = e.target;
+    if (t.dataset.slug != null) { const v = slug(t.value); t.value = v; setPath(tune.draft, t.dataset.path, v); markDirty(); }
+  });
+  f.addEventListener('keydown', (e) => {
+    const t = e.target;
+    if (t.dataset.chipAdd != null && (e.key === 'Enter' || e.key === ',')) {
+      e.preventDefault(); const v = t.value.trim(); if (!v) return;
+      const arr = getPath(tune.draft, t.dataset.chipAdd) ?? []; arr.push(v); setPath(tune.draft, t.dataset.chipAdd, arr);
+      markDirty(); renderTuneForm(); f.querySelector(`[data-chip-add="${t.dataset.chipAdd}"]`)?.focus();
+    }
+    if (t.dataset.chipAdd != null && e.key === 'Backspace' && !t.value) {
+      const arr = getPath(tune.draft, t.dataset.chipAdd) ?? []; if (!arr.length) return;
+      arr.pop(); markDirty(); renderTuneForm(); document.querySelector(`[data-chip-add="${t.dataset.chipAdd}"]`)?.focus();
+    }
+  });
+  f.addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.seg) { const raw = b.dataset.val; const v = raw === 'true' ? true : raw === 'false' ? false : raw; setPath(tune.draft, b.dataset.seg, v); markDirty(); renderTuneForm(); }
+    else if (b.dataset.chipRm != null) { const path = b.closest('[data-chips]').dataset.chips; const arr = getPath(tune.draft, path); arr.splice(Number(b.dataset.chipRm), 1); markDirty(); renderTuneForm(); }
+    else if (b.dataset.addRule) { const arr = getPath(tune.draft, b.dataset.addRule) ?? []; arr.push(b.dataset.kind === 'must' ? { spec: '', hard: false, test: '' } : { spec: '', weight: .25, test: '' }); setPath(tune.draft, b.dataset.addRule, arr); markDirty(); renderTuneForm(); document.querySelector(`[data-path="${b.dataset.addRule}.${arr.length - 1}.spec"]`)?.focus(); }
+    else if (b.dataset.rmRule) { const ks = b.dataset.rmRule.split('.'); const idx = Number(ks.pop()); getPath(tune.draft, ks.join('.')).splice(idx, 1); markDirty(); renderTuneForm(); }
+    else if (b.dataset.resetPen != null) { delete tune.draft.searches[Number(b.dataset.resetPen)].penalties; markDirty(); renderTuneForm(); }
+    else if (b.dataset.collapse) { const id = b.dataset.collapse; tune.collapsed.has(id) ? tune.collapsed.delete(id) : tune.collapsed.add(id); renderTuneForm(); }
+    else if (b.dataset.openJson != null) { const d = $('#rawcfg'); d.open = true; d.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  });
+  // Raw JSON stays a first-class path for the fair-value tables.
+  const raw = $('#cfg');
+  raw.onblur = () => {
+    try { const parsed = JSON.parse(raw.value); if (JSON.stringify(parsed) === JSON.stringify(tune.draft)) return; tune.draft = parsed; markDirty(); renderTuneForm(); }
+    catch (err) { tune.previewErr = 'Raw JSON is not valid: ' + err.message; renderTuneBar(); }
   };
 }
 
