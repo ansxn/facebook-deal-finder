@@ -15,7 +15,7 @@
 --------------------------------------------------------------------------- */
 :root {
   /* Ink: near-black with a green cast, never pure grey. */
-  --pine: #172420; --pine-2: #4a5b53; --pine-3: #86948c;
+  --pine: #172420; --pine-2: #4a5b53; --pine-3: #62716a;
   /* Accent: BCG green. --on-accent is the text colour that sits on it. */
   --bcg: #0f6a4b; --bcg-soft: rgba(15, 106, 75, .11); --on-accent: #ffffff;
   --amber: #9a6b12; --amber-soft: rgba(154, 107, 18, .12);
@@ -44,7 +44,7 @@
 }
 /* Dark: chosen explicitly with data-theme, or by the OS when nothing is set. */
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --pine: #e9f0ec; --pine-2: #aab7b0; --pine-3: #76847d;
+  --pine: #e9f0ec; --pine-2: #aab7b0; --pine-3: #8a988f;
   --bcg: #4fc79a; --bcg-soft: rgba(79, 199, 154, .14); --on-accent: #0b1a14;
   --amber: #d9aa4f; --amber-soft: rgba(217, 170, 79, .14);
   --clay: #d67f76; --clay-soft: rgba(214, 127, 118, .14);
@@ -62,7 +62,7 @@
   --cat-1: #2a9466; --cat-2: #b5812e; --cat-3: #6383d4; --cat-4: #c06a62;
 } }
 :root[data-theme="dark"] {
-  --pine: #e9f0ec; --pine-2: #aab7b0; --pine-3: #76847d;
+  --pine: #e9f0ec; --pine-2: #aab7b0; --pine-3: #8a988f;
   --bcg: #4fc79a; --bcg-soft: rgba(79, 199, 154, .14); --on-accent: #0b1a14;
   --amber: #d9aa4f; --amber-soft: rgba(217, 170, 79, .14);
   --clay: #d67f76; --clay-soft: rgba(214, 127, 118, .14);
@@ -162,21 +162,21 @@ body.scrolled header.top::before { opacity: 1; }
 .pillbar button:hover { background: var(--well); box-shadow: none; }
 .pillbar button svg { width: 18px; height: 18px; flex-shrink: 0; }
 .pillbar button .lab { display: none; }
-.pillbar button[aria-selected="true"] { width: auto; padding: 0 16px 0 12px; gap: 8px; background: var(--pill-active); color: var(--pine); box-shadow: 0 3px 12px -4px rgba(14,42,31,.35), inset 0 1px 0 rgba(255,255,255,.6); font-weight: 600; }
-.pillbar button[aria-selected="true"] .lab { display: inline; }
+.pillbar button[aria-current="page"] { width: auto; padding: 0 16px 0 12px; gap: 8px; background: var(--pill-active); color: var(--pine); box-shadow: 0 3px 12px -4px rgba(14,42,31,.35), inset 0 1px 0 rgba(255,255,255,.6); font-weight: 600; }
+.pillbar button[aria-current="page"] .lab { display: inline; }
 .cluster { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 .circ { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; padding: 0; position: relative; }
 .circ svg { width: 18px; height: 18px; }
-.circ .dot { position: absolute; top: 9px; right: 9px; width: 8px; height: 8px; border-radius: 50%; background: var(--pine-3); border: 2px solid var(--glass-strong); }
-.circ.open .dot { background: var(--bcg); }
 .avatar { font: 700 13px var(--display); color: var(--bcg); background: var(--bcg-soft); border: 1px solid var(--glass-line); }
-button.pill { border-radius: 999px; padding: 11px 18px; white-space: nowrap; }
+button.pillbtn { border-radius: 999px; padding: 11px 18px; white-space: nowrap; }
+#run-btn { color: var(--bcg); font-weight: 650; }
 .theme-seg { display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px; background: var(--well); }
 .theme-seg button { border: none; box-shadow: none; background: transparent; border-radius: 999px; padding: 6px 12px; font-size: 12.5px; color: var(--pine-2); }
 .theme-seg button[aria-pressed="true"] { background: var(--pill-active); color: var(--pine); box-shadow: 0 2px 8px -3px rgba(14,42,31,.25); }
 nav.seg { display: none; }
+@media (max-width: 900px) { .brand .who { display: none; } }
 
-main { padding: 84px clamp(16px, 3vw, 28px) 160px; max-width: 1360px; margin: 0 auto; }
+main { padding: 84px clamp(16px, 3vw, 28px) 130px; max-width: 1360px; margin: 0 auto; }
 
 .exhibit { margin: 6px 0 16px; }
 .exhibit h2 { font: 800 clamp(21px, 3.4vw, 27px)/1.15 var(--display); letter-spacing: -.025em; margin: 0; }
@@ -228,8 +228,6 @@ main { padding: 84px clamp(16px, 3vw, 28px) 160px; max-width: 1360px; margin: 0 
 .pill.good { background: var(--amber-soft); color: var(--amber); }
 .pill.clay { background: var(--clay-soft); color: var(--clay); }
 .pill.hollow { background: transparent; border: 1px solid var(--glass-line); color: var(--pine-3); }
-.pill.flag-amber { background: var(--amber-soft); color: var(--amber); text-transform: none; letter-spacing: 0; font-weight: 600; font-size: 11.5px; }
-.pill.flag-clay { background: var(--clay-soft); color: var(--clay); text-transform: none; letter-spacing: 0; font-weight: 600; font-size: 11.5px; }
 .saved-flag { font-size: 12px; color: var(--bcg); font-weight: 700; }
 .title { font: 600 15.5px/1.35 var(--display); letter-spacing: -.01em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .meta { display: flex; gap: 0 6px; flex-wrap: wrap; font-size: 12px; color: var(--pine-3); font-variant-numeric: tabular-nums; margin-top: auto; }
@@ -249,8 +247,8 @@ button.saved-on { background: var(--bcg-soft); border-color: transparent; color:
 .frosting .frost-veil { opacity: 1; pointer-events: auto; }
 .frost-veil button { background: var(--glass-strong); }
 .card.collapsing { opacity: 0; transform: scale(.9); transition: opacity .35s, transform .35s; }
-.card.passed .content, .row.passed .content { filter: blur(4px) saturate(.35); opacity: .5; }
-.passed-note { position: absolute; left: 12px; right: 12px; bottom: 62px; z-index: 3; padding: 9px 12px; border-radius: 12px; font-size: 12.5px; color: var(--pine); background: var(--glass-strong); border: 1px solid var(--glass-line); }
+.card.passed .content, .row.passed .content { filter: saturate(.3); opacity: .62; }
+
 
 /* ---- detail sheet ---- */
 #sheet-backdrop { position: fixed; inset: 0; z-index: 40; background: rgba(8,20,14,.35); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); opacity: 0; transition: opacity .25s; }
@@ -349,35 +347,36 @@ dialog p { color: var(--pine-2); font-size: 13.5px; margin: 0 0 10px; }
 dialog .dlg-row { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 
 /* ---- mobile dock ---- */
-nav.dock { display: none; position: fixed; z-index: 30; left: 50%; transform: translateX(-50%); bottom: calc(12px + env(safe-area-inset-bottom)); padding: 6px; gap: 2px; border-radius: 22px; }
-nav.dock button { border: none; background: transparent; box-shadow: none; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 13px; border-radius: 16px; font-size: 10px; font-weight: 650; color: var(--pine-2); }
+nav.dock { display: none; position: fixed; z-index: 30; left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); padding: 6px; gap: 2px; border-radius: 22px; }
+nav.dock button { border: none; background: transparent; box-shadow: none; display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; min-width: 0; padding: 8px 4px; white-space: nowrap; border-radius: 16px; font-size: 10px; font-weight: 650; color: var(--pine-2); }
 nav.dock button svg { width: 21px; height: 21px; }
-nav.dock button[aria-selected="true"] { background: var(--bcg-soft); color: var(--bcg); }
+nav.dock button[aria-current="page"] { background: var(--bcg-soft); color: var(--bcg); }
 @media (max-width: 640px) {
   nav.dock { display: flex; }
   header.top { top: 10px; padding: 0 12px; }
-  .pillbar, .brand .who, .avatar, #huntline { display: none; }
-  main { padding: 72px 16px 210px; }
+  .pillbar, .brand .who { display: none; }
+  .chips { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; max-width: 100%; margin-bottom: 4px; padding-bottom: 2px; }
+  .chips::-webkit-scrollbar { display: none; }
+  main { padding: 72px 16px 176px; }
 }
 
 /* ---------------------------------------------------------------------------
    Desktop (≥1024): one row per listing so the ranking reads top to bottom, and
    (≥1200) the detail pane sits beside the list instead of sliding over it.
 --------------------------------------------------------------------------- */
-.kbd-hint, .list-head, .sortwrap { display: none; }
+.kbd-hint, .list-head { display: none; }
+.sortwrap { display: inline-flex; position: relative; align-items: center; gap: 8px; font-size: 12.5px; color: var(--pine-3); }
+.sortwrap select { appearance: none; -webkit-appearance: none; font: 600 13px var(--body); color: var(--pine); padding: 8px 28px 8px 12px; border-radius: 12px; border: 1px solid var(--glass-line); background: var(--glass-strong); cursor: pointer; }
+.sortwrap::after { content: "▾"; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--pine-3); font-size: 12px; }
 .toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 @media (min-width: 1024px) {
   nav.dock { display: none !important; }
-  .sortwrap { display: inline-flex; }
   .chips { margin: 0; }
   main { max-width: none; margin: 0; padding: 84px 28px 160px; min-width: 0; }
   .exhibit-row { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 16px; margin: 4px 0 18px; }
   .exhibit-row .exhibit { margin: 0; min-width: 0; flex: 1 1 340px; }
   .exhibit h2 { font-size: clamp(24px, 2.2vw, 30px); }
   .toolbar { flex: 0 1 auto; min-width: 0; padding-bottom: 4px; }
-  .sortwrap { position: relative; align-items: center; gap: 8px; font-size: 12.5px; color: var(--pine-3); }
-  .sortwrap select { appearance: none; -webkit-appearance: none; font: 600 13px var(--body); color: var(--pine); padding: 8px 28px 8px 12px; border-radius: 12px; border: 1px solid var(--glass-line); background: var(--glass-strong); cursor: pointer; }
-  .sortwrap::after { content: "▾"; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--pine-3); font-size: 12px; }
 
   .list { --cols: 44px minmax(0, 1fr) 84px 104px 112px; padding: 0 0 4px; }
   .list-head, .row .content { display: grid; grid-template-columns: var(--cols); gap: 12px; align-items: center; }
@@ -405,18 +404,19 @@ nav.dock button[aria-selected="true"] { background: var(--bcg-soft); color: var(
   .row .cell .v small { font: 650 11px var(--body); letter-spacing: 0; margin-left: 3px; }
   .row .cell .v.dim { color: var(--pine-3); font-weight: 700; font-size: 13px; }
   .row .cell .v.under { color: var(--bcg); } .row .cell .v.over { color: var(--clay); }
-  .row .cell .rough { display: block; font: 700 9.5px/1 var(--body); text-transform: uppercase; letter-spacing: .06em; color: var(--amber); margin-top: 5px; }
+  .row .cell .rough { display: block; font: 700 10.5px/1 var(--body); text-transform: uppercase; letter-spacing: .06em; color: var(--amber); margin-top: 5px; }
   .row .sc { display: flex; flex-direction: column; gap: 6px; }
   .row .sc .score b { font: 800 18px/1 var(--display); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
   .row .acts { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display: flex; gap: 6px; padding: 4px; border-radius: 14px; background: var(--glass-strong); box-shadow: var(--shadow); opacity: 0; pointer-events: none; transition: opacity .15s; }
   .row .acts .btn, .row .acts button { font-size: 12.5px; padding: 7px 11px; flex-shrink: 0; }
   .row .acts .open { color: var(--bcg); }
-  .row:hover .acts { opacity: 1; pointer-events: auto; }
+  .row:hover .acts, .row:has(.acts :focus-visible) .acts { opacity: 1; pointer-events: auto; }
   .row.collapsing { height: 0 !important; opacity: 0; overflow: hidden; border-top-width: 0; transition: height .35s cubic-bezier(.22,1,.36,1), opacity .25s, border-top-width .35s; }
   .kbd-hint { display: block; margin: 10px 6px 0; font-size: 12px; color: var(--pine-3); }
   .kbd-hint kbd { font: 600 11px var(--mono); border: 1px solid var(--glass-line); border-radius: 5px; padding: 1px 5px; margin: 0 2px; }
   .empty { padding: 60px 24px; }
 }
+@media (min-width: 1024px) and (max-width: 1199px) { .cal { padding: 14px 12px 12px; } .cal .days { gap: 1px; } .cal .day { font-size: 10px; } .cal .day .dd { width: 24px; height: 24px; font-size: 12px; } }
 /* Wide desktop: full column set, actions get their own column, detail sits beside the list. */
 @media (min-width: 1200px) {
   body { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; }
@@ -429,6 +429,7 @@ nav.dock button[aria-selected="true"] { background: var(--bcg-soft); color: var(
   #sheet { position: sticky; top: 20px; right: auto; bottom: auto; width: 440px; height: calc(100vh - 40px); margin: 20px 20px 20px 0; border-radius: var(--r); transform: none; opacity: 0; transition: opacity .22s ease; }
   #sheet.on { opacity: 1; }
   #sheet-backdrop { display: none !important; }
+  body.has-detail .askbar { left: calc(50% - 230px); width: min(720px, calc(100% - 500px)); }
   body.sheet-open { overflow: visible; }
   .sheet-head { padding: 18px 56px 16px 20px; }
   .sheet-head .p { font-size: 28px; }
@@ -447,13 +448,13 @@ nav.dock button[aria-selected="true"] { background: var(--bcg-soft); color: var(
 .ov { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 20px; align-items: start; }
 .ov > * { min-width: 0; }
 .hero { grid-column: 1 / -1; padding-top: 6px; }
-.hero .upd { font-size: 12.5px; color: var(--hero-ink); opacity: .82; font-variant-numeric: tabular-nums; }
-.hero h2 { font: 300 clamp(38px, 5vw, 64px)/1.02 var(--display); letter-spacing: -.035em; color: var(--hero-ink); margin: 2px 0 0; text-shadow: 0 2px 24px rgba(0,0,0,.2); }
+.hero .upd { font-size: 13px; font-weight: 500; color: var(--hero-ink); font-variant-numeric: tabular-nums; text-shadow: 0 1px 2px rgba(0,0,0,.3), 0 0 12px rgba(0,0,0,.18); }
+.hero h2 { font: 300 clamp(38px, 5vw, 64px)/1.02 var(--display); letter-spacing: -.035em; color: var(--hero-ink); margin: 2px 0 0; text-shadow: 0 1px 2px rgba(0,0,0,.22), 0 2px 24px rgba(0,0,0,.25); }
+@media (max-width: 1023px) { .hero { --hero-ink: var(--pine); } .hero h2, .hero .upd { text-shadow: none; } }
 .winseg { grid-column: 1 / -1; justify-self: start; }
 .card { background: var(--sheen), var(--card); }
 .wh { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
 .wh b { font: 600 14px var(--display); letter-spacing: -.01em; }
-.wbtns { margin-left: auto; display: flex; gap: 4px; }
 button.mini { width: 28px; height: 28px; padding: 0; justify-content: center; border-radius: 9px; background: transparent; border-color: transparent; color: var(--pine-3); }
 button.mini:hover { background: var(--well); box-shadow: none; color: var(--pine); }
 button.mini svg { width: 15px; height: 15px; }
@@ -462,15 +463,9 @@ button.mini svg { width: 15px; height: 15px; }
 .summary .k { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; }
 .summary .k .id { color: var(--pine-2); font-variant-numeric: tabular-nums; }
 .summary .big { font: 500 38px/1 var(--display); letter-spacing: -.03em; margin: 14px 0 8px; font-variant-numeric: tabular-nums; }
-.summary .st { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--pine-2); }
+.summary .st { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--pine-2); margin-bottom: 4px; }
 .summary .st i { width: 7px; height: 7px; border-radius: 50%; background: var(--pine-3); }
 .summary .st.open i { background: var(--bcg); }
-.qa { display: flex; justify-content: space-around; padding: 14px 4px 6px; }
-.qa button { flex-direction: column; gap: 6px; background: transparent; border: none; box-shadow: none; color: var(--pine-2); font-size: 11.5px; padding: 4px 8px; }
-.qa button .ic { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--bcg-soft); color: var(--bcg); border: 1px solid var(--glass-line); }
-.qa button .ic svg { width: 16px; height: 16px; }
-.qa button:hover .ic { background: var(--bcg); color: var(--on-accent); }
-.qa button .n { position: absolute; }
 .cal { grid-column: 1 / -1; padding: 16px 18px 14px; }
 .cal .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 12px; }
 .cal .day { text-align: center; font-size: 11px; color: var(--pine-3); display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; }
@@ -480,10 +475,11 @@ button.mini svg { width: 15px; height: 15px; }
 .cal .day.run .rd { background: var(--bcg); }
 .cal .day.run { cursor: default; }
 .movers { grid-column: 1 / -1; padding: 16px 18px 10px; }
-.mrow { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto auto; gap: 10px; align-items: center; padding: 9px 0; border-top: 1px solid var(--glass-line); cursor: pointer; font-size: 13px; }
+.mrow { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 0; border-top: 1px solid var(--glass-line); cursor: pointer; font-size: 13px; }
 .mrow:first-of-type { border-top: none; }
 .mrow:hover .mt { color: var(--bcg); }
 .mrow .mi { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font: 700 12px var(--display); color: #fff; background: var(--c); box-shadow: inset 0 1px 0 rgba(255,255,255,.35); }
+.mrow .mtw { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
 .mrow .mt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
 .mrow .md { color: var(--pine-3); font-size: 11.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .mrow .mv { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; min-width: 52px; text-align: right; }
@@ -501,9 +497,9 @@ button.mini svg { width: 15px; height: 15px; }
 .bars .pair { flex: 1; display: flex; gap: 2px; align-items: flex-end; height: 100%; }
 .bars .pair i { flex: 1; }
 .bars .th { position: absolute; top: -6px; bottom: -2px; width: 1px; background: var(--pine-2); opacity: .7; }
-.bars .th::after { content: "bar"; position: absolute; top: -12px; left: 4px; font: 600 9.5px var(--body); color: var(--pine-3); text-transform: uppercase; letter-spacing: .06em; }
+.bars .th::after { content: "bar"; position: absolute; top: -12px; left: 4px; font: 600 10.5px var(--body); color: var(--pine-3); text-transform: uppercase; letter-spacing: .06em; }
 [data-tip] { cursor: default; }
-[data-tip]:hover::after { content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 6px); transform: translateX(-50%); white-space: nowrap; font: 600 11px var(--body); color: var(--pine); background: var(--glass-strong); border: 1px solid var(--glass-line); border-radius: 8px; padding: 4px 8px; z-index: 5; pointer-events: none; box-shadow: var(--shadow); }
+[data-tip]:hover::after, [data-tip]:focus-visible::after { content: attr(data-tip); position: absolute; left: 50%; bottom: calc(100% + 6px); transform: translateX(-50%); white-space: nowrap; font: 600 11px var(--body); color: var(--pine); background: var(--glass-strong); border: 1px solid var(--glass-line); border-radius: 8px; padding: 4px 8px; z-index: 5; pointer-events: none; box-shadow: var(--shadow); }
 .wfoot { display: flex; justify-content: space-between; gap: 4px; margin-top: 8px; font-size: 10.5px; color: var(--pine-3); font-variant-numeric: tabular-nums; }
 .wfoot span { flex: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dots { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 14px; margin-top: auto; }
@@ -532,6 +528,7 @@ button.mini svg { width: 15px; height: 15px; }
 .mini-row .v.under { color: var(--bcg); } .mini-row .v.over { color: var(--clay); } .mini-row .v.dim { color: var(--pine-3); font-weight: 600; }
 .mini-row .s { display: flex; align-items: center; gap: 8px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .mini-row .s .meter { flex: 1; }
+@media (max-width: 1023px) { .mini-row { grid-template-columns: 34px minmax(0, 1fr) auto auto; gap: 8px; } .mini-row > span:nth-child(4), .mini-row .s .meter { display: none; } }
 .wempty { color: var(--pine-3); font-size: 13px; margin: auto 0; }
 .ov-note { font-size: 12px; color: var(--pine-3); margin-top: auto; }
 @media (min-width: 720px) {
@@ -543,6 +540,7 @@ button.mini svg { width: 15px; height: 15px; }
   .hero { grid-column: 1 / 7; grid-row: 1; }
   .winseg { grid-column: 7 / 10; grid-row: 1; justify-self: center; align-self: start; margin-top: 10px; }
   .cal { grid-column: 10 / 13; grid-row: 1; }
+
   .summary { grid-column: 1 / 4; grid-row: 2; }
   .movers { grid-column: 10 / 13; grid-row: 2; }
   .widgets { grid-row: 3; }
@@ -573,12 +571,17 @@ button.mini svg { width: 15px; height: 15px; }
 .tcard .th input.lbl:focus { outline: none; background: var(--well); padding: 4px 8px; }
 .tcard .th .id { font: 11.5px var(--mono); color: var(--pine-3); white-space: nowrap; }
 .tcard .th .cnt { font-size: 12.5px; color: var(--pine-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tcard .th input.lbl:hover { background: var(--well); padding: 4px 8px; }
+details.tsec > summary { cursor: pointer; list-style: none; font: 700 11px/1 var(--body); text-transform: uppercase; letter-spacing: .09em; color: var(--pine-3); margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
+details.tsec > summary::-webkit-details-marker { display: none; }
+details.tsec > summary::after { content: "▾"; font-size: 11px; opacity: .7; }
+details.tsec[open] > summary::after { content: "▴"; }
 .tcard .th .cnt b { color: var(--bcg); }
 .tcard .intro { font-size: 13px; color: var(--pine-2); margin: 0 0 6px; }
 .tsec { padding: 14px 0 6px; border-top: 1px solid var(--glass-line); }
 .tsec h4 { font: 700 11px/1 var(--body); text-transform: uppercase; letter-spacing: .09em; color: var(--pine-3); margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
 .tsec .note { font-size: 12.5px; color: var(--pine-3); margin: 0 0 10px; }
-.nh { font: 600 9.5px/1 var(--body); text-transform: uppercase; letter-spacing: .06em; color: var(--amber); background: var(--amber-soft); border-radius: 999px; padding: 3px 7px; white-space: nowrap; }
+.nh { font: 600 10.5px/1 var(--body); text-transform: uppercase; letter-spacing: .06em; color: var(--amber); background: var(--amber-soft); border-radius: 999px; padding: 3px 7px; white-space: nowrap; }
 .ctl { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 6px 18px; align-items: center; padding: 7px 0; }
 .ctl .cl { font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .ctl .cl small { flex-basis: 100%; font-weight: 500; color: var(--pine-3); font-size: 12px; line-height: 1.35; }
@@ -625,7 +628,7 @@ input[type=range]:focus-visible { outline: none; } input[type=range]:focus-visib
 .chipedit { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 6px; border-radius: 14px; border: 1px solid var(--glass-line); background: var(--glass-strong); }
 .chipedit .chip { display: inline-flex; align-items: center; gap: 4px; padding: 5px 6px 5px 11px; border-radius: 999px; background: var(--bcg-soft); color: var(--bcg); font-size: 12.5px; font-weight: 600; }
 .chipedit .chip.warn { background: var(--clay-soft); color: var(--clay); }
-.chipedit .chip button { border: none; background: transparent; box-shadow: none; padding: 0 5px; color: inherit; font-size: 14px; line-height: 1; }
+.chipedit .chip button { border: none; background: transparent; box-shadow: none; min-width: 24px; min-height: 24px; margin: -3px -2px -3px 0; padding: 0; justify-content: center; border-radius: 50%; color: inherit; font-size: 15px; line-height: 1; }
 .chipedit input { flex: 1; min-width: 170px; border: none; background: transparent; padding: 6px 8px; font-size: 13.5px; color: var(--pine); }
 .chipedit input:focus { outline: none; }
 .cbrow { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -639,16 +642,22 @@ input[type=range]:focus-visible { outline: none; } input[type=range]:focus-visib
 .fvline .conf { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--pine-3); }
 @media (max-width: 700px) {
   .ctl { grid-template-columns: 1fr; gap: 6px; }
+  .pen { grid-template-columns: 1fr; }
   .pen .ctl { grid-template-columns: 1fr; }
-  .rule { grid-template-columns: 1fr auto; }
+  .rule { grid-template-columns: minmax(0, 1fr) auto; }
+  .rule .rm { grid-column: 2; grid-row: 1; }
+  .rule .rw { width: 100%; }
   .rule textarea { grid-column: 1 / -1; }
-  .tunebar { top: 62px; flex-wrap: wrap; padding: 10px 12px; }
-  .tunebar .tb-acts { width: 100%; justify-content: flex-end; }
+  .tcard .th { flex-wrap: wrap; }
+  .tcard .th .cnt { flex-basis: 100%; order: 4; margin: -2px 0 0 40px; }
+  .tunebar { top: 62px; gap: 8px; padding: 8px 8px 8px 14px; }
+  .tunebar .tb-txt .per, .tunebar .tb-acts .lng { display: none; }
 }
 
 /* ---- ask bar ---- */
 .askbar { position: fixed; left: 50%; transform: translateX(-50%); bottom: 22px; width: min(720px, calc(100% - 40px)); z-index: 30; display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .chiprow { display: flex; gap: 6px; max-width: 100%; overflow-x: auto; scrollbar-width: none; padding: 2px; }
+.askbar:not(.q-focus):not(.has-quick) .chiprow { display: none; }
 .chiprow::-webkit-scrollbar { display: none; }
 .chiprow button { border-radius: 999px; padding: 6px 12px; font-size: 12px; white-space: nowrap; background: var(--glass); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
 .chiprow button[aria-pressed="true"] { background: var(--bcg); border-color: transparent; color: var(--on-accent); }
@@ -661,6 +670,8 @@ input[type=range]:focus-visible { outline: none; } input[type=range]:focus-visib
 
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 .rise { animation: rise .45s cubic-bezier(.22,1,.36,1) both; }
+main.still .rise { animation: none; }
+.toast { position: fixed; top: 72px; left: 50%; transform: translateX(-50%); z-index: 60; padding: 10px 16px; font-size: 13px; font-weight: 600; color: var(--pine); max-width: calc(100% - 32px); }
 .rise:nth-child(2) { animation-delay: 40ms; } .rise:nth-child(3) { animation-delay: 80ms; }
 .rise:nth-child(4) { animation-delay: 120ms; } .rise:nth-child(5) { animation-delay: 160ms; }
 .rise:nth-child(6) { animation-delay: 200ms; }
@@ -712,20 +723,20 @@ input[type=range]:focus-visible { outline: none; } input[type=range]:focus-visib
       <input type="email" id="g-email" placeholder="Email" autocomplete="email" required>
       <input type="password" id="g-password" placeholder="Password" autocomplete="current-password" required>
       <input type="password" id="g-confirm" placeholder="Confirm password" autocomplete="new-password" hidden>
-      <input type="text" id="g-code" placeholder="Invite code" autocomplete="off" hidden>
+      <input type="text" id="g-code" placeholder="Invite code (if you have one)" autocomplete="off" hidden>
       <div class="err" id="g-err" role="alert"></div>
       <button class="primary" type="submit" id="g-submit">Sign in</button>
     </form>
     <div id="token-moment" hidden>
-      <p class="ok-msg" style="margin:0 0 10px">Account created. One more thing —</p>
+      <p class="ok-msg" style="margin:0 0 10px">Account created. One more thing.</p>
       <p style="font-size:13px;color:var(--pine-2);margin:0 0 10px">
-        This token lets your computer send hunt results here. Paste it into
+        This token lets your computer send hunts here. Put it in
         <code style="font-family:var(--mono);font-size:12px">.env.local</code> as
-        <code style="font-family:var(--mono);font-size:12px">DEALFINDER_PUSH_TOKEN</code>. It is shown only once.</p>
+        <code style="font-family:var(--mono);font-size:12px">DEALFINDER_PUSH_TOKEN</code>. Need it again later? Account makes a new one.</p>
       <div class="token-well" id="token-text"></div>
       <div style="display:flex;gap:8px;margin-top:12px">
         <button id="token-copy">Copy token</button>
-        <button class="primary" id="token-done">I saved it — open my deals</button>
+        <button class="primary" id="token-done">Open my deals</button>
       </div>
     </div>
     <div class="gate-swap" id="gate-swap">New here? <button type="button" id="swap-btn">Create an account</button></div>
@@ -736,10 +747,8 @@ input[type=range]:focus-visible { outline: none; } input[type=range]:focus-visib
   <div class="brand glass"><span class="mark">d</span><h1>Deal Finder</h1><span class="who" id="who"></span></div>
   <nav class="pillbar glass" id="seg" aria-label="Views"></nav>
   <div class="cluster">
-    <button class="circ glass" id="huntline" aria-label="Hunt status"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><i class="dot"></i></button>
     <button class="circ glass" id="theme-btn" aria-label="Appearance" title="Appearance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path id="theme-icon" d=""/></svg></button>
-    <span class="circ glass avatar" id="avatar" aria-hidden="true"></span>
-    <button class="primary pill" id="run-btn">Run hunt</button>
+    <button class="pillbtn" id="run-btn">Run a hunt</button>
   </div>
 </header>
 
@@ -757,12 +766,12 @@ input[type=range]:focus-visible { outline: none; } input[type=range]:focus-visib
 </div>
 
 <div id="sheet-backdrop" hidden></div>
-<aside id="sheet" class="glass" role="dialog" aria-modal="true" aria-label="Listing detail" hidden></aside>
+<aside id="sheet" class="glass" role="dialog" aria-label="Listing detail" hidden></aside>
 
 <dialog id="run-dialog">
   <div class="glass">
-    <h2>Hunts run in Claude, not here</h2>
-    <p>Browsing Marketplace takes your own Chrome and hands-off pacing — that's Claude Code's job. To hunt now, run:</p>
+    <h2>Hunts run in Claude Code</h2>
+    <p id="run-status"></p><p>Open Claude Code and run:</p>
     <p style="margin:12px 0"><code style="font:13px var(--mono);background:var(--well);padding:4px 10px;border-radius:8px">/hunt</code></p>
     <div class="dlg-row"><button onclick="this.closest('dialog').close()">Got it</button></div>
   </div>
@@ -771,16 +780,31 @@ input[type=range]:focus-visible { outline: none; } input[type=range]:focus-visib
 <dialog id="token-dialog">
   <div class="glass">
     <h2>New push token</h2>
-    <p>Your old token stopped working the moment this one was made. Update
-       <code style="font-family:var(--mono);font-size:12px">DEALFINDER_PUSH_TOKEN</code> in .env.local. Shown only once.</p>
+    <p>Put this in <code style="font-family:var(--mono);font-size:12px">.env.local</code> as <code style="font-family:var(--mono);font-size:12px">DEALFINDER_PUSH_TOKEN</code>. The old token no longer works.</p>
     <div class="token-well" id="regen-text"></div>
     <div class="dlg-row"><button id="regen-copy">Copy token</button><button class="primary" onclick="this.closest('dialog').close()">Done</button></div>
   </div>
 </dialog>
 
+<dialog id="confirm-dialog">
+  <div class="glass">
+    <h2 id="confirm-title"></h2>
+    <p id="confirm-body"></p>
+    <div class="dlg-row"><button type="button" id="confirm-no">Cancel</button><button type="button" class="primary" id="confirm-yes"></button></div>
+  </div>
+</dialog>
+<div class="toast glass" id="toast" role="status" hidden></div>
+
 <script>
 const $ = (s, el = document) => el.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+// In-app confirm and a quiet toast, so nothing falls back to browser chrome.
+function ask(title, body, yes = 'Continue') {
+  const d = $('#confirm-dialog'); $('#confirm-title').textContent = title; $('#confirm-body').textContent = body; $('#confirm-yes').textContent = yes;
+  return new Promise(res => { d.onclose = () => res(d.returnValue === 'yes'); $('#confirm-no').onclick = () => d.close('no'); $('#confirm-yes').onclick = () => d.close('yes'); d.showModal(); });
+}
+let toastTimer = null;
+function note(msg) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.hidden = true; }, 4000); }
 
 /* ---------------- appearance ---------------- */
 const THEME_KEY = 'df-theme';
@@ -793,7 +817,7 @@ const themeSetting = () => { try { return localStorage.getItem(THEME_KEY) || 'sy
 function applyTheme(t) {
   if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme;
   const icon = $('#theme-icon'); if (icon) icon.setAttribute('d', THEME_ICONS[t]);
-  const btn = $('#theme-btn'); if (btn) btn.title = `Appearance: ${t === 'system' ? 'match the system' : t} · click to change`;
+  const btn = $('#theme-btn'); if (btn) { const lab = `Appearance: ${t}. Click for ${{ system: 'light', light: 'dark', dark: 'system' }[t]}`; btn.title = lab; btn.setAttribute('aria-label', lab); }
   document.querySelectorAll('[data-theme-set]').forEach(b => b.setAttribute('aria-pressed', b.dataset.themeSet === t));
 }
 function setTheme(t) { try { t === 'system' ? localStorage.removeItem(THEME_KEY) : localStorage.setItem(THEME_KEY, t); } catch {} applyTheme(t); }
@@ -801,7 +825,7 @@ $('#theme-btn').onclick = () => setTheme({ system: 'light', light: 'dark', dark:
 applyTheme(themeSetting());
 window.addEventListener('scroll', () => document.body.classList.toggle('scrolled', window.scrollY > 6), { passive: true });
 
-const state = { deals: [], searches: [], cfg: null, view: 'overview', filter: 'all', sort: 'score', window: '7d', q: '', quick: new Set(), cursor: null, hosted: false, authRequired: true, email: null, status: null, open: null };
+const state = { deals: [], searches: [], cfg: null, view: 'overview', filter: 'all', sort: 'score', window: 'all', q: '', quick: new Set(), cursor: null, hosted: false, authRequired: true, email: null, status: null, open: null };
 
 // Desktop gets a sidebar and ranked rows; below that, cards and the dock.
 const mqDesktop = matchMedia('(min-width: 1024px)');
@@ -818,14 +842,14 @@ const SORT_LABELS = { score: 'Score', discount: 'Biggest discount', price: 'Lowe
 
 const VIEWS = [
   { id: 'overview', label: 'Overview', icon: 'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z' },
-  { id: 'ranking', label: 'Ranking',  icon: 'M3 12l3-8 4 10 3-6 3 4h5' },
+  { id: 'ranking', label: 'Ranking',  icon: 'M3 21V13h6v8M9 21V7h6v14M15 21v-5h6v5M3 21h18' },
   { id: 'saved',   label: 'Saved',    icon: 'M6 3h12v18l-6-4.5L6 21z' },
-  { id: 'passed',  label: 'Passed',   icon: 'M5 5l14 14M19 5L5 19' },
-  { id: 'config',  label: 'Searches', icon: 'M10 10m-6 0a6 6 0 1112 0 6 6 0 11-12 0M14.5 14.5L21 21' },
+  { id: 'passed',  label: 'Passed',   icon: 'M12 12m-8 0a8 8 0 1016 0a8 8 0 10-16 0M6.3 6.3l11.4 11.4' },
+  { id: 'config',  label: 'Searches', icon: 'M4 7h9M17 7h3M15 7m-2 0a2 2 0 104 0a2 2 0 10-4 0M4 17h3M11 17h9M9 17m-2 0a2 2 0 104 0a2 2 0 10-4 0' },
   { id: 'account', label: 'Account',  icon: 'M12 12m-4 0a4 4 0 118 0 4 4 0 11-8 0M4 21c1.5-4 5-5.5 8-5.5s6.5 1.5 8 5.5' },
 ];
 
-const fmtPrice = (n) => n == null ? '—' : '$' + Number(n).toLocaleString();
+const fmtPrice = (n) => n == null ? '–' : '$' + Number(n).toLocaleString();
 const pct = (n) => Math.round(n * 100);
 const ago = (iso) => {
   if (!iso) return 'never';
@@ -846,6 +870,7 @@ async function api(path, opts = {}) {
 
 /* ---------------- boot ---------------- */
 async function boot() {
+  $('#main').hidden = false; $('#main').innerHTML = '<div class="empty" role="status">Loading…</div>';
   const { ok, status, data } = await api('/api/status');
   if (status === 401) return showGate();
   if (!ok) return showFatal(data.error ?? 'The server had a problem. Refresh to retry.');
@@ -871,45 +896,43 @@ async function refreshDeals() {
 function showApp() {
   $('#gate').hidden = true; $('#chrome-header').hidden = false; $('#main').hidden = false; $('#dock').hidden = false;
   const who = state.email ? state.email.split('@')[0] : (state.hosted ? '' : 'local');
-  $('#who').textContent = who; $('#avatar').textContent = (who || 'd')[0].toUpperCase();
+  $('#who').textContent = who;
   renderHuntline(); renderNav(); renderQuick(); render();
 }
 function showFatal(msg) {
   $('#main').hidden = false;
-  $('#main').innerHTML = `<div class="empty glass panel"><div class="big">Something broke</div><p>${esc(msg)}</p></div>`;
+  $('#main').innerHTML = `<div class="empty glass panel" role="alert"><div class="big">Something went wrong</div><p>${esc(msg)}</p><button type="button" onclick="location.reload()">Reload</button></div>`;
 }
 function huntStatusText() {
   const s = state.status;
-  if (!s?.last_run) return 'No hunts yet — run /hunt in Claude Code';
-  return `Last hunt ${ago(s.last_run.started)} · ${s.can_run ? 'window open' : `next window in ${Math.max(0, s.min_hours - s.hours_since).toFixed(1)}h`}`;
+  if (!s?.last_run) return 'No hunts yet';
+  return `Last hunt ${ago(s.last_run.started)} · ${s.can_run ? 'ready for another' : `next in ${Math.max(0, s.min_hours - s.hours_since).toFixed(1)}h`}`;
 }
-function renderHuntline() {
-  const el = $('#huntline');
-  el.title = huntStatusText();
-  el.classList.toggle('open', Boolean(state.status?.can_run));
-}
+function renderHuntline() { $('#run-btn').title = huntStatusText(); }
 const requestRun = async () => {
   if (!state.hosted) await api('/api/request-run', { method: 'POST' });
+  $('#run-status').textContent = huntStatusText();
   $('#run-dialog').showModal();
 };
-$('#huntline').onclick = requestRun; $('#run-btn').onclick = requestRun;
+$('#run-btn').onclick = requestRun;
 
 /* ---------------- navigation ---------------- */
 const icon = (v) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${v.icon}"/></svg>`;
 function renderNav() {
   const views = VIEWS.filter(v => v.id !== 'account' || state.authRequired);
-  $('#seg').innerHTML = views.map(v => `<button role="tab" aria-selected="${state.view === v.id}" data-v="${v.id}" title="${v.label}">${icon(v)}<span class="lab">${v.label}</span></button>`).join('');
-  $('#dock').innerHTML = views.map(v => `<button role="tab" aria-selected="${state.view === v.id}" data-v="${v.id}">${icon(v)}${v.label}</button>`).join('');
+  $('#seg').innerHTML = views.map(v => `<button aria-current="${state.view === v.id ? 'page' : 'false'}" aria-label="${v.label}" data-v="${v.id}" title="${v.label}">${icon(v)}<span class="lab">${v.label}</span></button>`).join('');
+  $('#dock').innerHTML = views.map(v => `<button aria-current="${state.view === v.id ? 'page' : 'false'}" data-v="${v.id}">${icon(v)}${v.label}</button>`).join('');
   document.querySelectorAll('[data-v]').forEach(b => b.onclick = () => go(b.dataset.v));
 }
-function go(view) {
-  if (state.view === 'config' && view !== 'config' && tune.dirty && !confirm('Discard unsaved search changes?')) return;
+async function go(view) {
+  if (state.view === 'config' && view !== 'config' && tune.dirty && !(await ask('Discard unsaved changes?', 'Your search settings have not been saved.', 'Discard'))) return;
   if (state.view === 'config' && view !== 'config') { tune.base = null; tune.draft = null; tune.dirty = false; clearTimeout(tune.timer); }
   closeSheet(); state.view = view; state.cursor = null; renderNav(); render(); window.scrollTo({ top: 0 });
 }
 
 /* ---------------- filters: search text, quick chips, time window ---------------- */
 const QUICK = [
+  { id: 'today',    label: 'New today',      f: d => new Date(d.first_seen ?? 0) >= new Date().setHours(0, 0, 0, 0) },
   { id: 'steal',    label: 'Steals only',    f: d => d.label === 'steal' },
   { id: 'good',     label: 'Good or better', f: d => d.label === 'steal' || d.label === 'good deal' },
   { id: 'under100', label: 'Under $100',     f: d => d.price != null && d.price < 100 },
@@ -935,12 +958,16 @@ function describeFilters() {
   return parts.join(' · ');
 }
 function renderQuick() {
-  $('#quick').innerHTML = QUICK.map(c => `<button aria-pressed="${state.quick.has(c.id)}" data-quick="${c.id}">${c.label}</button>`).join('');
+  $('#quick').innerHTML = QUICK.map(c => `<button aria-pressed="${state.quick.has(c.id)}" data-quick="${c.id}">${c.label}</button>`).join('') + (state.quick.size ? '<button data-quick-clear>Clear</button>' : '');
   $('#quick').querySelectorAll('[data-quick]').forEach(b => b.onclick = () => {
     const id = b.dataset.quick; state.quick.has(id) ? state.quick.delete(id) : state.quick.add(id); renderQuick(); render();
   });
+  $('#quick').querySelector('[data-quick-clear]')?.addEventListener('click', () => { state.quick.clear(); renderQuick(); render(); });
+  $('#askbar').classList.toggle('has-quick', state.quick.size > 0);
   $('#q-clear').hidden = !state.q;
 }
+$('#q').onfocus = () => $('#askbar').classList.add('q-focus');
+$('#q').onblur = () => setTimeout(() => $('#askbar').classList.remove('q-focus'), 250);
 let qTimer = null;
 $('#q').oninput = (e) => { clearTimeout(qTimer); qTimer = setTimeout(() => { state.q = e.target.value; $('#q-clear').hidden = !state.q; render(); }, 150); };
 function submitSearch() { clearTimeout(qTimer); state.q = $('#q').value; $('#q-clear').hidden = !state.q; if (state.view === 'overview') go('ranking'); else render(); }
@@ -950,9 +977,10 @@ $('#q-clear').onclick = () => { $('#q').value = ''; state.q = ''; $('#q-clear').
 /* ---------------- views ---------------- */
 function render() {
   const m = $('#main');
+  const same = m.dataset.view === state.view; m.dataset.view = state.view; m.classList.toggle('still', same);
   document.body.dataset.view = state.view;
   $('#askbar').hidden = !['overview', 'ranking'].includes(state.view);
-  if (state.dealsError) { m.innerHTML = `<div class="empty glass panel rise"><div class="big">Nothing here yet</div><p>${esc(state.dealsError)}</p></div>`; return; }
+  if (state.dealsError) { m.innerHTML = `<div class="empty glass panel rise" role="alert"><div class="big">Couldn’t load listings</div><p>${esc(state.dealsError)}</p><button type="button" onclick="location.reload()">Retry</button></div>`; return; }
   if (state.view === 'overview') return renderOverview();
   if (state.view === 'config') return renderConfig();
   if (state.view === 'account') return renderAccount();
@@ -967,13 +995,13 @@ function renderRanking() {
 
   if (state.view === 'saved') {
     list = state.deals.filter(d => d.verdict === 'saved');
-    if (!list.length) return empty(m, 'Nothing saved yet', 'Tap Save on a listing to build the shortlist you’ll actually message sellers about.');
-    exhibit = { h: `${list.length} saved`, p: 'Your shortlist. They stay here until you pass on them.' };
+    if (!list.length) return empty(m, 'Nothing saved yet', 'Save a listing and it lands here.');
+    exhibit = { h: `${list.length} saved`, p: 'Your shortlist.' };
   } else if (state.view === 'passed') {
     passedView = true;
     list = state.deals.filter(d => d.verdict === 'dismissed');
-    if (!list.length) return empty(m, 'Nothing passed yet', 'Listings you pass on land here. Nothing is ever hidden by rules — only by you.');
-    exhibit = { h: `${list.length} passed`, p: 'Frosted by you. Bring anything back for a second look.' };
+    if (!list.length) return empty(m, 'Nothing passed yet', 'Pass on a listing and it lands here.');
+    exhibit = { h: `${list.length} passed`, p: 'Bring any of them back any time.' };
   } else {
     list = state.deals.filter(live);
     if (state.filter !== 'all') list = list.filter(d => d.search_id === state.filter);
@@ -983,10 +1011,10 @@ function renderRanking() {
     const where = state.filter === 'all' ? '' : ' in ' + searchLabel(state.filter);
     exhibit = filtersActive() ? {
       h: `${list.length} match${where} <span class="dim">· ${describeFilters()}</span>`,
-      p: `${worth} above your bar. Clear the search or chips to see everything.`,
+      p: `${worth} above your bar.`,
     } : {
       h: worth ? `${worth} worth a look${where} <span class="dim">· ${rest} more ranked below</span>` : `${list.length} ranked${where} <span class="dim">· none above your bar yet</span>`,
-      p: 'Every listing found, ordered by attractiveness. Rule misses lower a score and say why — nothing is hidden. Open a listing for the full reasoning.',
+      p: worth || !list.length ? 'Every listing, best first. Open one to see why it ranks there.' : 'Every listing, best first. To see more, <button type="button" class="linkbtn" data-go="config">lower the threshold in Searches</button>.',
     };
   }
   if (SORTS[state.sort]) list = [...list].sort(SORTS[state.sort]);
@@ -1006,6 +1034,7 @@ function renderRanking() {
   m.innerHTML = `<div class="exhibit-row rise"><div class="exhibit"><h2>${exhibit.h}</h2><p>${exhibit.p}</p></div>${toolbar}</div>${body}`;
 
   m.querySelectorAll('[data-f]').forEach(b => b.onclick = () => { state.filter = b.dataset.f; state.cursor = null; render(); });
+  m.querySelectorAll('[data-go]').forEach(b => b.onclick = () => go(b.dataset.go));
   $('#sort').onchange = (e) => { state.sort = e.target.value; render(); };
   wireCards(m);
   restoreCursor();
@@ -1024,8 +1053,6 @@ function pillFor(d) {
   if (d.label === 'overpriced') return '<span class="pill hollow">overpriced</span>';
   return '<span class="pill hollow">fair price</span>';
 }
-const flagPills = (d, max = 2) => (d.flags ?? []).slice(0, max).map(f => `<span class="pill ${isFlagClay(f) ? 'flag-clay' : 'flag-amber'}">${esc(f.text)}</span>`).join('')
-  + ((d.flags?.length ?? 0) > max ? `<span class="pill hollow">+${d.flags.length - max}</span>` : '');
 
 function meter(d) {
   if (d.score == null) return '';
@@ -1046,7 +1073,7 @@ function stats(d) {
     : `<span class="v ${d.discount_pct >= 0 ? 'under' : 'over'}">${Math.round(Math.abs(d.discount_pct))}%<small>${d.discount_pct >= 0 ? 'under' : 'over'}</small></span>`;
   return `<div class="stats">
     <div><div class="k">Asking</div><span class="v">${fmtPrice(d.price)}</span></div>
-    <div><div class="k" title="${esc(d.fair_value_basis ?? '')}">Fair value${fair && roughEstimate(d) ? ' <i>· rough</i>' : ''}</div><span class="v${fair ? '' : ' dim'}">${fair ? fmtPrice(d.fair_value) : '—'}</span></div>
+    <div><div class="k" title="${esc(d.fair_value_basis ?? '')}">Fair value${fair && roughEstimate(d) ? ' <i>· rough</i>' : ''}</div><span class="v${fair ? '' : ' dim'}">${fair ? fmtPrice(d.fair_value) : '–'}</span></div>
     <div><div class="k">vs fair</div>${vs}</div>
   </div>`;
 }
@@ -1056,7 +1083,7 @@ function flagLines(d, max = 2) {
   const flags = d.flags ?? [];
   if (!flags.length) return '';
   const lines = flags.slice(0, max).map(f => `<div class="flagline${isFlagClay(f) ? ' clay' : ''}"><span>${esc(cap(f.text))}</span></div>`);
-  if (flags.length > max) lines.push(`<div class="flagline more"><span>${flags.length - max} more — tap for details</span></div>`);
+  if (flags.length > max) lines.push(`<div class="flagline more"><span>${flags.length - max} more</span></div>`);
   return `<div class="flaglist">${lines.join('')}</div>`;
 }
 
@@ -1081,13 +1108,12 @@ function card(d, passed) {
         <div class="meta">${d.location ? `<span>${esc(d.location)}</span>` : ''}${km != null ? `<span>~${km} km</span>` : ''}${cond ? `<span>${esc(cond)}</span>` : ''}<span>seen ${ago(d.first_seen)}</span>${dropped ? `<span class="drop">was ${fmtPrice(d.price_history[0].price)}</span>` : ''}</div>
       </div>
     </div>
-    ${passed ? '<div class="passed-note">You passed on this</div>' : ''}
     <div class="acts">
       <a class="btn open" href="${esc(d.url ?? '#')}" target="_blank" rel="noopener noreferrer">Open listing</a>
       ${passed ? '<button data-act="restore">Bring back</button>'
         : `<button data-act="save" class="${d.verdict === 'saved' ? 'saved-on' : ''}">${d.verdict === 'saved' ? 'Saved' : 'Save'}</button><button data-act="pass" class="quiet">Pass</button>`}
     </div>
-    <div class="frost-veil"><button data-act="undo">Frosted — undo</button></div>
+    <div class="frost-veil"><button data-act="undo">Undo pass</button></div>
   </article>`;
 }
 
@@ -1113,25 +1139,25 @@ function row(d, passed) {
     dropped ? `<span class="m drop">was ${fmtPrice(d.price_history[0].price)}</span>` : '',
   ].join('');
   const showHunt = state.view !== 'ranking' || state.filter === 'all';
-  return `<article class="row rise${passed ? ' passed' : ''}${selected ? ' selected' : ''}${state.cursor === d.id ? ' cursor' : ''}" data-id="${esc(d.id)}" tabindex="0" aria-label="${esc(d.title ?? 'Listing')}" aria-selected="${selected}">
+  return `<article class="row rise${passed ? ' passed' : ''}${selected ? ' selected' : ''}${state.cursor === d.id ? ' cursor' : ''}" data-id="${esc(d.id)}" tabindex="0" aria-label="${esc(d.title ?? 'Listing')}" aria-current="${selected}">
     <div class="content">
       <span class="rank${d.status === 'surface' ? ' top' : ''}">#${d.rank_in_search}</span>
       <div class="rt">
         <div class="title">${esc(d.title ?? 'Untitled')}</div>
-        <div class="rmeta">${pillFor(d)}${passed ? '<span class="pill hollow">passed by you</span>' : ''}${d.verdict === 'saved' ? '<span class="saved-flag">Saved</span>' : ''}${showHunt ? `<span class="hunt">${esc(searchLabel(d.search_id))}</span>` : ''}${why}</div>
+        <div class="rmeta">${pillFor(d)}${d.verdict === 'saved' ? '<span class="saved-flag">Saved</span>' : ''}${showHunt ? `<span class="hunt">${esc(searchLabel(d.search_id))}</span>` : ''}${why}</div>
         <div class="rmeta meta2">${meta}</div>
       </div>
       <div class="cell"><span class="v">${fmtPrice(d.price)}</span></div>
-      <div class="cell fair"><span class="v${fair ? '' : ' dim'}" title="${esc(d.fair_value_basis ?? '')}">${fair ? fmtPrice(d.fair_value) : '—'}</span>${fair && roughEstimate(d) ? '<span class="rough">rough</span>' : ''}</div>
+      <div class="cell fair"><span class="v${fair ? '' : ' dim'}" title="${esc(d.fair_value_basis ?? '')}">${fair ? fmtPrice(d.fair_value) : '–'}</span>${fair && roughEstimate(d) ? '<span class="rough">rough</span>' : ''}</div>
       <div class="cell vs">${vs}</div>
-      <div class="cell sc">${d.score != null ? `<span class="score"><b>${d.score}</b></span>` : '<span class="v dim">—</span>'}${meter(d)}</div>
+      <div class="cell sc">${d.score != null ? `<span class="score"><b>${d.score}</b></span>` : '<span class="v dim">–</span>'}${meter(d)}</div>
       <div class="acts">
         <a class="btn open" href="${esc(d.url ?? '#')}" target="_blank" rel="noopener noreferrer">Open ↗</a>
         ${passed ? '<button data-act="restore">Bring back</button>'
           : `<button data-act="save" class="${d.verdict === 'saved' ? 'saved-on' : ''}">${d.verdict === 'saved' ? 'Saved' : 'Save'}</button><button data-act="pass" class="quiet">Pass</button>`}
       </div>
     </div>
-    <div class="frost-veil"><button data-act="undo">Frosted — undo</button></div>
+    <div class="frost-veil"><button data-act="undo">Undo pass</button></div>
   </article>`;
 }
 
@@ -1161,8 +1187,9 @@ function restoreCursor() {
 }
 
 async function setVerdict(id, verdict) {
-  const { status } = await api('/api/verdict', { method: 'POST', body: JSON.stringify({ id, state: verdict }) });
-  if (status === 401) showGate();
+  const { ok, status, data } = await api('/api/verdict', { method: 'POST', body: JSON.stringify({ id, state: verdict }) });
+  if (status === 401) return showGate();
+  if (!ok) { note(data.error ?? 'Couldn’t save that change. Try again.'); await refreshDeals(); render(); }
 }
 
 function act(el, id, action) {
@@ -1173,7 +1200,7 @@ function act(el, id, action) {
     setVerdict(id, next); render();
   } else if (action === 'pass') {
     if (!el) { d.verdict = 'dismissed'; setVerdict(id, 'dismissed'); render(); return; }
-    el.classList.add('frosting');
+    el.classList.add('frosting'); el.querySelector('[data-act="undo"]')?.focus({ preventScroll: true });
     el._timer = setTimeout(async () => {
       const isRow = el.classList.contains('row');
       if (isRow) { el.style.height = el.getBoundingClientRect().height + 'px'; void el.offsetHeight; }
@@ -1185,7 +1212,7 @@ function act(el, id, action) {
       await setVerdict(id, 'dismissed');
     }, 4000);
   } else if (action === 'undo') {
-    clearTimeout(el._timer); el.classList.remove('frosting');
+    clearTimeout(el._timer); el.classList.remove('frosting'); (el.querySelector('[data-act="pass"]') ?? el).focus({ preventScroll: true });
   } else if (action === 'restore') {
     d.verdict = null; setVerdict(id, 'none'); render();
   }
@@ -1203,10 +1230,12 @@ function closeSheet() {
   if (location.hash.startsWith('#l/')) { history.replaceState(null, '', location.pathname); }
   $('#sheet').classList.remove('on'); $('#sheet-backdrop').classList.remove('on');
   document.body.classList.remove('sheet-open');
-  document.querySelectorAll('#main .row.selected').forEach(r => { r.classList.remove('selected'); r.setAttribute('aria-selected', 'false'); });
+  document.querySelectorAll('#main .row.selected').forEach(r => { r.classList.remove('selected'); r.setAttribute('aria-current', 'false'); });
   clearTimeout(sheetCloseTimer);
   sheetCloseTimer = setTimeout(() => { $('#sheet').hidden = true; $('#sheet-backdrop').hidden = true; document.body.classList.remove('has-detail'); }, 320);
+  const src = state.open && document.querySelector(`#main [data-id="${CSS.escape(state.open)}"]`);
   state.open = null;
+  if (src && !src.contains(document.activeElement)) src.focus({ preventScroll: true });
 }
 function routeFromHash() {
   const m = location.hash.match(/^#l\/(.+)$/);
@@ -1254,6 +1283,7 @@ document.addEventListener('keydown', (e) => {
 function renderSheet(id) {
   const d = state.deals.find(x => x.id === id);
   if (!d) return;
+  const keepScroll = state.open === id ? ($('#sheet-scroll')?.scrollTop ?? 0) : 0;
   state.open = id;
   const b = d.breakdown;
   const km = d.assessment?.distance_km;
@@ -1272,7 +1302,7 @@ function renderSheet(id) {
 
   const valSec = b ? `
     <section class="sec"><h4>Valuation</h4><div class="chain">
-      <div class="row"><span>${esc(cap(b.value.basis))}<div class="sub">confidence ${b.value.confidence}${/low|none/.test(b.value.confidence) ? ' — check comps yourself' : ''}</div></span><span class="v">${fmtPrice(b.value.base_fmv ?? b.value.fair_value)}</span></div>
+      <div class="row"><span>${esc(cap(b.value.basis))}<div class="sub">confidence ${b.value.confidence}${/low|none/.test(b.value.confidence) ? ', check comps yourself' : ''}</div></span><span class="v">${fmtPrice(b.value.base_fmv ?? b.value.fair_value)}</span></div>
       ${b.value.condition_multiplier != null && b.value.condition_multiplier !== 1 ? `<div class="row"><span>Condition: ${esc(condLabel(b.condition.condition))}</span><span class="v">×${b.value.condition_multiplier.toFixed(2)}</span></div>` : ''}
       ${b.value.adjustments.map(a => `<div class="row"><span>${esc(adjLabel(a))}</span><span class="v">×${Number(a.multiplier).toFixed(2)}</span></div>`).join('')}
       <div class="row total"><span>Fair value</span><span class="v">${fmtPrice(b.value.fair_value)}</span></div>
@@ -1284,14 +1314,14 @@ function renderSheet(id) {
     <section class="sec"><h4>Requirements</h4>
       ${checks.map(c => `<div class="check"><span class="ic ${c.value === true ? 'yes' : c.value === false ? 'no' : 'unk'}">${c.value === true ? '✓' : c.value === false ? '✗' : '?'}</span>
         <span class="lab">${esc(c.spec.replace(/_/g, ' '))}${c.test ? `<small>${esc(c.test)}</small>` : ''}</span>
-        <span class="tag">${c.kind === 'must' ? (c.hard ? 'required' : 'must-have') : 'nice · ' + c.weight}</span></div>`).join('')}
-      <p class="sub" style="margin:8px 0 0;font-size:12px;color:var(--pine-3)">? = the listing didn’t say. Unknowns score half credit, never zero.</p>
+        <span class="tag">${c.kind === 'must' ? (c.hard ? 'hard' : 'soft') : 'nice · ' + c.weight}</span></div>`).join('')}
+      <p class="sub" style="margin:8px 0 0;font-size:12px;color:var(--pine-3)">? means the listing didn’t say. Unknowns get half credit.</p>
     </section>` : '';
 
   const hist = d.price_history ?? [];
   const logSec = `
     <section class="sec"><h4>Logistics</h4><div class="kv">
-      <div><div class="k">Where</div><div class="v">${esc(d.location ?? '—')}${km != null ? ` · ~${km} km` : ''}</div></div>
+      <div><div class="k">Where</div><div class="v">${esc(d.location ?? '–')}${km != null ? ` · ~${km} km` : ''}</div></div>
       <div><div class="k">Seen</div><div class="v">${ago(d.first_seen)}${d.last_seen && d.last_seen !== d.first_seen ? ' · still up ' + ago(d.last_seen) : ''}</div></div>
       ${d.posted ? `<div><div class="k">Posted</div><div class="v">${esc(d.posted)}</div></div>` : ''}
       ${d.seller ? `<div><div class="k">Seller</div><div class="v">${esc(typeof d.seller === 'string' ? d.seller : (d.seller.name ?? JSON.stringify(d.seller)))}</div></div>` : ''}
@@ -1310,7 +1340,7 @@ function renderSheet(id) {
       <div class="p">${fmtPrice(d.price)}${d.fair_value != null ? `<small>fair value ${fmtPrice(d.fair_value)}${roughEstimate(d) ? ' (rough)' : ''}</small>` : ''}</div>
     </div>
     <div class="sheet-body">
-      <div><div class="pillrow" style="margin-bottom:8px">${pillFor(d)}${flagPills(d, 5)}${d.verdict === 'saved' ? '<span class="saved-flag">Saved</span>' : ''}</div>
+      <div><div class="pillrow" style="margin-bottom:8px">${pillFor(d)}${d.verdict === 'saved' ? '<span class="saved-flag">Saved</span>' : ''}</div>
         <div class="rankline"><b>#${d.rank_in_search}</b> of ${d.total_in_search} in ${esc(searchLabel(d.search_id))} · <b>#${d.rank}</b> overall</div></div>
       ${scoreSec}${valSec}${reqSec}${logSec}${notesSec}
     </div>
@@ -1325,13 +1355,23 @@ function renderSheet(id) {
   sh.hidden = false; $('#sheet-backdrop').hidden = false;
   document.body.classList.add('has-detail');
   requestAnimationFrame(() => { sh.classList.add('on'); $('#sheet-backdrop').classList.add('on'); document.body.classList.add('sheet-open'); });
-  $('#sheet-scroll').scrollTop = 0;
-  document.querySelectorAll('#main .row.selected').forEach(r => { if (r.dataset.id !== id) { r.classList.remove('selected'); r.setAttribute('aria-selected', 'false'); } });
+  $('#sheet-scroll').scrollTop = keepScroll;
+  sh.setAttribute('aria-modal', String(!matchMedia('(min-width: 1200px)').matches));
+  if (!desktop()) $('#sheet-close').focus({ preventScroll: true });
+  document.querySelectorAll('#main .row.selected').forEach(r => { if (r.dataset.id !== id) { r.classList.remove('selected'); r.setAttribute('aria-current', 'false'); } });
   const rowEl = document.querySelector(`#main .row[data-id="${CSS.escape(id)}"]`);
-  if (rowEl) { rowEl.classList.add('selected'); rowEl.setAttribute('aria-selected', 'true'); rowEl.scrollIntoView({ block: 'nearest' }); }
+  if (rowEl) { rowEl.classList.add('selected'); rowEl.setAttribute('aria-current', 'true'); rowEl.scrollIntoView({ block: 'nearest' }); }
   $('#sheet-close').onclick = closeSheet;
   $('#sh-save') && ($('#sh-save').onclick = () => { act(null, id, 'save'); renderSheet(id); });
-  $('#sh-pass') && ($('#sh-pass').onclick = () => { closeSheet(); const el = document.querySelector(`#main [data-id="${CSS.escape(id)}"]`); act(el, id, 'pass'); });
+  $('#sh-pass') && ($('#sh-pass').onclick = () => {
+    const el = document.querySelector(`#main .card[data-id="${CSS.escape(id)}"], #main .row[data-id="${CSS.escape(id)}"]`);
+    if (el) { closeSheet(); act(el, id, 'pass'); return; }
+    // Opened from the Overview: no card on screen to frost, so the sheet holds the undo window itself.
+    $('.sheet-acts').innerHTML = '<span class="msg" style="margin-right:auto">Passed</span><button type="button" id="sh-undo">Undo pass</button>';
+    const t = setTimeout(() => { act(null, id, 'pass'); closeSheet(); }, 4000);
+    $('#sh-undo').onclick = () => { clearTimeout(t); renderSheet(id); };
+    $('#sh-undo').focus();
+  });
   $('#sh-restore') && ($('#sh-restore').onclick = () => { act(null, id, 'restore'); closeSheet(); });
 }
 const compRow = (k, w, s, note) => `<div class="comp"><span class="k">${k}<small>${pct(w)}%</small></span><span class="bar"><i style="width:${Math.max(0, Math.min(100, pct(s)))}%"></i></span><span class="v">${pct(s)}</span></div>
@@ -1351,8 +1391,7 @@ function barScore(list) {
 }
 const vsCell = (d, cls = 'v') => d.discount_pct == null ? `<span class="${cls} dim">needs info</span>`
   : `<span class="${cls} ${d.discount_pct >= 0 ? 'under' : 'over'}">${d.discount_pct >= 0 ? '−' : '+'}${Math.round(Math.abs(d.discount_pct))}%</span>`;
-const goBtn = (view, label, path) => `<button class="mini" data-go="${view}" title="${label}" aria-label="${label}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${path}"/></svg></button>`;
-const wHead = (title) => `<div class="wh"><b>${title}</b><span class="wbtns">${goBtn('ranking', 'Open in ranking', 'M4 7h16M4 12h16M4 17h10')}${goBtn('ranking', 'Expand', 'M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7')}</span></div>`;
+const wHead = (title) => `<div class="wh"><b>${title}</b></div>`;
 
 function renderOverview() {
   const m = $('#main');
@@ -1363,32 +1402,33 @@ function renderOverview() {
   const worth = win.filter(d => d.status === 'surface');
   const scored = win.filter(d => d.score != null);
   const last = s.last_run;
-  const upd = last ? `updated ${ago(last.finished ?? last.started)} · ${last.listings_seen ?? 0} seen · ${last.new_listings ?? 0} new` : 'no hunts yet — run /hunt in Claude Code';
+  const upd = huntStatusText() + (filtersActive() ? ` · showing ${describeFilters()}` : '');
   const winLabel = WINDOWS.find(w => w[0] === state.window)[1].toLowerCase();
+  const winIn = state.window === 'all' ? '' : ` in ${winLabel}`;
+  if (!state.deals.length) {
+    m.innerHTML = `<div class="hero rise"><div class="upd">${upd}</div><h2>Overview</h2></div><div class="empty glass panel rise"><div class="big">Nothing found yet</div><p>Run <code>/hunt</code> in Claude Code to check Marketplace.</p></div>`;
+    return;
+  }
 
   // Calendar: the 7 days ending today, dotted where a hunt ran.
   const byDay = {};
   for (const r of runs) { const k = new Date(r.started).toDateString(); byDay[k] = byDay[k] ?? { seen: 0, fresh: 0, n: 0 }; byDay[k].seen += r.listings_seen ?? 0; byDay[k].fresh += r.new_listings ?? 0; byDay[k].n++; }
   const today = new Date();
   const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(today); d.setDate(today.getDate() - 6 + i); return d; });
-  const cal = `<section class="cal glass card rise"><div class="wh"><b>${today.toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}</b><span class="wbtns">${goBtn('ranking', 'Open ranking', 'M9 6l6 6-6 6')}</span></div>
+  const cal = `<section class="cal glass card rise"><div class="wh"><b>${today.toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}</b></div>
     <div class="days">${days.map(d => { const r = byDay[d.toDateString()]; const isT = d.toDateString() === today.toDateString();
-      return `<div class="day${isT ? ' today' : ''}${r ? ' run' : ''}"${r ? ` data-tip="${r.seen} seen · ${r.fresh} new"` : ''}><span class="dn">${d.toLocaleDateString(undefined, { weekday: 'short' })}</span><span class="dd">${d.getDate()}</span><i class="rd"></i></div>`; }).join('')}</div>
-    <div class="ov-note" style="margin-top:12px">${esc(huntStatusText())}</div></section>`;
+      return `<div class="day${isT ? ' today' : ''}${r ? ' run' : ''}"${r ? ` data-tip="${r.seen} seen · ${r.fresh} new" tabindex="0"` : ''}><span class="dn">${d.toLocaleDateString(undefined, { weekday: 'short' })}</span><span class="dd">${d.getDate()}</span><i class="rd"></i></div>`; }).join('')}</div>
+    </section>`;
 
   const summary = `<section class="summary glass rise">
     <div class="inner"><div class="k"><span>Worth a look</span><span class="id">of ${win.length} ranked</span></div><div class="big">${worth.length}</div>
       <span class="st${s.can_run ? ' open' : ''}"><i></i>${last ? (s.can_run ? 'Hunt window open' : `Next window in ${Math.max(0, s.min_hours - s.hours_since).toFixed(1)}h`) : 'No hunts yet'}</span></div>
-    <div class="qa">
-      <button data-go="hunt"><span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>Run hunt</button>
-      <button data-go="saved"><span class="ic">${icon(VIEWS[2])}</span>Saved${state.deals.filter(d => d.verdict === 'saved').length ? ` · ${state.deals.filter(d => d.verdict === 'saved').length}` : ''}</button>
-      <button data-go="ranking"><span class="ic">${icon(VIEWS[1])}</span>Ranking</button>
-    </div></section>`;
+    </section>`;
 
-  const top3 = [...win].sort((a, b) => (b.score ?? -1) - (a.score ?? -1)).slice(0, 3);
-  const movers = `<section class="movers glass card rise"><div class="wh"><b>Top of the board</b><span class="wbtns">${goBtn('ranking', 'Open ranking', 'M5 12h.01M12 12h.01M19 12h.01')}</span></div>
-    ${top3.length ? top3.map(d => `<div class="mrow" data-open="${esc(d.id)}"><span class="mi" style="--c:${catOf(d.search_id)}">${esc(searchLabel(d.search_id)[0] ?? '?')}</span><span class="mt">${esc(d.title ?? 'Untitled')}</span><span class="md">${fmtPrice(d.price)} · ${ago(d.first_seen)}</span>${vsCell(d, 'mv')}</div>`).join('')
-      : `<div class="wempty">Nothing found in ${winLabel}.</div>`}</section>`;
+  const newest = [...win].sort((a, b) => new Date(b.first_seen ?? 0) - new Date(a.first_seen ?? 0)).slice(0, 3);
+  const movers = `<section class="movers glass card rise"><div class="wh"><b>Just found</b></div>
+    ${newest.length ? newest.map(d => `<div class="mrow" data-open="${esc(d.id)}" role="button" tabindex="0"><span class="mi" style="--c:${catOf(d.search_id)}">${esc(searchLabel(d.search_id)[0] ?? '?')}</span><span class="mtw"><span class="mt">${esc(d.title ?? 'Untitled')}</span><span class="md">${fmtPrice(d.price)} · ${ago(d.first_seen)}</span></span>${vsCell(d, 'mv')}</div>`).join('')
+      : `<div class="wempty">Nothing found${winIn}.</div>`}</section>`;
 
   // Widget 1 — score spread
   const bar = barScore(liveDeals);
@@ -1396,7 +1436,7 @@ function renderOverview() {
   for (const d of scored) buckets[Math.min(9, Math.floor(d.score / 10))]++;
   const maxB = Math.max(1, ...buckets);
   const wScore = `<section class="widget glass card w-score rise">${wHead('Score spread')}
-    <div class="wbig">${scored.length ? Math.max(...scored.map(d => d.score)) : '—'}<small>best · median ${median(scored.map(d => d.score)) ?? '—'}</small></div>
+    <div class="wbig">${scored.length ? Math.max(...scored.map(d => d.score)) : '–'}<small>best · median ${median(scored.map(d => d.score)) ?? '–'}</small></div>
     <div class="bars">${buckets.map((n, i) => `<i class="${bar != null && i * 10 >= bar ? 'hi' : ''}" style="height:${Math.round(n / maxB * 100)}%" data-tip="${i * 10}–${i * 10 + 9}: ${n}"></i>`).join('')}${bar != null ? `<span class="th" style="left:${bar}%"></span>` : ''}</div>
     <div class="wfoot"><span>0</span><span></span><span></span><span></span><span>50</span><span></span><span></span><span></span><span></span><span>100</span></div></section>`;
 
@@ -1409,8 +1449,8 @@ function renderOverview() {
     <div class="wfoot">${recent.map(r => `<span>${new Date(r.started).toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' })}</span>`).join('')}</div></section>`;
 
   // Widget 3 — by hunt (dot matrix, 1 dot = 2 listings)
-  const wHunt = `<section class="widget glass card w-hunt rise">${wHead('By hunt')}
-    <div class="wbig">${win.length}<small>listings in ${winLabel}</small></div>
+  const wHunt = `<section class="widget glass card w-hunt rise">${wHead('By search')}
+    <div class="wbig">${win.length}<small>listings${winIn}</small></div>
     <div class="dots">${state.searches.map((sr, i) => { const n = win.filter(d => d.search_id === sr.id).length; const dots = Math.min(40, Math.ceil(n / 2));
       return `<div class="dcol"><b>${pctOf(n, win.length)}%<small> · ${n}</small></b><div class="dm" style="--c:${catVar(i)}" data-tip="${esc(sr.label)}: ${n}">${'<i></i>'.repeat(dots)}</div><span class="dl">${esc(sr.label)}</span></div>`; }).join('')}</div></section>`;
 
@@ -1422,7 +1462,7 @@ function renderOverview() {
   const H = 260, W = 220, X = 150, y = (v) => Math.round(H - v / top * H);
   const ticks = Array.from({ length: 41 }, (_, i) => i);
   const wCeil = `<section class="widget glass card w-ceil rise">${wHead('Price ceilings')}
-    <div class="wbig">${ceils.length ? fmtPrice(Math.max(...ceils.map(c => c.max))) : '—'}<small>highest ceiling</small></div>
+    <div class="wbig">${ceils.length ? fmtPrice(Math.max(...ceils.map(c => c.max))) : '–'}<small>highest ceiling</small></div>
     <div class="ruler"><svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-label="Price ceilings and cheapest deals per hunt">
       ${ticks.map(i => `<line class="tick" x1="${X}" x2="${i % 5 ? X + 14 : X + 22}" y1="${Math.round(i / 40 * H)}" y2="${Math.round(i / 40 * H)}"/>`).join('')}
       ${[0, .25, .5, .75, 1].map(f => `<text x="${X + 30}" y="${Math.max(10, y(f * top) + 4)}">${'$' + Math.round(f * top / 10) * 10}</text>`).join('')}
@@ -1433,29 +1473,29 @@ function renderOverview() {
 
   // Widget 5 — worth a look list
   const wWorth = `<section class="widget glass card w-worth rise">${wHead('Worth a look')}
-    <div class="wbig">${worth.length}<small>of ${win.length} above your bar in ${winLabel}</small></div>
-    ${worth.length ? worth.slice(0, 5).map(d => `<div class="mini-row" data-open="${esc(d.id)}"><span class="rank top">#${d.rank_in_search}</span><span class="t">${esc(d.title ?? 'Untitled')}</span><span class="v">${fmtPrice(d.price)}</span>${vsCell(d)}<span class="s">${d.score ?? '—'}${meter(d)}</span></div>`).join('')
-      : `<div class="wempty">Nothing above your bar in ${winLabel}. Every listing is still ranked — open the ranking to see why.</div>`}</section>`;
+    <div class="wbig">${worth.length}<small>of ${win.length} above your bar${winIn}</small></div>
+    ${worth.length ? worth.slice(0, 5).map(d => `<div class="mini-row" data-open="${esc(d.id)}" role="button" tabindex="0"><span class="rank top">#${d.rank_in_search}</span><span class="t">${esc(d.title ?? 'Untitled')}</span><span class="v">${fmtPrice(d.price)}</span>${vsCell(d)}<span class="s">${d.score ?? '–'}${meter(d)}</span></div>`).join('')
+      : `<div class="wempty">Nothing above your bar${winIn}. <button type="button" class="linkbtn" data-go="config">Lower the threshold</button></div>`}</section>`;
 
   // Widget 6 — why things rank low
   const fc = {};
   for (const d of win) for (const f of d.flags ?? []) { const k = f.text; fc[k] = fc[k] ?? { n: 0, clay: isFlagClay(f) }; fc[k].n++; }
   const topFlags = Object.entries(fc).sort((a, b) => b[1].n - a[1].n).slice(0, 4);
   const wFlags = `<section class="widget glass card w-flags rise">${wHead('Why things rank low')}
-    <div class="wbig">${topFlags.length ? pctOf(win.filter(d => d.flags?.length).length, win.length) + '%' : '—'}<small>of listings carry a flag</small></div>
+    <div class="wbig">${topFlags.length ? pctOf(win.filter(d => d.flags?.length).length, win.length) + '%' : '–'}<small>of listings carry a flag</small></div>
     ${topFlags.length ? topFlags.map(([text, v]) => { const pc = pctOf(v.n, win.length); const on = Math.round(pc / 5);
       return `<div class="frow"><span>${esc(cap(text))}</span><span class="fpct">${pc}%</span></div><div class="dm" style="--c:${v.clay ? 'var(--clay)' : 'var(--amber)'}" data-tip="${v.n} listings">${Array.from({ length: 20 }, (_, i) => `<i class="${i < on ? '' : 'off'}"></i>`).join('')}</div>`; }).join('')
       : '<div class="wempty">No flags in this window.</div>'}</section>`;
 
   m.innerHTML = `<div class="ov">
-    <div class="hero rise"><div class="upd">${esc(upd)}</div><h2>Overview</h2></div>
+    <div class="hero rise"><div class="upd">${upd}</div><h2>Overview</h2></div>
     <div class="winseg rise" role="group" aria-label="Time window">${WINDOWS.map(([k, l]) => `<button aria-pressed="${state.window === k}" data-win="${k}">${l}</button>`).join('')}</div>
-    ${cal}${summary}${movers}
+    ${summary}${cal}${movers}
     <div class="widgets">${wScore}${wAct}${wHunt}${wCeil}${wWorth}${wFlags}</div>
   </div>`;
   m.querySelectorAll('[data-win]').forEach(b => b.onclick = () => { state.window = b.dataset.win; render(); });
   m.querySelectorAll('[data-go]').forEach(b => b.onclick = () => b.dataset.go === 'hunt' ? requestRun() : go(b.dataset.go));
-  m.querySelectorAll('[data-open]').forEach(el => el.onclick = () => openSheet(el.dataset.open));
+  m.querySelectorAll('[data-open]').forEach(el => { el.onclick = () => openSheet(el.dataset.open); el.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openSheet(el.dataset.open); } }; });
 }
 
 /* ---------------- searches: tune everything on the site ----------------
@@ -1466,11 +1506,11 @@ function renderOverview() {
    drag — nothing is written until Save. */
 const CONDITION_KEYS = ['sealed', 'like_new', 'good', 'working', 'fair', 'untested', 'broken'];
 const PENALTY_INFO = [
-  ['dealbreaker', 'Assessor dealbreaker', .25, 'The assessor marked it as one of your dealbreakers'],
-  ['missing_hard_must_have', 'Fails a hard must-have', .4, 'Per failed rule'],
-  ['below_min_price', 'Below minimum price', .4, 'Almost always a part, not the item'],
+  ['dealbreaker', 'Matched a dealbreaker', .25, ''],
+  ['missing_hard_must_have', 'Fails a hard must-have', .4, 'Per rule'],
+  ['below_min_price', 'Below minimum price', .4, ''],
   ['over_ceiling', 'Over your ceiling', .5, ''],
-  ['too_far', 'Too far away', .6, 'Past your max distance'],
+  ['too_far', 'Too far away', .6, ''],
   ['condition_below_floor', 'Condition below floor', .7, ''],
 ];
 const tune = { base: null, draft: null, dirty: false, preview: null, previewErr: null, pending: false, timer: null, msg: null, collapsed: new Set() };
@@ -1482,14 +1522,14 @@ function setPath(o, path, v) {
 }
 const slug = (s) => String(s ?? '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
 const pctOfRange = (v, min, max) => Math.max(0, Math.min(100, ((v - min) / (max - min)) * 100)) + '%';
-const nh = '<span class="nh" title="Read by the assessor while it browses — applies to listings found from the next hunt on">next hunt</span>';
+const nh = '<span class="nh" title="Applies from the next hunt">next hunt</span>';
 
 // ---- control renderers (all write to tune.draft by data-path) ----
 function sl(label, path, { min = 0, max = 100, step = 1, unit = '', hint = '', dflt = null } = {}) {
   const raw = getPath(tune.draft, path); const v = raw == null ? (dflt ?? min) : Number(raw);
   return `<label class="ctl"><span class="cl">${label}${hint ? `<small>${hint}</small>` : ''}</span>
-    <span class="slw"><input type="range" data-path="${path}" data-num min="${min}" max="${max}" step="${step}" value="${v}" style="--p:${pctOfRange(v, min, max)}">
-    <input type="number" data-path="${path}" data-num min="${min}" max="${max}" step="${step}" value="${v}">${unit ? `<span class="unit">${unit}</span>` : '<span class="unit"></span>'}</span></label>`;
+    <span class="slw"><input type="range" data-path="${path}" data-num min="${min}" max="${max}" step="${step}" value="${v}" style="--p:${pctOfRange(v, min, max)}" aria-label="${esc(label)}">
+    <input type="number" data-path="${path}" data-num min="${min}" max="${max}" step="${step}" value="${v}" aria-label="${esc(label)}${unit ? ' (' + unit + ')' : ''}">${unit ? `<span class="unit">${unit}</span>` : '<span class="unit"></span>'}</span></label>`;
 }
 function pair(label, pa, pb, { min = 0, max = 90, hint = '' } = {}) {
   const a = Number(getPath(tune.draft, pa) ?? 20), b = Number(getPath(tune.draft, pb) ?? 35);
@@ -1503,7 +1543,7 @@ const sw = (label, path) => `<label class="sw"><input type="checkbox" data-path=
 const segc = (path, opts) => `<span class="segc">${opts.map(([v, l]) => `<button type="button" aria-pressed="${getPath(tune.draft, path) === v}" data-seg="${path}" data-val="${esc(String(v))}">${l}</button>`).join('')}</span>`;
 function chips(path, placeholder, warn = false) {
   const items = getPath(tune.draft, path) ?? [];
-  return `<div class="chipedit" data-chips="${path}">${items.map((x, i) => `<span class="chip${warn ? ' warn' : ''}">${esc(x)}<button type="button" data-chip-rm="${i}" aria-label="Remove">×</button></span>`).join('')}
+  return `<div class="chipedit" data-chips="${path}">${items.map((x, i) => `<span class="chip${warn ? ' warn' : ''}">${esc(x)}<button type="button" data-chip-rm="${i}" aria-label="Remove ${esc(x)}">×</button></span>`).join('')}
     <input type="text" data-chip-add="${path}" placeholder="${esc(placeholder)}" autocomplete="off"></div>`;
 }
 const ta = (path, placeholder = '') => `<textarea data-path="${path}" rows="2" placeholder="${esc(placeholder)}">${esc(getPath(tune.draft, path) ?? '')}</textarea>`;
@@ -1511,18 +1551,21 @@ const ta = (path, placeholder = '') => `<textarea data-path="${path}" rows="2" p
 function tuneBarHtml() {
   const p = tune.preview, base = state.deals.filter(live).filter(d => d.status === 'surface').length;
   let txt;
-  if (tune.msg) txt = `<span class="ok">${esc(tune.msg)}</span>`;
+  if (tune.msg) txt = `<span class="ok">${esc(tune.msg)}</span> <button type="button" class="linkbtn" id="tune-go">See ranking</button>`;
   else if (tune.previewErr) txt = `<span class="err">${esc(tune.previewErr)}</span>`;
-  else if (!p) txt = `<span class="was">Scoring your listings against these settings…</span>`;
-  else txt = `<b>${p.surface}</b> would be worth a look${p.surface !== base ? ` <span class="was">· was ${base}</span>` : ''}${tune.dirty ? '<span class="per">unsaved changes</span>' : '<span class="per">nothing changed yet</span>'}`;
-  return `<div class="tb-txt${tune.pending ? ' pending' : ''}">${txt}</div>
-    <div class="tb-acts"><button type="button" class="quiet" id="tune-revert" ${tune.dirty ? '' : 'disabled'}>Revert</button><button type="button" class="primary" id="tune-save" ${tune.dirty && !tune.previewErr ? '' : 'disabled'}>Save &amp; re-rank</button></div>`;
+  else if (!p) txt = `<span class="was">Scoring…</span>`;
+  else txt = `<b>${p.surface}</b> would be worth a look${p.surface !== base ? ` <span class="was">· was ${base}</span>` : ''}${tune.dirty ? '<span class="per">unsaved</span>' : ''}`;
+  return `<div class="tb-txt${tune.pending ? ' pending' : ''}" role="status" aria-live="polite">${txt}</div>
+    <div class="tb-acts"><button type="button" class="quiet" id="tune-revert" ${tune.dirty ? '' : 'disabled'}>Discard changes</button><button type="button" class="primary" id="tune-save" ${tune.dirty && !tune.previewErr ? '' : 'disabled'}>Save<span class="lng"> &amp; re-rank</span></button></div>`;
 }
 const shortLabel = (s) => (s.label ?? s.id).split(/[\s(]/)[0];
+// The parts of the config the assessor reads while browsing, so Save can say when a change waits for the next hunt.
+const nextHuntBits = (c) => JSON.stringify([c?.global?.location, ...(c?.searches ?? []).map(s => [s.queries, s.dealbreakers, s.condition?.note, (s.must_have ?? []).map(r => r.test), (s.nice_to_have ?? []).map(r => r.test)])]);
 
 function renderTuneBar() { const el = $('#tunebar'); if (!el) return; el.innerHTML = tuneBarHtml(); wireTuneBar(); }
 function wireTuneBar() {
   $('#tune-save') && ($('#tune-save').onclick = saveTune);
+  $('#tune-go') && ($('#tune-go').onclick = () => go('ranking'));
   $('#tune-revert') && ($('#tune-revert').onclick = () => { tune.draft = structuredClone(tune.base); tune.dirty = false; tune.msg = null; tune.previewErr = null; renderTuneForm(); schedulePreview(0); });
 }
 
@@ -1549,10 +1592,11 @@ async function saveTune() {
   const { ok, status, data } = await api('/api/searches', { method: 'PUT', body: JSON.stringify(tune.draft) });
   if (status === 401) return showGate();
   if (!ok) { tune.previewErr = data.error ?? 'Save failed'; renderTuneBar(); return; }
+  const textChanged = nextHuntBits(tune.base) !== nextHuntBits(tune.draft);
   tune.base = structuredClone(tune.draft); tune.dirty = false; state.cfg = structuredClone(tune.draft);
   await refreshDeals();
   const after = state.deals.filter(live).filter(d => d.status === 'surface').length;
-  tune.msg = `Saved. Re-ranked everything: ${after} worth a look${after !== before ? ` (was ${before})` : ''}.`;
+  tune.msg = `Saved. ${after} worth a look${after !== before ? `, was ${before}` : ''}.${textChanged ? ' Text changes apply from the next hunt.' : ''}`;
   tune.preview = data; renderTuneBar();
   setTimeout(() => { if (!tune.dirty) { tune.msg = null; renderTuneBar(); } }, 6000);
 }
@@ -1564,6 +1608,7 @@ async function renderConfig() {
     if (status === 401) return showGate();
     if (!cfg?.searches) return empty(m, 'No searches yet', 'Push a config from your computer first: <code>node scripts/push.mjs</code>.');
     tune.base = structuredClone(cfg); tune.draft = structuredClone(cfg); tune.dirty = false; tune.preview = null; tune.msg = null; tune.previewErr = null;
+    tune.collapsed = new Set((cfg.searches ?? []).slice(1).map(s => s.id));
     schedulePreview(0);
   }
   renderTuneForm();
@@ -1578,20 +1623,19 @@ function huntCard(s, i) {
   return `<section class="tcard glass card" data-hunt="${esc(s.id)}">
     <div class="th">
       <button type="button" class="mini" data-collapse="${esc(s.id)}" aria-label="${open ? 'Collapse' : 'Expand'}" aria-expanded="${open}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="${open ? 'M6 9l6 6 6-6' : 'M9 6l6 6-6 6'}"/></svg></button>
-      <input class="lbl" type="text" data-path="${P}.label" value="${esc(s.label ?? s.id)}" aria-label="Hunt name">
+      <input class="lbl" type="text" data-path="${P}.label" value="${esc(s.label ?? s.id)}" aria-label="Search name" title="Click to rename">
       <span class="cnt" data-cnt="${esc(s.id)}"></span>
       ${sw('Active', `${P}.active`)}
     </div>
     ${open ? `
     <div class="tsec"><h4>Prices</h4>
-      ${sl('Ceiling', `${P}.pricing.max`, { min: 0, max: maxCeil, step: 10, unit: '$', hint: 'Above this a listing takes the over-ceiling penalty. Still ranked.' })}
-      ${sl('Minimum price', `${P}.filters.min_price`, { min: 0, max: Math.max(200, s.pricing?.max ?? 200), step: 5, unit: '$', hint: 'Below this it is almost certainly a part, not the item.' })}
-      ${pair('Deal labels', `${P}.pricing.good_deal_pct`, `${P}.pricing.great_deal_pct`, { hint: 'Percent under fair value that earns “good deal” and “steal”. The steal bar also drives the value score.' })}
-      ${sl('Target price', `${P}.pricing.target`, { min: 0, max: maxCeil, step: 10, unit: '$', hint: 'What you would happily pay. Informational.' })}
+      ${sl('Ceiling', `${P}.pricing.max`, { min: 0, max: maxCeil, step: 10, unit: '$', hint: 'Above this takes the over-ceiling penalty.' })}
+      ${sl('Minimum price', `${P}.filters.min_price`, { min: 0, max: Math.max(200, s.pricing?.max ?? 200), step: 5, unit: '$', hint: 'Below this is usually a part, not the item.' })}
+      ${pair('Deal labels', `${P}.pricing.good_deal_pct`, `${P}.pricing.great_deal_pct`, { hint: 'The steal mark also drives the value score.' })}
     </div>
     <div class="tsec"><h4>Search terms ${nh}</h4>${chips(`${P}.queries`, 'Add a search term and press Enter')}</div>
     <div class="tsec"><h4>Must-haves</h4>
-      <p class="note">Hard rules penalise a confirmed miss (×0.4). Soft rules only lower the spec score, so a seller not mentioning it is a maybe, not a no. The sentence is what the assessor checks ${nh}</p>
+      <p class="note">Hard: a confirmed miss takes a penalty. Soft: only lowers the spec score. ${nh}</p>
       ${(s.must_have ?? []).map((r, j) => `<div class="rule">
         <input class="spec" type="text" data-path="${P}.must_have.${j}.spec" data-slug value="${esc(r.spec ?? '')}" placeholder="rule_name" aria-label="Rule name">
         ${segc(`${P}.must_have.${j}.hard`, [[true, 'Hard'], [false, 'Soft']])}
@@ -1600,7 +1644,7 @@ function huntCard(s, i) {
       <div class="addrow"><button type="button" data-add-rule="${P}.must_have" data-kind="must">+ Add must-have</button></div>
     </div>
     <div class="tsec"><h4>Nice-to-haves</h4>
-      <p class="note">Bonus points on the spec score. Weight is how much each one matters. ${nh}</p>
+      <p class="note">Bonus points, weighted. ${nh}</p>
       ${(s.nice_to_have ?? []).map((r, j) => `<div class="rule">
         <input class="spec" type="text" data-path="${P}.nice_to_have.${j}.spec" data-slug value="${esc(r.spec ?? '')}" placeholder="rule_name" aria-label="Rule name">
         <span class="rw"><input type="range" data-path="${P}.nice_to_have.${j}.weight" data-num min="0" max="1" step="0.05" value="${r.weight ?? .25}" style="--p:${pctOfRange(r.weight ?? .25, 0, 1)}" aria-label="Weight"><input type="number" data-path="${P}.nice_to_have.${j}.weight" data-num min="0" max="1" step="0.05" value="${r.weight ?? .25}"></span>
@@ -1609,7 +1653,7 @@ function huntCard(s, i) {
       <div class="addrow"><button type="button" data-add-rule="${P}.nice_to_have" data-kind="nice">+ Add nice-to-have</button></div>
     </div>
     <div class="tsec"><h4>Dealbreakers ${nh}</h4>
-      <p class="note">The assessor marks a listing as disqualified when it matches one of these. Listings already seen keep their verdict until the next hunt — to stop old dealbreakers sinking the ranking now, soften the penalty below.</p>
+      <p class="note">Already-seen listings keep their verdict until the next hunt. To lift them now, soften the penalty below.</p>
       ${chips(`${P}.dealbreakers`, 'Add a dealbreaker and press Enter', true)}
     </div>
     <div class="tsec"><h4>Condition</h4>
@@ -1617,12 +1661,12 @@ function huntCard(s, i) {
         <div class="cbrow">${CONDITION_KEYS.map(k => `<label class="cb"><input type="checkbox" data-cond="${k}" data-hunt="${i}" ${accept.includes(k) ? 'checked' : ''}>${k.replace('_', ' ')}</label>`).join('')}</div></div>
       <div class="ctl"><span class="cl">Notes for the assessor ${nh}</span>${ta(`${P}.condition.note`, 'e.g. worn grips are fine if playable')}</div>
     </div>
-    <div class="tsec"><h4>How hard each rule hits</h4>
-      <p class="note">Each failed rule multiplies the score. Slide right to soften a rule, all the way to 1 to ignore it. This re-ranks listings you have already seen. <button type="button" class="linkbtn" data-reset-pen="${i}">Reset to defaults</button></p>
+    <details class="tsec"${s.penalties ? ' open' : ''}><summary>Penalties</summary>
+      <p class="note">Slide right to soften a rule, to 1 to ignore it. Re-ranks what you have already seen. <button type="button" class="linkbtn" data-reset-pen="${i}">Reset</button></p>
       <div class="pen">${PENALTY_INFO.map(([k, l, d, h]) => sl(l, `${P}.penalties.${k}`, { min: .05, max: 1, step: .05, unit: '×', hint: h, dflt: d })).join('')}</div>
-    </div>
+    </details>
     <div class="tsec"><h4>Fair value</h4>
-      <div class="fvline"><span>${esc((fv.method ?? '—').replace(/_/g, ' '))}</span><span class="conf">confidence ${esc(fv.confidence ?? '—')}</span><span>${esc(fv.basis ?? '')}</span><button type="button" class="linkbtn" data-open-json>Edit the tables in JSON</button></div>
+      <div class="fvline"><span>${esc((fv.method ?? '–').replace(/_/g, ' '))}</span><span class="conf">confidence ${esc(fv.confidence ?? '–')}</span><span>${esc(fv.basis ?? '')}</span><button type="button" class="linkbtn" data-open-json>Edit in JSON (advanced)</button></div>
     </div>` : ''}
   </section>`;
 }
@@ -1630,26 +1674,28 @@ function huntCard(s, i) {
 function renderTuneForm() {
   const m = $('#main'); const g = tune.draft.global ?? (tune.draft.global = {});
   const y = window.scrollY;
-  m.innerHTML = `<div class="exhibit rise"><h2>What you’re hunting</h2><p>Numbers re-rank everything you’ve already seen the moment you save. Anything badged <span class="nh">next hunt</span> is read by the assessor while it browses, so it applies to listings found from the next run on.</p></div>
+  const a = document.activeElement, keep = a?.dataset?.seg != null ? `[data-seg="${a.dataset.seg}"][data-val="${a.dataset.val}"]` : a?.dataset?.collapse ? `[data-collapse="${a.dataset.collapse}"]` : a?.dataset?.resetPen != null ? `[data-reset-pen="${a.dataset.resetPen}"]` : a?.dataset?.chipRm != null ? `[data-chip-add="${a.closest('[data-chips]')?.dataset.chips}"]` : a?.dataset?.rmRule ? `[data-add-rule="${a.dataset.rmRule.replace(/\.\d+$/, '')}"]` : null;
+  m.innerHTML = `<div class="exhibit rise"><h2>Searches</h2><p>Sliders re-rank on save. Anything badged <span class="nh">next hunt</span> applies from the next hunt.</p></div>
     <div class="tunebar glass" id="tunebar">${tuneBarHtml()}</div>
     <form id="tune" autocomplete="off" onsubmit="return false">
     <section class="tcard glass card">
-      <div class="th"><span class="lbl" style="font:700 16px var(--display)">All hunts</span><span class="id">${esc(g.currency ?? 'CAD')} · ${esc(g.location?.resolved ?? '')}</span></div>
-      ${sl('Worth-a-look threshold', 'global.surface_threshold_pct', { min: 0, max: 60, step: 1, unit: '%', hint: 'How far under fair value a clean listing has to be. Lower it to see more.' })}
-      ${sl('Max distance', 'global.max_km', { min: 5, max: 200, step: 5, unit: 'km', hint: 'Further than this takes the too-far penalty.' })}
-      <div class="ctl"><span class="cl">Marketplace location ${nh}<small>“Facebook default” uses whatever your account is set to. “Explicit” pins every search to a place.</small></span>
+      <div class="th"><span class="lbl" style="font:700 16px var(--display)">All searches</span><span class="id">${esc(g.currency ?? 'CAD')} · ${esc(g.location?.resolved ?? '')}</span></div>
+      ${sl('Worth-a-look threshold', 'global.surface_threshold_pct', { min: 0, max: 60, step: 1, unit: '%', hint: 'How far under fair value a clean listing must be. Lower it to see more.' })}
+      ${sl('Max distance', 'global.max_km', { min: 5, max: 200, step: 5, unit: 'km' })}
+      <div class="ctl"><span class="cl">Marketplace location ${nh}<small>Facebook default uses your account’s location. Explicit pins every search to a place.</small></span>
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">${segc('global.location.mode', [['facebook_default', 'Facebook default'], ['explicit', 'Explicit']])}
         ${g.location?.mode === 'explicit' ? `<input type="text" data-path="global.location.place" value="${esc(g.location?.place ?? '')}" placeholder="City, Province or postal code" style="max-width:260px">` : ''}
         <span class="slw" style="gap:6px"><input type="number" class="num" data-path="global.location.radius_miles" data-num min="1" max="200" value="${g.location?.radius_miles ?? 30}" aria-label="Radius in miles"><span class="unit">mi</span></span></div></div>
     </section>
     ${(tune.draft.searches ?? []).map(huntCard).join('')}
     </form>
-    <details class="rawcfg rise" id="rawcfg"><summary>Raw config (JSON)</summary>
-      <p class="sub" style="margin:8px 0">Same draft as the form. Edits here are picked up when you click away. Field reference: docs/searches.schema.md.</p>
+    <details class="rawcfg rise" id="rawcfg"><summary>Advanced: edit as JSON</summary>
+      <p class="sub" style="margin:8px 0">Same settings as the form. Applied when you click away.</p>
       <textarea id="cfg" spellcheck="false">${esc(JSON.stringify(tune.draft, null, 2))}</textarea>
     </details>`;
   wireTuneBar(); wireTuneForm();
   window.scrollTo({ top: y });
+  if (keep) document.querySelector(keep)?.focus({ preventScroll: true });
   document.querySelectorAll('[data-cnt]').forEach(el => { const c = tune.preview?.by_search?.[el.dataset.cnt]; el.innerHTML = c ? `<b>${c.surface}</b> of ${c.total} worth a look` : ''; });
 }
 
@@ -1731,7 +1777,7 @@ async function renderAccount() {
   m.innerHTML = `
     <div class="exhibit rise"><h2>Account</h2><p>${esc(acct.email)}${acct.created_at ? ' · joined ' + new Date(acct.created_at).toLocaleDateString() : ''}</p></div>
     <div class="panel glass rise">
-      <div class="account-row"><div class="grow"><div class="k">Push token</div><div class="d">Lets <span style="font-family:var(--mono)">scripts/push.mjs</span> upload your hunts. Regenerating kills the old one.</div></div><button id="regen">Regenerate</button></div>
+      <div class="account-row"><div class="grow"><div class="k">Push token</div><div class="d">Lets your computer send hunts here. Regenerating replaces it.</div><div class="msg bad" id="regen-msg" role="alert"></div></div><button id="regen">Regenerate</button></div>
       <div class="account-row"><div class="grow"><div class="k">Password</div><div class="d">At least 10 characters.</div>
         <form class="inline-form" id="pw-form" hidden>
           <input type="password" id="pw-current" placeholder="Current password" autocomplete="current-password" required>
@@ -1739,15 +1785,15 @@ async function renderAccount() {
           <div class="msg" id="pw-msg" role="status"></div>
           <div style="display:flex;gap:8px"><button class="primary" type="submit">Change password</button></div>
         </form></div><button id="pw-toggle">Change</button></div>
-      <div class="account-row"><div class="grow"><div class="k">Appearance</div><div class="d">Light, dark, or follow the system. Remembered on this device.</div></div>
+      <div class="account-row"><div class="grow"><div class="k">Appearance</div></div>
         <span class="theme-seg">${['light', 'dark', 'system'].map(t => `<button type="button" data-theme-set="${t}" aria-pressed="${themeSetting() === t}">${t[0].toUpperCase() + t.slice(1)}</button>`).join('')}</span></div>
-      <div class="account-row"><div class="grow"><div class="k">Session</div><div class="d">Signs you out on this device.</div></div><button id="logout" class="quiet" style="color:var(--clay)">Sign out</button></div>
+      <div class="account-row"><div class="grow"><div class="k">Session</div></div><button id="logout" class="quiet" style="color:var(--clay)">Sign out</button></div>
     </div>`;
   m.querySelectorAll('[data-theme-set]').forEach(b => b.onclick = () => setTheme(b.dataset.themeSet));
   $('#regen').onclick = async () => {
-    if (!confirm('Regenerate the push token? The old one stops working immediately.')) return;
+    if (!(await ask('Regenerate the push token?', 'The old token stops working immediately.', 'Regenerate'))) return;
     const { ok, data } = await api('/api/account', { method: 'POST', body: JSON.stringify({ action: 'regen_token' }) });
-    if (!ok) return alert(data.error ?? 'Failed');
+    if (!ok) { $('#regen-msg').textContent = data.error ?? 'Couldn’t regenerate. Try again.'; return; }
     $('#regen-text').textContent = data.push_token;
     $('#regen-copy').onclick = () => { navigator.clipboard?.writeText(data.push_token); $('#regen-copy').textContent = 'Copied'; };
     $('#token-dialog').showModal();
@@ -1768,7 +1814,7 @@ function showGate() { $('#chrome-header').hidden = true; $('#main').hidden = tru
 $('#swap-btn').onclick = () => {
   gateMode = gateMode === 'signin' ? 'signup' : 'signin';
   const signup = gateMode === 'signup';
-  $('#g-confirm').hidden = !signup;
+  $('#g-confirm').hidden = !signup; $('#g-code').hidden = !signup;
   $('#g-password').autocomplete = signup ? 'new-password' : 'current-password';
   $('#g-submit').textContent = signup ? 'Create account' : 'Sign in';
   $('#gate-swap').childNodes[0].textContent = signup ? 'Already have an account? ' : 'New here? ';
@@ -1800,7 +1846,7 @@ $('#gate-form').onsubmit = async (e) => {
   }
 };
 
-boot();
+boot().catch(() => showFatal('Couldn’t reach the server. Check your connection, then reload.'));
 </script>
 </body>
 </html>
