@@ -1,7 +1,6 @@
 node_modules/
 
 # Scraped listing data — personal, noisy, and can get large.
-# searches.json IS tracked (it's your editable config).
 data/*.json
 data/*.sqlite
 data/*.db
@@ -11,6 +10,10 @@ data/*.db
 # real listings and are what lets scoring be tested without touching Facebook.
 data/incoming/*.json
 !data/incoming/fixture-*.json
+
+# Your searches. Each person's lives here and on the website; the example
+# config shows the shape.
+searches.json
 
 # Local run state
 .runstate/

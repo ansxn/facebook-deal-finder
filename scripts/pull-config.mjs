@@ -8,15 +8,22 @@
 import { apiEnv, pullConfig } from './lib/config-sync.mjs';
 
 if (!apiEnv().configured) {
-  console.log('no DEALFINDER_API_URL / DEALFINDER_PUSH_TOKEN in .env.local — local searches.json is the only copy');
+  console.log('no DEALFINDER_API_URL or DEALFINDER_PUSH_TOKEN in .env.local; local searches.json is the only copy');
   process.exit(0);
 }
 
-const r = await pullConfig();
+let r;
+try { r = await pullConfig(); }
+catch (err) {
+  console.error(/→ 401/.test(err.message)
+    ? 'The dashboard rejected the push token. Copy it again, or use Account > Regenerate on the website, then update DEALFINDER_PUSH_TOKEN in .env.local.'
+    : `Could not reach the dashboard: ${err.message}`);
+  process.exit(1);
+}
 const msg = {
   pulled: `pulled newer config from the dashboard (saved ${r.updated_at})`,
-  'local-newer': 'local searches.json is newer than the dashboard copy — it will be pushed at the end of the run',
+  'local-newer': 'local searches.json is newer than the dashboard copy; it is pushed at the end of the run',
   same: 'config already in sync',
-  'no-remote': 'no config on the dashboard yet — local searches.json is the only copy',
+  'no-remote': 'token works; no config on the dashboard yet',
 }[r.action];
 console.log(msg);
