@@ -945,7 +945,7 @@ const filtersActive = () => Boolean(state.q.trim()) || state.quick.size > 0;
 function applyFilters(list) {
   const q = state.q.trim().toLowerCase();
   const fns = [...state.quick].map(id => QUICK.find(x => x.id === id)?.f).filter(Boolean);
-  return list.filter(d => (!q || (d.title ?? '').toLowerCase().includes(q) || (d.location ?? '').toLowerCase().includes(q)) && fns.every(f => f(d)));
+  return list.filter(d => (!q || (d.display_title ?? '').toLowerCase().includes(q) || (d.title ?? '').toLowerCase().includes(q) || (d.location ?? '').toLowerCase().includes(q)) && fns.every(f => f(d)));
 }
 function inWindow(list) {
   if (state.window === 'all') return list;
@@ -1091,7 +1091,7 @@ function card(d, passed) {
   const dropped = d.price_history?.length > 1 && d.price_history.at(-1).price < d.price_history[0].price;
   const km = d.assessment?.distance_km;
   const cond = condLabel(d.assessment?.condition);
-  return `<article class="card glass rise${passed ? ' passed' : ''}" data-id="${esc(d.id)}" tabindex="0" aria-label="${esc(d.title ?? 'Listing')}">
+  return `<article class="card glass rise${passed ? ' passed' : ''}" data-id="${esc(d.id)}" tabindex="0" aria-label="${esc(d.display_title ?? d.title ?? 'Listing')}">
     <div class="content">
       <div class="body">
         <div class="card-head">
@@ -1101,7 +1101,7 @@ function card(d, passed) {
           ${d.score != null ? `<span class="score"><b>${d.score}</b><small>score</small></span>` : ''}
         </div>
         ${meter(d)}
-        <div class="title">${esc(d.title ?? 'Untitled')}</div>
+        <div class="title">${esc(d.display_title ?? d.title ?? 'Untitled')}</div>
         ${stats(d)}
         ${flagLines(d)}
         ${d.status === 'pending' && !d.flags?.length ? `<div class="flagline"><span>${esc(cap(d.reason ?? ''))}</span></div>` : ''}
@@ -1139,11 +1139,11 @@ function row(d, passed) {
     dropped ? `<span class="m drop">was ${fmtPrice(d.price_history[0].price)}</span>` : '',
   ].join('');
   const showHunt = state.view !== 'ranking' || state.filter === 'all';
-  return `<article class="row rise${passed ? ' passed' : ''}${selected ? ' selected' : ''}${state.cursor === d.id ? ' cursor' : ''}" data-id="${esc(d.id)}" tabindex="0" aria-label="${esc(d.title ?? 'Listing')}" aria-current="${selected}">
+  return `<article class="row rise${passed ? ' passed' : ''}${selected ? ' selected' : ''}${state.cursor === d.id ? ' cursor' : ''}" data-id="${esc(d.id)}" tabindex="0" aria-label="${esc(d.display_title ?? d.title ?? 'Listing')}" aria-current="${selected}">
     <div class="content">
       <span class="rank${d.status === 'surface' ? ' top' : ''}">#${d.rank_in_search}</span>
       <div class="rt">
-        <div class="title">${esc(d.title ?? 'Untitled')}</div>
+        <div class="title">${esc(d.display_title ?? d.title ?? 'Untitled')}</div>
         <div class="rmeta">${pillFor(d)}${d.verdict === 'saved' ? '<span class="saved-flag">Saved</span>' : ''}${showHunt ? `<span class="hunt">${esc(searchLabel(d.search_id))}</span>` : ''}${why}</div>
         <div class="rmeta meta2">${meta}</div>
       </div>
@@ -1336,7 +1336,8 @@ function renderSheet(id) {
     <div class="sheet-scroll" id="sheet-scroll">
     <div class="sheet-head">
       <button class="sheet-close" id="sheet-close" aria-label="Close">✕</button>
-      <div class="t">${esc(d.title ?? 'Untitled')}</div>
+      <div class="t">${esc(d.display_title ?? d.title ?? 'Untitled')}</div>
+      ${d.display_title && d.title && d.display_title !== d.title ? `<div class="sub" style="font-size:12px;color:var(--pine-3);margin-top:4px">Listed as “${esc(d.title)}”</div>` : ''}
       <div class="p">${fmtPrice(d.price)}${d.fair_value != null ? `<small>fair value ${fmtPrice(d.fair_value)}${roughEstimate(d) ? ' (rough)' : ''}</small>` : ''}</div>
     </div>
     <div class="sheet-body">
@@ -1427,7 +1428,7 @@ function renderOverview() {
 
   const newest = [...win].sort((a, b) => new Date(b.first_seen ?? 0) - new Date(a.first_seen ?? 0)).slice(0, 3);
   const movers = `<section class="movers glass card rise"><div class="wh"><b>Just found</b></div>
-    ${newest.length ? newest.map(d => `<div class="mrow" data-open="${esc(d.id)}" role="button" tabindex="0"><span class="mi" style="--c:${catOf(d.search_id)}">${esc(searchLabel(d.search_id)[0] ?? '?')}</span><span class="mtw"><span class="mt">${esc(d.title ?? 'Untitled')}</span><span class="md">${fmtPrice(d.price)} · ${ago(d.first_seen)}</span></span>${vsCell(d, 'mv')}</div>`).join('')
+    ${newest.length ? newest.map(d => `<div class="mrow" data-open="${esc(d.id)}" role="button" tabindex="0"><span class="mi" style="--c:${catOf(d.search_id)}">${esc(searchLabel(d.search_id)[0] ?? '?')}</span><span class="mtw"><span class="mt">${esc(d.display_title ?? d.title ?? 'Untitled')}</span><span class="md">${fmtPrice(d.price)} · ${ago(d.first_seen)}</span></span>${vsCell(d, 'mv')}</div>`).join('')
       : `<div class="wempty">Nothing found${winIn}.</div>`}</section>`;
 
   // Widget 1 — score spread
@@ -1474,7 +1475,7 @@ function renderOverview() {
   // Widget 5 — worth a look list
   const wWorth = `<section class="widget glass card w-worth rise">${wHead('Worth a look')}
     <div class="wbig">${worth.length}<small>of ${win.length} above your bar${winIn}</small></div>
-    ${worth.length ? worth.slice(0, 5).map(d => `<div class="mini-row" data-open="${esc(d.id)}" role="button" tabindex="0"><span class="rank top">#${d.rank_in_search}</span><span class="t">${esc(d.title ?? 'Untitled')}</span><span class="v">${fmtPrice(d.price)}</span>${vsCell(d)}<span class="s">${d.score ?? '–'}${meter(d)}</span></div>`).join('')
+    ${worth.length ? worth.slice(0, 5).map(d => `<div class="mini-row" data-open="${esc(d.id)}" role="button" tabindex="0"><span class="rank top">#${d.rank_in_search}</span><span class="t">${esc(d.display_title ?? d.title ?? 'Untitled')}</span><span class="v">${fmtPrice(d.price)}</span>${vsCell(d)}<span class="s">${d.score ?? '–'}${meter(d)}</span></div>`).join('')
       : `<div class="wempty">Nothing above your bar${winIn}. <button type="button" class="linkbtn" data-go="config">Lower the threshold</button></div>`}</section>`;
 
   // Widget 6 — why things rank low
@@ -1560,7 +1561,7 @@ function tuneBarHtml() {
 }
 const shortLabel = (s) => (s.label ?? s.id).split(/[\s(]/)[0];
 // The parts of the config the assessor reads while browsing, so Save can say when a change waits for the next hunt.
-const nextHuntBits = (c) => JSON.stringify([c?.global?.location, ...(c?.searches ?? []).map(s => [s.queries, s.dealbreakers, s.condition?.note, (s.must_have ?? []).map(r => r.test), (s.nice_to_have ?? []).map(r => r.test)])]);
+const nextHuntBits = (c) => JSON.stringify([c?.global?.location, ...(c?.searches ?? []).map(s => [s.queries, s.dealbreakers, s.condition?.note, (s.must_have ?? []).map(r => r.test), (s.nice_to_have ?? []).map(r => r.test), s.title_style])]);
 
 function renderTuneBar() { const el = $('#tunebar'); if (!el) return; el.innerHTML = tuneBarHtml(); wireTuneBar(); }
 function wireTuneBar() {
@@ -1634,6 +1635,9 @@ function huntCard(s, i) {
       ${pair('Deal labels', `${P}.pricing.good_deal_pct`, `${P}.pricing.great_deal_pct`, { hint: 'The steal mark also drives the value score.' })}
     </div>
     <div class="tsec"><h4>Search terms ${nh}</h4>${chips(`${P}.queries`, 'Add a search term and press Enter')}</div>
+    <div class="tsec"><h4>Title style ${nh}</h4>
+      <p class="note">How listings from this search are named on the board. Brand and model first, then the facts your rules care about.</p>
+      ${ta(`${P}.title_style`, 'e.g. Brand Model, N-piece, hand and flex, bag if included')}</div>
     <div class="tsec"><h4>Must-haves</h4>
       <p class="note">Hard: a confirmed miss takes a penalty. Soft: only lowers the spec score. ${nh}</p>
       ${(s.must_have ?? []).map((r, j) => `<div class="rule">
