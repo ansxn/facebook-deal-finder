@@ -44,11 +44,11 @@ export function scoreListing(listing, search) {
 
   // Anything we can't judge yet is "pending", not "bad". Keeping these separate
   // matters: a zero score would bury an un-assessed listing forever.
-  if (!a) return pending(listing, 'not assessed yet');
-  if (price == null) return pending(listing, 'no price found');
+  if (!a) return pending(listing, search, 'not assessed yet');
+  if (price == null) return pending(listing, search, 'no price found');
 
   const fv = estimateFairValue(listing, search);
-  if (fv.fmv == null || fv.fmv <= 0) return pending(listing, `no fair value: ${fv.basis}`);
+  if (fv.fmv == null || fv.fmv <= 0) return pending(listing, search, `no fair value: ${fv.basis}`);
 
   const discountPct = ((fv.fmv - price) / fv.fmv) * 100;
   const greatAt = search.pricing?.great_deal_pct ?? 35;
@@ -70,7 +70,7 @@ export function scoreListing(listing, search) {
 
   const surfaceAt = search.surface_threshold_pct ?? 20;
   return {
-    ...base(listing),
+    ...base(listing, search),
     status: flags.length === 0 && discountPct >= surfaceAt ? 'surface' : 'ranked',
     score,
     discount_pct: Math.round(discountPct * 10) / 10,
@@ -227,8 +227,35 @@ export function validateSearches(cfg) {
   return errs;
 }
 
-const base = (l) => ({ id: l.id, search_id: l.search_id, title: l.title, price: l.price });
-const pending = (l, reason) => ({ ...base(l), status: 'pending', reason, score: null, discount_pct: null, flags: [] });
+const base = (l, search) => ({ id: l.id, search_id: l.search_id, title: l.title, display_title: displayTitle(l, search), price: l.price });
+
+/**
+ * The name shown on the dashboard. The assessor writes `display_title` during
+ * a hunt (brand and model first, the facts the rules care about, no marketing).
+ * Listings that predate that get a code cleanup of the seller's title so the
+ * board still reads uniformly: caps, emoji and hype stripped, hand and flex
+ * spelled out, brand prefixed when the assessor found one the title lacks.
+ */
+const HYPE = /\b(must ?see|wow|great deal|amazing|excellent deal|cheap|obo|o\.b\.o\.?|firm|no lowballs?|serious (buyers|inquiries) only|pick ?up only|cash only|look!*)\b/gi;
+const KEEP_CAPS = new Set(['RH', 'LH', 'ETB', 'TCG', 'DCI', 'SX', 'RS2', 'TPS', 'YU4', 'YU6', 'XJ', 'PW', 'SW', 'LW', 'GW', 'AW', 'DFX', 'X22']);
+export function displayTitle(l, search) {
+  const custom = l.assessment?.display_title;
+  if (custom && String(custom).trim()) return String(custom).trim();
+  let t = String(l.title ?? '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, ' ').replace(/[!*]+/g, ' ').replace(HYPE, ' ');
+  t = t.replace(/[\s\-–—|]+$/g, '').replace(/\s{2,}/g, ' ').trim();
+  t = t.split(' ').map(w => (w.length > 3 && w === w.toUpperCase() && !KEEP_CAPS.has(w) && /^[A-Z'’]+$/.test(w)) ? w[0] + w.slice(1).toLowerCase() : w).join(' ');
+  t = t.replace(/\(\s*(men'?s|ladies|women'?s)?\s*(right|left)[- ]handed?\s*\)/gi, (m, who, hand) => `, ${hand.toLowerCase()}-handed`)
+       .replace(/\bR\/?H\b/g, 'right-handed').replace(/\bL\/?H\b/g, 'left-handed');
+  t = t.replace(/\s*\/\s*(right|left)[- ]handed?\b/gi, (m, hand) => `, ${hand.toLowerCase()}-handed`);
+  const brand = l.assessment?.brand, model = l.assessment?.model;
+  const lead = [brand, model].filter(x => x && !t.toLowerCase().includes(String(x).toLowerCase())).join(' ');
+  if (lead) t = `${lead} ${t}`;
+  t = t.charAt(0).toUpperCase() + t.slice(1);
+  t = t.replace(/\s+,/g, ',').replace(/,\s*,/g, ',').trim();
+  if (t.length > 72) t = t.slice(0, 70).replace(/\s\S*$/, '') + '…';
+  return t || 'Untitled';
+}
+const pending = (l, search, reason) => ({ ...base(l, search), status: 'pending', reason, score: null, discount_pct: null, flags: [] });
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const round2 = (n) => Math.round(n * 100) / 100;
 

@@ -36,6 +36,7 @@ and must-have wording only apply to listings assessed from the next hunt on.
 | `id` | Stable key. Listing dedupe and verdicts are stored against it — renaming it orphans your history. |
 | `active` | `false` skips it without deleting the config. |
 | `queries` | Search strings, run one at a time. More strings = more requests, so keep the list tight. |
+| `title_style` | How the assessor should name listings from this search on the dashboard (brand and model first, then the facts the rules care about). Edited on the Searches page. Applies from the next hunt. |
 | `filters` | Applied as Marketplace URL filters where supported, and re-checked locally because Marketplace's filters are unreliable. `filters.min_price` is scored locally: anything below it takes a `below_min_price` penalty (×0.4) — almost always a part, not the item. |
 
 ### `must_have` / `nice_to_have`

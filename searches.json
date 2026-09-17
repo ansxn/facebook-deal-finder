@@ -166,7 +166,8 @@
         "max": 600,
         "good_deal_pct": 20,
         "great_deal_pct": 35
-      }
+      },
+      "title_style": "Brand Model, N-piece, hand and flex, bag if included. Example: \"Callaway Strata 12-piece, right-handed regular, with stand bag\""
     },
     {
       "id": "pokemon-etb",
@@ -246,7 +247,8 @@
         "max": 120,
         "good_deal_pct": 20,
         "great_deal_pct": 35
-      }
+      },
+      "title_style": "Set name and product type, sealed state, quantity if more than one. Example: \"Evolving Skies Elite Trainer Box, sealed\""
     },
     {
       "id": "powered-speakers-vinyl",
@@ -391,7 +393,8 @@
         "max": 550,
         "good_deal_pct": 20,
         "great_deal_pct": 35
-      }
+      },
+      "title_style": "Brand Model, phono yes/no, colour, pair or single. Example: \"Kanto YU4, phono, matte black, pair\""
     }
   ],
   "updated_at": "2026-09-16T23:02:58.282Z"

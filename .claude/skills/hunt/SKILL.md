@@ -269,6 +269,17 @@ Rules that matter, in order of how much damage getting them wrong does:
   is not a disqualifier — scoring handles price.
 - `condition` ∈ `like_new`, `sealed`, `good`, `working`, `fair`, `untested`,
   `broken`.
+- **Always write `display_title`**: the name the dashboard shows instead of the
+  seller's title. Build it from the title, the description and the photos, in
+  the shape the search's `title_style` asks for (in `searches.json`, editable
+  on the website). Rules: brand and model first when known; then the two or
+  three facts the search's rules care about (hand, flex, piece count, sealed,
+  phono, colour); sentence case; no ALL CAPS, emoji, prices, or seller hype;
+  under 60 characters; never invent a brand the listing does not show (the
+  accessory-brand trap above applies here too). If the listing gives nothing
+  to go on, clean up the seller's title and stop. Examples:
+  `Callaway Strata 12-piece, right-handed regular, with bag`,
+  `Evolving Skies Elite Trainer Box, sealed`, `Kanto YU4, phono, black, pair`.
 
 **(verified, 2026-07-27) An empty listing scores as a top deal. Distrust the
 ranking when `notes` say there was nothing to read.** The highest-scoring result
