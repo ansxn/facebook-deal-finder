@@ -28,3 +28,6 @@ searches.json
 # by scripts/sync-web.mjs but ARE committed: Vercel builds straight from git,
 # so the deploy tree has to be complete in the repo. Edit the canonical copies
 # (dashboard/, scripts/lib/) and re-run the sync before committing.
+
+# Personal Claude Code permissions for this machine.
+.claude/settings.local.json
