@@ -121,7 +121,7 @@ function penalties(search, a, price) {
   if (max != null && price > max) add('over_ceiling', `over your $${max} ceiling by $${price - max}`);
 
   const min = search.filters?.min_price;
-  if (min != null && price < min) add('below_min_price', `$${price} is below $${min} — almost certainly not the real item`);
+  if (min != null && price < min) add('below_min_price', `$${price} is below your $${min} minimum, probably not the real item`);
 
   // Spec failures come before distance because they're the more useful thing
   // to be told: "no driver" says the listing is wrong; "too far" only says
