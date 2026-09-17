@@ -891,6 +891,7 @@ async function refreshDeals() {
   state.dealsError = null;
   state.deals = data.deals;
   state.searches = data.searches;
+  state.needsSetup = Boolean(data.needs_setup);
 }
 
 function showApp() {
@@ -1027,7 +1028,7 @@ function renderRanking() {
   const toolbar = `<div class="toolbar">${chips}<label class="sortwrap"><span>Sort</span><select id="sort" aria-label="Sort listings">
       ${Object.entries(SORT_LABELS).map(([k, l]) => `<option value="${k}"${state.sort === k ? ' selected' : ''}>${l}</option>`).join('')}</select></label></div>`;
   const hint = `<div class="kbd-hint"><kbd>j</kbd><kbd>k</kbd> move · <kbd>↵</kbd> open · ${passedView ? '<kbd>b</kbd> bring back' : '<kbd>s</kbd> save · <kbd>x</kbd> pass · <kbd>u</kbd> undo'} · <kbd>esc</kbd> close</div>`;
-  const body = !list.length ? `<div class="empty glass panel rise"><div class="big">Nothing found yet</div><p>Run <code>/hunt</code> in Claude Code to check Marketplace.</p></div>`
+  const body = !list.length ? `<div class="empty glass panel rise">${state.needsSetup ? '<div class="big">Almost set up</div><p>Your AI sends your searches here at the end of setup.</p>' : '<div class="big">Nothing found yet</div><p>Run <code>/hunt</code> in Claude Code to check Marketplace.</p>'}</div>`
     : desktop() ? `<div class="list glass rise">${listHead()}${list.map(d => row(d, passedView)).join('')}</div>${hint}`
     : `<div class="grid">${list.map(d => card(d, passedView)).join('')}</div>`;
 
@@ -1407,7 +1408,7 @@ function renderOverview() {
   const winLabel = WINDOWS.find(w => w[0] === state.window)[1].toLowerCase();
   const winIn = state.window === 'all' ? '' : ` in ${winLabel}`;
   if (!state.deals.length) {
-    m.innerHTML = `<div class="hero rise"><div class="upd">${upd}</div><h2>Overview</h2></div><div class="empty glass panel rise"><div class="big">Nothing found yet</div><p>Run <code>/hunt</code> in Claude Code to check Marketplace.</p></div>`;
+    m.innerHTML = `<div class="hero rise"><div class="upd">${upd}</div><h2>Overview</h2></div><div class="empty glass panel rise">${state.needsSetup ? '<div class="big">Almost set up</div><p>Your AI sends your searches here at the end of setup.</p>' : '<div class="big">Nothing found yet</div><p>Run <code>/hunt</code> in Claude Code to check Marketplace.</p>'}</div>`;
     return;
   }
 
@@ -1607,7 +1608,7 @@ async function renderConfig() {
   if (!tune.base) {
     const { status, data: cfg } = await api('/api/searches');
     if (status === 401) return showGate();
-    if (!cfg?.searches) return empty(m, 'No searches yet', 'Push a config from your computer first: <code>node scripts/push.mjs</code>.');
+    if (!cfg?.searches) return empty(m, 'No searches yet', 'Your AI sends these here at the end of setup.');
     tune.base = structuredClone(cfg); tune.draft = structuredClone(cfg); tune.dirty = false; tune.preview = null; tune.msg = null; tune.previewErr = null;
     tune.collapsed = new Set((cfg.searches ?? []).slice(1).map(s => s.id));
     schedulePreview(0);

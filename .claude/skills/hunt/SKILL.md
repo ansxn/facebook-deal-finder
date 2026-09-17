@@ -1,6 +1,6 @@
 ---
 name: hunt
-description: Run the daily Facebook Marketplace hunt — opens the user's own signed-in Chrome, runs the configured searches at human pace, reads and assesses listings, and stores them for scoring. Use when the user says /hunt, hunt, run the deal finder, check Marketplace, or run today's searches. Accepts an optional search name (golf, pokemon, speakers) to run just one.
+description: Run the daily Facebook Marketplace hunt — opens the user's own signed-in Chrome, runs the configured searches at human pace, reads and assesses listings, and stores them for scoring. Use when the user says /hunt, hunt, run the deal finder, check Marketplace, or run today's searches. Accepts an optional search id from searches.json to run just one.
 ---
 
 # Hunt Marketplace
@@ -38,9 +38,11 @@ node scripts/run.mjs check && node scripts/run.mjs start
 terms the user tuned on the website, when that copy is newer. Run it before
 reading the config, every time — the site is where rules get changed now.
 
-Read `searches.json`. Note `global.currency` — **listings are in CAD** and every
-fair-value number in the config is CAD too. Do not convert. (verified: the
-account's Marketplace resolves to Toronto and prices in CA$.)
+Read `searches.json`. Note `global.currency`: listing prices and every
+fair-value number in the config are in that currency. Do not convert. Note
+`global.location.resolved` too: it is the origin for every `distance_km`.
+(verified on the owner's account: Marketplace resolves to Toronto and prices in
+CA$. A different user's account resolves to their own city and currency.)
 
 ### 2. One search at a time
 
@@ -253,7 +255,8 @@ Rules that matter, in order of how much damage getting them wrong does:
   keyword-spam ones. Title length correlates with nothing.
 - **Always set `distance_km`**, estimated from the town name. Code cannot
   geocode a place name, and Facebook's radius filter leaks badly, so this is the
-  only thing keeping a two-hour drive off the list. Toronto reference points:
+  only thing keeping a two-hour drive off the list. Measure from
+  `global.location.resolved`. If that is Toronto, reference points:
   Markham/Richmond Hill/Vaughan/Mississauga ~25–30, Oakville ~35, Brampton ~40,
   Clarington ~60, Barrie ~90, Waterloo/Woolwich ~105–110, Thorold/Niagara Falls
   ~125–130, Norfolk ~150. Added 2026-07-29: Ajax ~40, Newmarket ~45, Whitby ~50,

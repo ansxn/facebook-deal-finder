@@ -55,6 +55,7 @@ const server = createServer(async (req, res) => {
   try {
     if (path === '/api/deals') {
       const searches = loadSearches();
+      if (!searches) return json(res, 200, { deals: [], searches: [], counts: {}, needs_setup: true });
       const all = scoreAll({
         listings: loadListings(),
         searches,

@@ -86,6 +86,12 @@ Dashboard is deployed to Vercel with a Supabase backend — setup and the securi
 decision: [docs/SETUP-HOSTING.md](docs/SETUP-HOSTING.md). The hunt stays local
 permanently. Trade-offs: [docs/HOSTING.md](docs/HOSTING.md).
 
+## Inviting a friend
+
+Email them [START-HERE.md](START-HERE.md). They open Claude Code, point it at
+the file, and it walks them through signing up, choosing what to hunt, and
+their first run. Their searches and listings stay in their own account.
+
 ## Requirements
 
 - Node (no npm dependencies — everything is stdlib)
