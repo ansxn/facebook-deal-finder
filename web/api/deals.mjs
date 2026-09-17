@@ -8,7 +8,9 @@ import { guard } from './_lib/auth.mjs';
 export default guard(async (req, res, user) => {
   const { listings, verdicts, searches } = await loadAll(user.id);
   if (!searches) {
-    res.status(503).json({ error: 'No searches config in the database yet. Run: node scripts/push.mjs' });
+    // A brand-new account: setup has not sent its searches yet. Empty, not an error.
+    res.setHeader('cache-control', 'no-store');
+    res.status(200).json({ deals: [], searches: [], counts: {}, needs_setup: true });
     return;
   }
 

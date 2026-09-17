@@ -22,13 +22,20 @@ if (!API_URL || !TOKEN) {
   console.error(
     'Missing DEALFINDER_API_URL or DEALFINDER_PUSH_TOKEN in .env.local.\n' +
     'Sign up (or regenerate a token from the Account tab) on the hosted\n' +
-    'dashboard, then put both values in .env.local. See GETTING-STARTED.md.'
+    'dashboard, then put both values in .env.local. See START-HERE.md.'
   );
   process.exit(1);
 }
 
 // Config edited on the website is newer than the laptop's copy more often
 // than not now — pull it first so the push below never overwrites it.
+process.on('uncaughtException', (err) => {
+  console.error(/→ 401/.test(err?.message ?? '')
+    ? 'The dashboard rejected the push token. Copy it again, or use Account > Regenerate on the website, then update DEALFINDER_PUSH_TOKEN in .env.local.'
+    : `Push failed: ${err?.message ?? err}`);
+  process.exit(1);
+});
+
 const cfgSync = await pullConfig();
 
 const listings = loadListings().listings ?? {};
@@ -36,8 +43,8 @@ const searches = loadSearches();
 const runs = loadRuns().runs ?? [];
 
 const ids = Object.keys(listings);
-if (!ids.length) {
-  console.error('nothing to push — the local store is empty');
+if (!searches) {
+  console.error('No searches.json yet. Finish setup first (START-HERE.md).');
   process.exit(1);
 }
 
@@ -68,7 +75,9 @@ const verdictRows = Object.entries(localVerdicts).map(([listing_id, v]) => ({
 }));
 const lastRun = runs.at(-1) ?? null;
 
-const batches = [...chunks(rows, 200)];
+// Before the first hunt there are no listings, but the searches still have to
+// reach the website, so there is always at least one (possibly empty) batch.
+const batches = rows.length ? [...chunks(rows, 200)] : [[]];
 for (let i = 0; i < batches.length; i++) {
   const final = i === batches.length - 1;
   await api('POST', '/api/push', {
@@ -77,7 +86,7 @@ for (let i = 0; i < batches.length; i++) {
   });
 }
 
-console.log(`pushed ${rows.length} listings, ${verdictRows.length} verdicts, searches config, last run`);
+console.log(`pushed ${rows.length} listings, ${verdictRows.length} verdicts, searches config${lastRun ? ', last run' : ''}`);
 if (pulled) console.log(`pulled ${pulled} newer verdict(s) down from the dashboard first`);
 if (cfgSync.action === 'pulled') console.log(`pulled newer searches config from the dashboard first (saved ${cfgSync.updated_at})`);
 
