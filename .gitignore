@@ -5,6 +5,10 @@ node_modules/
 .env.local
 .env
 
+# Your own searches config. The real copy lives on the server now; this is only
+# a local scratch copy and it names your city, budgets and what you hunt.
+searches.json
+
 *.log
 .DS_Store
 
