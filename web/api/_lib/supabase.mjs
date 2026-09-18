@@ -1,6 +1,3 @@
-// GENERATED — do not edit. Source of truth: scripts/lib/supabase.mjs
-// Regenerate with: node scripts/sync-web.mjs
-
 // Supabase access over plain PostgREST + fetch.
 //
 // No @supabase/supabase-js on purpose: the whole tool has zero dependencies, and
@@ -81,10 +78,15 @@ export const remove = (table, query, env) =>
  * signed up, and the composite primary keys mean the same Marketplace listing
  * id can exist once per user.
  */
+// PostgREST caps an unbounded response (1000 rows by default) and says nothing
+// about it, which on a ranking tool would quietly drop the oldest listings out
+// of the board. Ask for an explicit, larger page and report when it fills up.
+export const LISTINGS_LIMIT = Number(process.env.LISTINGS_LIMIT ?? 5000);
+
 export async function loadAll(userId, env) {
   const u = `user_id=eq.${encodeURIComponent(userId)}`;
   const [listingRows, verdictRows, configRows, runRows] = await Promise.all([
-    select('listings', `select=id,search_id,payload,first_seen,last_seen&${u}`, env),
+    select('listings', `select=id,search_id,payload,first_seen,last_seen&${u}&order=last_seen.desc&limit=${LISTINGS_LIMIT}`, env),
     select('verdicts', `select=listing_id,state,updated_at&${u}`, env),
     select('config', `select=payload&key=eq.searches&${u}`, env),
     select('runs', `select=payload&order=started.desc&limit=30&${u}`, env),
@@ -109,8 +111,44 @@ export async function loadAll(userId, env) {
   return {
     listings,
     verdicts,
+    truncated: (listingRows ?? []).length >= LISTINGS_LIMIT,
     searches: configRows?.[0]?.payload ?? null,
     lastRun: runRows?.[0]?.payload ?? null,
     runs: (runRows ?? []).map(r => r.payload),
   };
+}
+
+/**
+ * Every query here runs with the service role key, which bypasses RLS. The
+ * tables are shared by everyone who signed up, so a query that forgets its
+ * user_id filter is a silent cross-tenant read rather than an error. Routing
+ * reads through this helper makes the filter impossible to leave out.
+ */
+export const selectForUser = (table, userId, query = '', env) =>
+  select(table, `user_id=eq.${encodeURIComponent(userId)}${query ? `&${query}` : ''}`, env);
+
+/**
+ * How many rows match, without fetching them. Asking PostgREST for an exact
+ * count in the Content-Range header costs one cheap request; the alternative
+ * (selecting every id and measuring the array) grew to a 20,000-row scan on
+ * every write.
+ */
+export async function countForUser(table, userId, query = '', env) {
+  const { url, key } = supabaseConfig(env);
+  const q = `user_id=eq.${encodeURIComponent(userId)}${query ? `&${query}` : ''}`;
+  const res = await fetch(`${url}/rest/v1/${table}?select=id&${q}&limit=1`, {
+    headers: {
+      apikey: key,
+      authorization: `Bearer ${key}`,
+      prefer: 'count=exact',
+      range: '0-0',
+    },
+  });
+  if (!res.ok) {
+    const detail = await res.text().catch(() => '');
+    throw new Error(`Supabase count ${table} → ${res.status}: ${detail.slice(0, 400)}`);
+  }
+  // "0-0/229", or "*/0" when nothing matched.
+  const total = Number((res.headers.get('content-range') ?? '').split('/')[1]);
+  return Number.isFinite(total) ? total : 0;
 }

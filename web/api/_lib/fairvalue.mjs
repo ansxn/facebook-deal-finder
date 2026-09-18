@@ -1,6 +1,3 @@
-// GENERATED — do not edit. Source of truth: scripts/lib/fairvalue.mjs
-// Regenerate with: node scripts/sync-web.mjs
-
 // Fair-value estimation. Three strategies, because the three categories price on
 // completely different things: golf on brand, Pokémon on which set, speakers on
 // which exact model.
