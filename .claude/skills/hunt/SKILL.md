@@ -342,12 +342,13 @@ node scripts/deals.mjs --search <search-id>
 
 Dedupe is automatic on Marketplace listing id, and price changes are recorded.
 
-**(verified, 2026-09-15) Resubmitting an already-stored listing through ingest
-stores the price as the raw string (`"CA$325"`), which turns its score into
-`NaN` in deals.mjs.** The new-listing path parses the currency prefix; the
-update path does not. Until ingest is fixed, pass a bare number in `price` for
-any listing you know is already in the store — or skip resubmitting repeats
-entirely unless the price changed.
+**(fixed 2026-09-18) Resubmitting an already-stored listing used to store the
+price as the raw string (`"CA$325"`) and score as `NaN`.** The cause was not the
+parser: `ingest` normalized the price correctly and then the "later passes carry
+richer data" loop copied every raw field back over it, `price` included. `price`
+is now excluded from that loop, so `"CA$325"` and `325` behave the same on an
+update. The nine listings already corrupted were repaired at the same time.
+Passing a bare number is still marginally safer, but it is no longer required.
 
 ## Mechanics learned 2026-09-15
 
@@ -396,6 +397,36 @@ entirely unless the price changed.
 - **The same set gets cross-posted under two cities** (King Cobra/Callaway/
   TaylorMade set in Milton at CA$500 and Hamilton at CA$400). Open the closer
   one, record the other from the card with a note.
+
+## Mechanics learned 2026-09-18 (first London run)
+
+- **(verified) The 15-card ceiling holds in a new city.** Every query stalled at
+  12-15 cards with five "Loading..." spinners, same as Toronto. Stop after the
+  second read.
+- **(verified) Facebook rewrote the URL to `/marketplace/london_ontario/search/`**
+  straight away, so the account's own location setting is what decides the city.
+  Check it before a run after any move: nothing in the config can change it.
+- **(verified) Beanbags almost never name a brand.** 13 of 17 listings had no
+  brand at all, and the four that did were retailers (JYSK, Bouclair, Costco,
+  Lounge & Co), not makers. A `brand_tier` fair value is close to useless in this
+  category: everything lands on the entry tier and reads as wildly over-priced.
+  Size, fill type and original price are what actually carry the value, and none
+  of them feed fair value. Categories like this want a different method.
+- **(verified) `sealed` has the same condition multiplier as `good` (1.0).** That
+  is right for Pokemon, where sealed is the normal state, but it means a
+  brand-new-in-box item gets no uplift at all in other categories. `like_new`
+  (1.15) scores *higher* than `sealed`.
+- **(verified) Near-duplicate queries waste the run.** `bean bag lounger`
+  returned 12 listings, all already seen. `bean bag couch` found 2 genuinely new
+  beanbags plus three actual sofas. One broad query plus one odd-phrasing query
+  is the useful shape; four near-synonyms is not.
+- **(verified) Powered bookshelf speakers under CA$550 almost never have a phono
+  stage.** Audio-Technica AT-SP3X and Edifier R1700BT were both confirmed
+  line-level only (the AT-SP3X against Audio-Technica's own docs). With
+  `built_in_phono_preamp` hard, this search is effectively "Kanto or nothing".
+  Say so rather than reporting an empty day.
+- **The passive-speaker trap fired twice in one query** (Klipsch R-41M, Polk
+  Signature Elite ES10). Write the model out in full, never a bare brand.
 
 ### 7. Close out
 

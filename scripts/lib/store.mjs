@@ -90,10 +90,12 @@ export function ingest(rawListings, { searchId, now = new Date().toISOString() }
       result.repriced.push({ id, from: lastPrice, to: price });
     }
     // Later passes often carry richer data (a detail page beats a result card),
-    // so let non-empty incoming fields win.
+    // so let non-empty incoming fields win. `price` is excluded on purpose: it
+    // is normalized and applied above, and letting the raw value through here
+    // wrote strings like "CA$300" over the number, which scores as NaN.
     for (const [k, v] of Object.entries(raw)) {
       if (v == null || v === '' || (Array.isArray(v) && !v.length)) continue;
-      if (['first_seen', 'price_history', 'id'].includes(k)) continue;
+      if (['first_seen', 'price_history', 'id', 'price'].includes(k)) continue;
       existing[k] = v;
     }
     result.updated.push(id);
