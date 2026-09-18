@@ -772,7 +772,7 @@ main.still .rise { animation: none; }
   <div class="glass">
     <h2>Hunts run in Claude Code</h2>
     <p id="run-status"></p><p>Open Claude Code and run:</p>
-    <p style="margin:12px 0"><code style="font:13px var(--mono);background:var(--well);padding:4px 10px;border-radius:8px">/hunt</code></p>
+    <p style="margin:12px 0"><code style="font:13px var(--mono);background:var(--well);padding:4px 10px;border-radius:8px">/deal-finder:hunt</code></p>
     <div class="dlg-row"><button onclick="this.closest('dialog').close()">Got it</button></div>
   </div>
 </dialog>
@@ -910,8 +910,9 @@ function huntStatusText() {
   return `Last hunt ${ago(s.last_run.started)} · ${s.can_run ? 'ready for another' : `next in ${Math.max(0, s.min_hours - s.hours_since).toFixed(1)}h`}`;
 }
 function renderHuntline() { $('#run-btn').title = huntStatusText(); }
-const requestRun = async () => {
-  if (!state.hosted) await api('/api/request-run', { method: 'POST' });
+const requestRun = () => {
+  // Nothing to request: a web page cannot start a browse on your laptop. The
+  // dialog just tells you what to type.
   $('#run-status').textContent = huntStatusText();
   $('#run-dialog').showModal();
 };
@@ -1028,7 +1029,7 @@ function renderRanking() {
   const toolbar = `<div class="toolbar">${chips}<label class="sortwrap"><span>Sort</span><select id="sort" aria-label="Sort listings">
       ${Object.entries(SORT_LABELS).map(([k, l]) => `<option value="${k}"${state.sort === k ? ' selected' : ''}>${l}</option>`).join('')}</select></label></div>`;
   const hint = `<div class="kbd-hint"><kbd>j</kbd><kbd>k</kbd> move · <kbd>↵</kbd> open · ${passedView ? '<kbd>b</kbd> bring back' : '<kbd>s</kbd> save · <kbd>x</kbd> pass · <kbd>u</kbd> undo'} · <kbd>esc</kbd> close</div>`;
-  const body = !list.length ? `<div class="empty glass panel rise">${state.needsSetup ? '<div class="big">Almost set up</div><p>Your AI sends your searches here at the end of setup.</p>' : '<div class="big">Nothing found yet</div><p>Run <code>/hunt</code> in Claude Code to check Marketplace.</p>'}</div>`
+  const body = !list.length ? `<div class="empty glass panel rise">${state.needsSetup ? '<div class="big">Almost set up</div><p>Your AI sends your searches here at the end of setup.</p>' : '<div class="big">Nothing found yet</div><p>Run <code>/deal-finder:hunt</code> in Claude Code to check Marketplace.</p>'}</div>`
     : desktop() ? `<div class="list glass rise">${listHead()}${list.map(d => row(d, passedView)).join('')}</div>${hint}`
     : `<div class="grid">${list.map(d => card(d, passedView)).join('')}</div>`;
 
@@ -1408,7 +1409,7 @@ function renderOverview() {
   const winLabel = WINDOWS.find(w => w[0] === state.window)[1].toLowerCase();
   const winIn = state.window === 'all' ? '' : ` in ${winLabel}`;
   if (!state.deals.length) {
-    m.innerHTML = `<div class="hero rise"><div class="upd">${upd}</div><h2>Overview</h2></div><div class="empty glass panel rise">${state.needsSetup ? '<div class="big">Almost set up</div><p>Your AI sends your searches here at the end of setup.</p>' : '<div class="big">Nothing found yet</div><p>Run <code>/hunt</code> in Claude Code to check Marketplace.</p>'}</div>`;
+    m.innerHTML = `<div class="hero rise"><div class="upd">${upd}</div><h2>Overview</h2></div><div class="empty glass panel rise">${state.needsSetup ? '<div class="big">Almost set up</div><p>Your AI sends your searches here at the end of setup.</p>' : '<div class="big">Nothing found yet</div><p>Run <code>/deal-finder:hunt</code> in Claude Code to check Marketplace.</p>'}</div>`;
     return;
   }
 
