@@ -1,28 +1,12 @@
 node_modules/
 
-# Scraped listing data — personal, noisy, and can get large.
-data/*.json
-data/*.sqlite
-data/*.db
-!data/.gitkeep
-
-# Raw browse batches are personal too. Fixtures are the exception: they carry no
-# real listings and are what lets scoring be tested without touching Facebook.
-data/incoming/*.json
-!data/incoming/fixture-*.json
-
-# Your searches. Each person's lives here and on the website; the example
-# config shows the shape.
-searches.json
-
-# Local run state
-.runstate/
-*.log
-.DS_Store
-
-# Secrets — Supabase service role key, owner admin tooling only.
+# Secrets — Supabase service role key, for the owner's admin tooling only.
+# A user's own push token lives in ~/.deal-finder/env, outside the repo.
 .env.local
 .env
+
+*.log
+.DS_Store
 
 # Personal Claude Code permissions for this machine.
 .claude/settings.local.json
