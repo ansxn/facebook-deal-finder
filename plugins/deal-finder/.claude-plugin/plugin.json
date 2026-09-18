@@ -1,0 +1,11 @@
+{
+  "name": "deal-finder",
+  "displayName": "Deal Finder",
+  "version": "2.0.0",
+  "description": "Hunts Facebook Marketplace in your own signed-in Chrome once a day, works out what each listing is really worth, and ranks them on a hosted dashboard.",
+  "author": { "name": "Anson Wang" },
+  "homepage": "https://deal-finder-zeta.vercel.app",
+  "repository": "https://github.com/ansxn/facebook-deal-finder",
+  "license": "MIT",
+  "keywords": ["marketplace", "deals", "browsing", "shopping"]
+}

@@ -20,14 +20,9 @@ searches.json
 *.log
 .DS_Store
 
-# Secrets — Supabase service role key and dashboard password.
+# Secrets — Supabase service role key, owner admin tooling only.
 .env.local
 .env
-
-# web/index.html and web/api/_lib/{score,fairvalue,supabase}.mjs are generated
-# by scripts/sync-web.mjs but ARE committed: Vercel builds straight from git,
-# so the deploy tree has to be complete in the repo. Edit the canonical copies
-# (dashboard/, scripts/lib/) and re-run the sync before committing.
 
 # Personal Claude Code permissions for this machine.
 .claude/settings.local.json

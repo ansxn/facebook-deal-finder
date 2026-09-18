@@ -1,11 +1,17 @@
-# `searches.json` field reference
+# Searches config field reference
 
-The dashboard's Searches page is the normal way to change this file now:
-sliders and toggles for the numbers, chips for search terms and dealbreakers,
-a live "would be worth a look" preview, and one Save that re-ranks everything.
-Editing by hand still works. Both paths stamp a top-level `updated_at`; the
-newer copy wins when `scripts/pull-config.mjs` / `scripts/push.mjs` sync the
-laptop and the hosted dashboard.
+There is one copy of this config and it lives on the server, in the `config`
+table under the key `searches`. Two things write it:
+
+- **The dashboard's Searches page** — sliders and toggles for the numbers, chips
+  for search terms and dealbreakers, a live "would be worth a look" preview, and
+  one Save that re-ranks everything.
+- **`/deal-finder:hunt-update`** — for the three changes the site has no button
+  for: adding a search, dropping one, and moving city.
+
+Both go through `PUT /api/searches`, which validates before saving and returns
+the surface counts the change would produce. `?dry_run=1` does everything except
+save. `searches.example.json` in the repo shows the full shape.
 
 ## `penalties` (per search, optional)
 
@@ -23,8 +29,11 @@ and must-have wording only apply to listings assessed from the next hunt on.
 | `currency` | Declares what every amount in this file means. Currently `CAD`, because Marketplace resolves to Toronto and lists in CA$. No conversion happens anywhere — amounts are compared to listing prices as-is. |
 | `location.mode` | `facebook_default` uses whatever your Marketplace is set to. `explicit` pins searches to `location.place` (a ZIP or "City, ST"). |
 | `location.radius_miles` | Your intended pickup radius. Advisory — see `max_km`. |
+| `location.resolved` | The city every `distance_km` is measured from. Must match what Facebook actually serves, or distances are wrong in a way nothing else catches. |
+| `location.reference_distances` | A map of nearby town names to their distance in km, e.g. `{"St. Thomas": 30, "Woodstock": 50}`. The assessor cannot geocode a place name, so this table is how every listing gets a `distance_km`. 12–20 entries covering out to past `max_km`. Rewritten by `/deal-finder:hunt-update` when you move city. |
+| `field_notes` | Short observations left by recent runs about how Marketplace was behaving — a results page stalling at a new number, a popup that needed a different click. Written by the hunt when it finishes, read back at the start of the next one. Newest 20 kept, 300 characters each. Not rules; context. |
 | `max_km` | The radius that's actually enforced, locally. Facebook's own radius leaks badly (a 65 km setting returned listings 150 km out), so each listing gets an estimated `distance_km` during assessment and anything past this takes a `too_far` penalty (score ×0.6, flagged). |
-| `surface_threshold_pct` | The "worth a look" line: % below fair value at which an unflagged listing counts as surfaced in headlines and the `deals.mjs` footer. It hides nothing — every listing is ranked. |
+| `surface_threshold_pct` | The "worth a look" line: % below fair value at which an unflagged listing counts as surfaced in the headline counts. It hides nothing — every listing is ranked. |
 | `read_depth` | `full_detail` opens every listing's page. `two_stage` reads cards first and only opens promising ones. `cards_only` never opens listings. |
 | `pacing.*` | Enforced by the browse skill, not advisory. Ranges like `[8, 25]` mean a random pause in that many seconds. |
 | `pacing.abort_on_checkpoint` | Keep this `true`. Any CAPTCHA or "unusual activity" screen ends the run rather than working around it. |

@@ -1,8 +1,12 @@
-# Hosting the dashboard (Vercel and friends)
+# Hosting: the options, and what was chosen
 
-Short answer: **yes, the dashboard can go on Vercel.** The browse step can't, and
-never will — so hosting splits the tool across two machines and adds a sync
-problem that doesn't exist today.
+A decision record. Written before anything was hosted, kept because the reasoning
+still explains the shape of the system — and because the option that won was not
+the one recommended at the time.
+
+**Outcome: Option A, and then further.** Not only the dashboard moved to the
+server but ingest and the run gate too, so the client keeps no data at all. See
+the closing section.
 
 ## What can and can't move
 
@@ -20,8 +24,8 @@ The browse run writes to Supabase instead of `data/listings.json`; Vercel serves
 the dashboard against it.
 
 - You can check deals from your phone, away from the machine
-- Requires a Supabase project and swapping `scripts/lib/store.mjs` for a client —
-  that file is the only thing that touches storage, which is why it's isolated
+- Requires a Supabase project and moving the storage layer behind an API — the
+  local store was a single module for exactly this reason
 - **You must add auth.** Vercel deployments are public by default. Without a
   login, your location, what you're hunting, and your saved listings are on a
   guessable URL. Vercel's password protection is a paid feature; otherwise put
@@ -57,15 +61,26 @@ to go open your laptop and run the hunt anyway.
 
 At which point you may as well just say `/hunt`.
 
-## If you want Option A anyway
+## What actually happened
 
-The seam is already in place. `scripts/lib/store.mjs` is the single module that
-reads and writes data — swap its six exported functions for Supabase queries and
-nothing else in the codebase changes. `scripts/serve.mjs` becomes Vercel
-serverless routes with the same paths (`/api/deals`, `/api/verdict`,
-`/api/searches`, `/api/status`), and `dashboard/index.html` ships unchanged
-because it only ever speaks JSON to those four endpoints.
+Option A shipped, and Option C's advice turned out to be wrong for one reason the
+table above misses: **the local half was the onboarding cost.** Reading results
+on a phone was never the binding constraint. Getting a non-developer to install a
+runtime, clone a repo and hand-write a credentials file was.
 
-## Now built
+So the split moved further than Option A described. Ingest, dedupe, valuation,
+scoring and the run gate all run on the server; the client keeps nothing. That
+removed the sync problem this document opens by warning about — there is no
+second copy to reconcile, and no push step to forget — and cut setup to two
+commands.
 
-Option A is live. Setup steps and the security decision: [SETUP-HOSTING.md](SETUP-HOSTING.md).
+The "catch nobody expects" above still stands, and the Run-now button was never
+built for exactly that reason.
+
+What it cost: there is no offline mode. If Vercel or Supabase is down, the hunt
+cannot run, where a local store could have browsed and synced later. For a
+once-a-day tool that trade reads as worth it, but it is a real regression and the
+onboarding doc says so plainly.
+
+Setup steps and the security decisions: [SETUP-HOSTING.md](SETUP-HOSTING.md).
+Current design: [ARCHITECTURE.md](ARCHITECTURE.md).

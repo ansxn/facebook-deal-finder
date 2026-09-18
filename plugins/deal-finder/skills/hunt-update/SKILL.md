@@ -5,7 +5,7 @@ description: Change what the deal finder hunts — retire or delete searches, ad
 
 # Update the hunt
 
-A guided edit of `searches.json`: what gets hunted, and where from.
+A guided edit of the searches config: what gets hunted, and where from.
 
 Thresholds, ceilings, dealbreakers, must-haves and penalties are all sliders and
 chips on the website's Searches page, with a live preview of what would surface.
@@ -14,27 +14,29 @@ changes the site has no button for: dropping a search, adding a new one, and
 moving the location.
 
 **Do not browse Marketplace here.** No hunting happens in this skill. Offer
-`/hunt` at the end if they want to fill a new search; it has its own gate.
+`/deal-finder:hunt` at the end if they want to fill a new search; it has its own
+gate.
 
 ## Steps
 
-### 1. Pull before touching anything
+### 1. Read what they have
 
 ```bash
-node scripts/pull-config.mjs
+. ~/.deal-finder/df.sh
+df GET /api/searches
+df GET '/api/deals?view=compact&top=5'
 ```
 
-The website copy is newer than the laptop's more often than not, and editing
-`searches.json` before this pull silently throws away whatever they last tuned
-on the site. If it prints `local-newer`, tell them: something was changed here
-and never pushed, and they should know that before you add to it.
+There is one copy of the config and it lives on the website, so there is nothing
+to reconcile — what you fetch is what the last edit left, wherever it was made.
+Hold it in this conversation and edit it here; nothing is written to disk.
 
 ### 2. Show them what they have
 
-Read `searches.json` and run `node scripts/deals.mjs`, then lay it out in plain
-words, one line per search: its name, whether it is active, its search terms,
-its ceiling, and how many listings it has collected. Finish with one line for
-location: the city in `global.location.resolved` and the `global.max_km` radius.
+Lay it out in plain words, one line per search: its name, whether it is active,
+its search terms, its ceiling, and how many listings it has collected. Finish
+with one line for location: the city in `global.location.resolved` and the
+`global.max_km` radius.
 
 Never show them JSON. They are picking from a menu, not editing a file.
 
@@ -57,8 +59,8 @@ Two different things, and the difference is six weeks of price history.
   verdicts. Reversible any time with the Active toggle on the website.
 - **Delete** (remove the block) — its listings vanish from the ranking at once,
   because scoring skips any listing whose `search_id` has no config. They are
-  not erased from `data/listings.json`, so adding a search back with the same
-  `id` brings them all back, verdicts included.
+  not erased from the database, so adding a search back with the same `id`
+  brings them all back, verdicts included.
 
 **Retire unless they say they want it gone.** Offer delete only when they are
 sure they will never hunt that thing again.
@@ -69,8 +71,8 @@ the board is `label`, and that is free to change.
 
 ### 5. Adding a search: interview, then research
 
-`searches.example.json` shows the shape. Ask these one at a time, offering
-examples when they hesitate:
+The config you already fetched shows the shape. Ask these one at a time,
+offering examples when they hesitate:
 
 1. What are you looking for, as specifically as you can say it?
 2. What would a seller call it in a title? Suggest two to four search terms and
@@ -108,8 +110,8 @@ currency and region. Never invent the numbers. Pick one method:
   `new_price` and `used_fmv`, plus `unknown_model_fallback` with
   `fmv_pct_of_new_retail` around 0.55.
 
-**Adjustment keys are not free text.** `applyAdjustments` in
-`scripts/lib/fairvalue.mjs` recognises exactly three shapes:
+**Adjustment keys are not free text.** The scorer recognises exactly three
+shapes:
 `missing_nice_to_have_<spec>` (fires when that nice-to-have is explicitly
 false), `generation_<N>plus_years_old` (fires on `assessment.years_old`, and N
 must sit above the category norm or it marks down the whole tier), and
@@ -142,39 +144,56 @@ Three parts, and only one of them is a control on the website.
 by the website but read by nothing. Don't spend their time on those fields and
 don't imply they do something.
 
-**Then fix the distance table.** `.claude/skills/hunt/SKILL.md` carries a list of
-reference distances from Toronto, because the assessor cannot geocode a town name
-and estimates every `distance_km` from that list. A different city makes it
-worthless. Replace it with 12 to 20 towns and suburbs around the new city and
-their rough driving distances in km, from about 20 km out to past their
-`max_km`. Tell them you are doing it: this is the step that keeps the radius
-real, and skipping it quietly breaks distance for every future hunt.
+**Then rewrite the distance table**, in `global.location.reference_distances`:
+a map of town names to their distance in km. The assessor cannot geocode a town
+name and estimates every `distance_km` from that map, so a table built for the
+old city is worse than none. Research 12 to 20 towns and suburbs around the new
+city, from about 20 km out to past their `max_km`, and write real distances
+rather than guesses. Tell them you are doing it: this is the step that keeps the
+radius real, and skipping it quietly breaks distance for every future hunt.
+
+```json
+"location": {
+  "resolved": "London, Ontario",
+  "reference_distances": { "St. Thomas": 30, "Woodstock": 50, "Toronto": 190 }
+}
+```
 
 ### 7. Confirm, check, push
 
 Show a plain summary of every change — what is retired, what is new, where they
 are hunting from — and ask whether anything is off. Fix it before writing.
 
+Write the edited config to a temp file and check it before saving:
+
 ```bash
-node scripts/check-config.mjs
+. ~/.deal-finder/df.sh
+df PUT '/api/searches?dry_run=1' --data-binary @"${TMPDIR:-/tmp}/searches.json"
 ```
 
-Fix every line starting with `fix:` and run it again until it prints `ok`. Lines
-starting with `note:` are advisory; mention them but don't block on them.
+`dry_run` validates and scores the proposed config against everything already
+stored, without saving. Fix every entry in `problems` and repeat until it
+returns `HTTP 200`. Entries in `notes` are advisory: mention them, don't block.
+
+The reply also carries `by_search` surface and total counts, so tell them what
+the change does before committing it — "this takes you from 4 worth-a-look to
+11" is worth more than a list of fields. Then save:
 
 ```bash
-node scripts/push.mjs
+. ~/.deal-finder/df.sh
+df PUT /api/searches --data-binary @"${TMPDIR:-/tmp}/searches.json"
 ```
 
 ### 8. Say when each change takes effect
 
 - A retired or deleted search changes the board immediately.
 - A new search collects nothing until the next `/hunt`.
-- Ceilings, thresholds, penalties and distance re-rank what is already stored,
-  as soon as the config is saved.
+- Ceilings, thresholds, penalties and distance re-rank what is already stored
+  the moment the config is saved — scoring happens when the board is read, so
+  the next page load already reflects it.
 - Search terms, must-haves, dealbreakers, title style and condition notes are
   read by the assessor while it browses, so they only apply to listings assessed
   from the next hunt on. Nothing already on the board is re-judged by them.
 
-Offer `/hunt` if they want to fill a new search now, but don't start one without
-being asked.
+Offer `/deal-finder:hunt` if they want to fill a new search now, but don't
+start one without being asked.

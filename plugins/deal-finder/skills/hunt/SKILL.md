@@ -1,12 +1,14 @@
 ---
 name: hunt
-description: Run the daily Facebook Marketplace hunt — opens the user's own signed-in Chrome, runs the configured searches at human pace, reads and assesses listings, and stores them for scoring. Use when the user says /hunt, hunt, run the deal finder, check Marketplace, or run today's searches. Accepts an optional search id from searches.json to run just one.
+description: Run the daily Facebook Marketplace hunt — opens the user's own signed-in Chrome, runs the configured searches at human pace, reads and assesses listings, and sends them to be scored. Use when the user says /hunt, hunt, run the deal finder, check Marketplace, or run today's searches. Accepts an optional search id to run just one.
 ---
 
 # Hunt Marketplace
 
 You are doing the browsing yourself, in the user's real Chrome, because Facebook
-blocks code from doing it. Everything downstream is plain local Node.
+blocks code from doing it. Everything after the browsing is one `curl` to the
+hosted API, which stores, dedupes, prices and ranks. Nothing is installed
+locally and there is no project folder — run this from wherever you are.
 
 Everything below marked **(verified)** was confirmed against live Marketplace on
 2026-07-27. Where Marketplace behaved differently from the obvious approach, the
@@ -17,11 +19,11 @@ note says so — those are the expensive lessons, don't re-learn them.
 1. **Use `mcp__claude-in-chrome__*`, never `mcp__Claude_Browser__*`.** Only the
    real Chrome has the logged-in Facebook session.
 2. **Never bypass a checkpoint.** Any CAPTCHA, "unusual activity", "confirm it's
-   you", or login wall → `node scripts/run.mjs abort "<what you saw>"`, tell the
-   user, stop. Do not retry, reload, or route around it.
-3. **Respect the run gate.** Start with `node scripts/run.mjs check`. Exit code 1
-   means stop. Only `--force` if the user asks after being told it's too soon.
-4. **Pace every step** using `searches.json` → `global.pacing`. Wait with
+   you", or login wall → abort the run (step 7), tell the user, stop. Do not
+   retry, reload, or route around it.
+3. **Respect the run gate.** `HTTP 409` from `start` means stop and say why.
+   Only send `"force": true` if the user asks after being told it's too soon.
+4. **Pace every step** using `global.pacing` from the config. Wait with
    `computer` action `wait` (a foreground `sleep` in Bash is blocked).
 5. **Never message a seller, never click Buy, never save a payment method.**
 
@@ -29,20 +31,28 @@ note says so — those are the expensive lessons, don't re-learn them.
 
 ### 1. Gate and set up
 
+Every API call starts by sourcing the helper, which reads the token from
+`~/.deal-finder/env` into the shell. Shell state does not survive between Bash
+calls, so include that line every time. Never paste the token into a command.
+
 ```bash
-node scripts/pull-config.mjs
-node scripts/run.mjs check && node scripts/run.mjs start
+. ~/.deal-finder/df.sh
+df GET '/api/searches?view=hunt'
+df POST /api/run -d '{"action":"start"}'
 ```
 
-`pull-config` brings down thresholds, dealbreakers, must-haves and search
-terms the user tuned on the website, when that copy is newer. Run it before
-reading the config, every time — the site is where rules get changed now.
+The config is the website's copy — thresholds, dealbreakers, must-haves and
+search terms as the user last tuned them. Fetch it once and work from it for the
+whole run; it cannot change underneath you in any way this run should honour.
 
-Read `searches.json`. Note `global.currency`: listing prices and every
-fair-value number in the config are in that currency. Do not convert. Note
-`global.location.resolved` too: it is the origin for every `distance_km`.
-(verified on the owner's account: Marketplace resolves to Toronto and prices in
-CA$. A different user's account resolves to their own city and currency.)
+`start` is the gate. **`HTTP 409` means stop**: either it is too soon
+(`wait_hours` says how long) or a previous run never closed. Do not re-send it
+without `"force": true`, and only then if the user asks after being told.
+
+Note `global.currency`: listing prices and every fair-value number are in that
+currency. Do not convert. Note `global.location.resolved` too — it is the origin
+for every `distance_km`. And read `global.field_notes` if present: short
+observations left by recent runs about how Marketplace was behaving.
 
 ### 2. One search at a time
 
@@ -258,14 +268,11 @@ Rules that matter, in order of how much damage getting them wrong does:
 - **Always set `distance_km`**, estimated from the town name. Code cannot
   geocode a place name, and Facebook's radius filter leaks badly, so this is the
   only thing keeping a two-hour drive off the list. Measure from
-  `global.location.resolved`. If that is London, Ontario (set 2026-09-18 when the
-  owner moved from Toronto), reference points in km: Komoka/Ilderton ~20,
-  Dorchester/Thorndale/Belmont ~25, Mount Brydges ~25, St. Thomas ~30, Lucan ~30,
-  Strathroy ~35, Ingersoll ~35, Port Stanley ~45, Aylmer ~45, Woodstock ~50,
-  Exeter ~55, Tillsonburg ~60, Stratford ~60, Grand Bend ~70, Simcoe ~90,
-  Goderich ~95, Chatham ~100, Brantford ~95, Cambridge ~95, Sarnia ~105,
-  Kitchener/Waterloo ~105, Hamilton ~130, Windsor ~190, Toronto ~190.
-  Anything in the GTA is roughly 190+ and always too far at a 50 km limit.
+  `global.location.resolved`, using `global.location.reference_distances` from
+  the config — a map of nearby towns to their distance in km. For a town not on
+  the list, interpolate from the nearest ones that are. If the map is empty, say
+  so in the summary and tell the user to run `/deal-finder:hunt-update`, which
+  fills it in.
 - **Use `true`/`false` only when the listing actually says so. Omit when
   unknown.** Missing scores as half credit, which is right; an explicit `false`
   on a hard must-have kills the listing outright. Never infer `false` from
@@ -277,8 +284,7 @@ Rules that matter, in order of how much damage getting them wrong does:
   `broken`.
 - **Always write `display_title`**: the name the dashboard shows instead of the
   seller's title. Build it from the title, the description and the photos, in
-  the shape the search's `title_style` asks for (in `searches.json`, editable
-  on the website). Rules: brand and model first when known; then the two or
+  the shape the search's `title_style` asks for (editable on the website). Rules: brand and model first when known; then the two or
   three facts the search's rules care about (hand, flex, piece count, sealed,
   phono, colour); sentence case; no ALL CAPS, emoji, prices, or seller hype;
   under 60 characters; never invent a brand the listing does not show (the
@@ -332,23 +338,33 @@ to see. Only the user's own Pass removes something.
 
 ### 6. Store it
 
-Write to `data/incoming/<search-id>-<YYYY-MM-DD>.json` as
-`{ "search_id": "...", "listings": [...] }`, then:
+Write the batch to a temp file, then send it. One call per search, as soon as
+that search is done — not batched up to the end, so an aborted run keeps what it
+already found.
 
 ```bash
-node scripts/ingest.mjs data/incoming/<file>.json
-node scripts/deals.mjs --search <search-id>
+. ~/.deal-finder/df.sh
+f="${TMPDIR:-/tmp}/deal-finder/<search-id>-$(date +%F).json"
+mkdir -p "$(dirname "$f")"
+cat > "$f" <<'JSON'
+{ "search_id": "...", "listings": [ ... ] }
+JSON
+df POST '/api/ingest?top=10' --data-binary @"$f"
 ```
 
-Dedupe is automatic on Marketplace listing id, and price changes are recorded.
+Write the file rather than inlining the JSON with `-d`: a 25-listing batch with
+descriptions runs 30–60 KB and quoting it inline is fragile.
 
-**(fixed 2026-09-18) Resubmitting an already-stored listing used to store the
-price as the raw string (`"CA$325"`) and score as `NaN`.** The cause was not the
-parser: `ingest` normalized the price correctly and then the "later passes carry
-richer data" loop copied every raw field back over it, `price` included. `price`
-is now excluded from that loop, so `"CA$325"` and `325` behave the same on an
-update. The nine listings already corrupted were repaired at the same time.
-Passing a bare number is still marginally safer, but it is no longer required.
+The response is the answer for that search — `counts` (new, updated, repriced,
+skipped), `repriced` with the old and new price, and `top`, the ranking with
+scores and flags. That is what you narrate; there is no second call to read it
+back, and no separate step to publish it. The dashboard is live the moment this
+returns.
+
+Dedupe is automatic on Marketplace listing id, `first_seen` is preserved, and a
+price change is recorded as history. Re-sending a listing you already sent is
+safe and is how price drops get noticed — do it rather than trying to remember
+what is already stored.
 
 ## Mechanics learned 2026-09-15
 
@@ -380,10 +396,6 @@ Passing a bare number is still marginally safer, but it is no longer required.
   2026-09-15 was transient, not a broken query.
 - **The Messenger popup's "Close chat" button did not respond to a ref click.**
   Clicking the X by screenshot coordinate did. Take the screenshot first.
-- **`node scripts/deals.mjs --search <id>` prints headers only.** With
-  `--search` as the first argument and no `--top`, `val('--top')` resolves to
-  `args[0]` and `Number('--search')` is NaN, so the row loop slices to nothing.
-  Always pass `--top N` (or `--all`) alongside `--search`.
 - **Speaker `model` strings fuzzy-match by substring both ways.** A bare
   `"Klipsch"` matched the config's Klipsch The Fives and scored a passive pair
   at "71% under $660". Put the full model, or a deliberately long descriptive
@@ -431,18 +443,31 @@ Passing a bare number is still marginally safer, but it is no longer required.
 ### 7. Close out
 
 ```bash
-node scripts/run.mjs finish --seen <n> --new <n> --searches <ids>
-node scripts/push.mjs
+. ~/.deal-finder/df.sh
+df POST /api/run -d '{
+  "action": "finish",
+  "seen": <n>, "new": <n>, "searches": ["<id>", "..."],
+  "field_notes": ["2026-09-18: every results page stalled at 15 cards"]
+}'
 ```
 
-**`push.mjs` is not optional.** The hosted dashboard only shows what has been
-pushed; the local JSON is the working copy. (2026-09-16: a full run was
-ingested and finished but never pushed, and the dashboard sat on "updated 27h
-ago · 0 seen · 0 new" until `push.mjs` was run by hand.)
+On a checkpoint, close it as an abort instead, and stop:
+
+```bash
+. ~/.deal-finder/df.sh
+df POST /api/run -d '{"action":"abort","reason":"<what you saw>"}'
+```
+
+**`field_notes` is where this run's discoveries go.** This file ships with the
+plugin and is read-only, so it cannot be edited mid-run the way it used to be.
+Anything short-lived — a results page stalling at a new number, a popup that
+needed a different click, a query that went strange — goes in `field_notes`, at
+most a sentence each. The next run reads them back in step 1. Durable lessons
+that belong in this file (a new Marketplace trap, a rule that turned out wrong)
+should be told to the user instead, so they can be fixed in the next release.
 
 Summarize: the top few listings by attractiveness (new ones first, with their
-flags — `deals.mjs` prints the flags in brackets), anything that ranked low for
-a reason worth a human glance, and **anything that fought back** — filters that didn't apply, selectors that
-missed, results that looked location-wrong. That last part is the most valuable
-thing in the summary. When Marketplace's markup shifts, update this file's
-**(verified)** notes so the next run doesn't repeat the discovery.
+flags, from the `top` each ingest returned), anything that ranked low for a
+reason worth a human glance, and **anything that fought back** — filters that
+didn't apply, selectors that missed, results that looked location-wrong. That
+last part is the most valuable thing in the summary.
