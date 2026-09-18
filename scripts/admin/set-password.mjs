@@ -9,10 +9,13 @@
 // time someone forgets their password.
 
 import { readFileSync, existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
 import { randomBytes, scryptSync } from 'node:crypto';
-import { select, update } from '../lib/supabase.mjs';
-import { ROOT } from '../lib/store.mjs';
+import { fileURLToPath } from 'node:url';
+import { select, update } from '../../web/api/_lib/supabase.mjs';
+
+// Repo root, for reading .env.local. The local store this used to import is gone.
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
 loadDotEnv();
 

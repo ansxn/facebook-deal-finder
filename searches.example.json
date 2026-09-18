@@ -2,7 +2,7 @@
   "version": 2,
   "updated": "2026-07-27",
   "_doc": "Hand-edit this freely. Field meanings: docs/searches.schema.md",
-  "_currency_note": "All values are CAD. Your Marketplace is set to Toronto and lists in CA$, so USD anchors would have made every listing look ~35% cheaper than it is. Your stated ceilings were kept as-is and read as CAD — change them if you meant USD.",
+  "_currency_note": "All values are CAD. Your Marketplace is set to Toronto and lists in CA$, so USD anchors would have made every listing look ~35% cheaper than it is. Your stated ceilings were kept as-is and read as CAD \u2014 change them if you meant USD.",
   "global": {
     "currency": "CAD",
     "location": {
@@ -10,7 +10,27 @@
       "resolved": "Toronto, Ontario",
       "radius_miles": 30,
       "facebook_radius_km": 65,
-      "note": "Facebook's own radius is set to 65 km (~40 mi), wider than your 30 mi. Results leak well past it (Norfolk, Niagara Falls). Distance is re-checked locally — see max_km below."
+      "note": "Facebook's own radius is set to 65 km (~40 mi), wider than your 30 mi. Results leak well past it (Norfolk, Niagara Falls). Distance is re-checked locally against reference_distances \u2014 see max_km below.",
+      "reference_distances": {
+        "Mississauga": 25,
+        "Brampton": 40,
+        "Vaughan": 30,
+        "Markham": 30,
+        "Richmond Hill": 35,
+        "Oakville": 40,
+        "Pickering": 40,
+        "Ajax": 50,
+        "Burlington": 55,
+        "Whitby": 55,
+        "Newmarket": 55,
+        "Oshawa": 60,
+        "Milton": 60,
+        "Hamilton": 70,
+        "Barrie": 110,
+        "Kitchener": 110,
+        "Guelph": 100,
+        "London": 190
+      }
     },
     "max_km": 50,
     "surface_threshold_pct": 20,
@@ -27,7 +47,8 @@
       ],
       "max_listing_pages_per_run": 40,
       "abort_on_checkpoint": true
-    }
+    },
+    "field_notes": []
   },
   "searches": [
     {
@@ -49,22 +70,22 @@
         {
           "spec": "right_handed",
           "hard": true,
-          "test": "Right-handed. Reject explicit 'left handed', 'LH', 'lefty'. Titles here state handedness far more often than expected — roughly a third say it outright."
+          "test": "Right-handed. Reject explicit 'left handed', 'LH', 'lefty'. Titles here state handedness far more often than expected \u2014 roughly a third say it outright."
         },
         {
           "spec": "regular_flex",
           "hard": false,
-          "test": "Regular flex shafts. Sellers usually omit flex — unstated is a maybe, not a reject. Explicit 'stiff'/'X-stiff' only = downgrade, not eliminate."
+          "test": "Regular flex shafts. Sellers usually omit flex \u2014 unstated is a maybe, not a reject. Explicit 'stiff'/'X-stiff' only = downgrade, not eliminate."
         },
         {
           "spec": "full_iron_set",
           "hard": true,
-          "test": "Irons spanning roughly 5-PW or better. A 'set' with only a few irons is a picked-over bundle — reject."
+          "test": "Irons spanning roughly 5-PW or better. A 'set' with only a few irons is a picked-over bundle \u2014 reject."
         },
         {
           "spec": "driver",
           "hard": true,
-          "test": "Includes a driver. Iron-set-plus-putter listings are common and read as complete sets in the title — check the description, not the title."
+          "test": "Includes a driver. Iron-set-plus-putter listings are common and read as complete sets in the title \u2014 check the description, not the title."
         },
         {
           "spec": "putter",
@@ -113,7 +134,7 @@
       "fair_value": {
         "method": "brand_tier",
         "confidence": "medium",
-        "basis": "Calibrated against 24 live Toronto listings on 2026-07-27 — major-brand complete sets asking CA$350-500, mid CA$195-250, entry CA$100-140.",
+        "basis": "Calibrated against 24 live Toronto listings on 2026-07-27 \u2014 major-brand complete sets asking CA$350-500, mid CA$195-250, entry CA$100-140.",
         "reference_condition": "good",
         "_reference_note": "Tier values describe a typical used set in good condition. Condition and age adjustments move relative to that, not down from retail.",
         "tiers": [
@@ -171,7 +192,7 @@
     },
     {
       "id": "pokemon-etb",
-      "label": "Pokémon Elite Trainer Boxes (sealed)",
+      "label": "Pok\u00e9mon Elite Trainer Boxes (sealed)",
       "active": true,
       "queries": [
         "pokemon elite trainer box",
@@ -187,19 +208,19 @@
         {
           "spec": "factory_sealed",
           "hard": true,
-          "test": "Factory sealed, shrink-wrap intact. Reject 'opened', 'no packs', 'empty box', 'accessories only'. Verify against photos, not just the title — resealed and 'like new opened' are common."
+          "test": "Factory sealed, shrink-wrap intact. Reject 'opened', 'no packs', 'empty box', 'accessories only'. Verify against photos, not just the title \u2014 resealed and 'like new opened' are common."
         },
         {
           "spec": "is_etb",
           "hard": true,
-          "test": "An actual Elite Trainer Box — not a booster bundle, tin, collection box, or single blister."
+          "test": "An actual Elite Trainer Box \u2014 not a booster bundle, tin, collection box, or single blister."
         }
       ],
       "nice_to_have": [
         {
           "spec": "retired_set",
           "weight": 0.6,
-          "test": "Out-of-print set. Where the real mispricings are — sellers clearing storage often price at old retail."
+          "test": "Out-of-print set. Where the real mispricings are \u2014 sellers clearing storage often price at old retail."
         },
         {
           "spec": "lot_of_multiple",
@@ -209,7 +230,7 @@
         {
           "spec": "pokemon_center_variant",
           "weight": 0.3,
-          "test": "Pokémon Center exclusive versions carry a premium over standard."
+          "test": "Pok\u00e9mon Center exclusive versions carry a premium over standard."
         }
       ],
       "dealbreakers": [
@@ -223,15 +244,15 @@
         "accept": [
           "sealed"
         ],
-        "note": "Sealed only. Box dings and shelf wear are acceptable — the seal is what matters."
+        "note": "Sealed only. Box dings and shelf wear are acceptable \u2014 the seal is what matters."
       },
       "fair_value": {
         "method": "per_set_lookup",
         "confidence": "low_seed",
-        "basis": "CAD retail anchors only (~CA$70 for an in-print ETB). PriceCharting blocks plain HTTP fetching, and it prices in USD — Canadian Marketplace comps run differently. These need a real calibration pass.",
+        "basis": "CAD retail anchors only (~CA$70 for an in-print ETB). PriceCharting blocks plain HTTP fetching, and it prices in USD \u2014 Canadian Marketplace comps run differently. These need a real calibration pass.",
         "default_in_print_fmv": 70,
         "set_overrides": {
-          "_comment": "Rough CAD placeholders. Retired sets vary enormously — correct these as you learn.",
+          "_comment": "Rough CAD placeholders. Retired sets vary enormously \u2014 correct these as you learn.",
           "scarlet-violet-151": 150,
           "prismatic-evolutions": 205,
           "crown-zenith": 220,
@@ -269,7 +290,7 @@
         {
           "spec": "built_in_phono_preamp",
           "hard": true,
-          "test": "Has a PHONO input / built-in phono stage. Your turntable has no preamp, so line-level-only speakers will not work. Verify from the model, not the seller's wording — most powered speakers are line-level only."
+          "test": "Has a PHONO input / built-in phono stage. Your turntable has no preamp, so line-level-only speakers will not work. Verify from the model, not the seller's wording \u2014 most powered speakers are line-level only."
         },
         {
           "spec": "matched_pair",
@@ -284,7 +305,7 @@
         {
           "spec": "powered_active",
           "hard": true,
-          "test": "Powered/active — has its own amplifier. Passive bookshelf speakers need a separate amp and don't qualify."
+          "test": "Powered/active \u2014 has its own amplifier. Passive bookshelf speakers need a separate amp and don't qualify."
         }
       ],
       "nice_to_have": [
@@ -306,14 +327,14 @@
         {
           "spec": "original_box",
           "weight": 0.1,
-          "test": "Boxed — easier to resell later."
+          "test": "Boxed \u2014 easier to resell later."
         }
       ],
       "dealbreakers": [
         "Passive speakers (no built-in amp)",
         "Single speaker / unmatched pair",
         "No phono input and no way to add one",
-        "PA / DJ boxes — wrong category for a room vinyl setup",
+        "PA / DJ boxes \u2014 wrong category for a room vinyl setup",
         "Blown driver or crackling amp"
       ],
       "condition": {
@@ -323,7 +344,7 @@
           "good",
           "working"
         ],
-        "note": "Seller claiming it works is acceptable. Still flag 'untested', 'as-is', or 'for parts' prominently — powered speaker amps fail often."
+        "note": "Seller claiming it works is acceptable. Still flag 'untested', 'as-is', or 'for parts' prominently \u2014 powered speaker amps fail often."
       },
       "fair_value": {
         "method": "model_lookup",
@@ -348,7 +369,7 @@
             "new_price": 440,
             "used_fmv": 265,
             "phono": false,
-            "note": "Ora is a desktop pair — verify phono, it is not standard across revisions."
+            "note": "Ora is a desktop pair \u2014 verify phono, it is not standard across revisions."
           },
           {
             "model": "ELAC Debut ConneX DCB41",
@@ -372,7 +393,7 @@
         "known_negatives": [
           {
             "model": "Fluance Ai61 / Ai41 / Ai81",
-            "reason": "Line-level only — no phono stage. Confirmed."
+            "reason": "Line-level only \u2014 no phono stage. Confirmed."
           },
           {
             "model": "Audioengine A5+ / A2+",
@@ -380,7 +401,7 @@
           },
           {
             "model": "Edifier S2000 Pro / R1700BT",
-            "reason": "Line/optical/coax only — verify phono per model, most Edifier powered pairs lack it."
+            "reason": "Line/optical/coax only \u2014 verify phono per model, most Edifier powered pairs lack it."
           }
         ],
         "unknown_model_fallback": {

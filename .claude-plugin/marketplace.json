@@ -1,0 +1,26 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "deal-finder",
+  "description": "Deal Finder for Facebook Marketplace.",
+  "owner": {
+    "name": "Anson Wang"
+  },
+  "plugins": [
+    {
+      "name": "deal-finder",
+      "description": "Hunts Facebook Marketplace in your own signed-in Chrome once a day, works out what each listing is really worth, and ranks them on a hosted dashboard.",
+      "author": {
+        "name": "Anson Wang"
+      },
+      "source": "./plugins/deal-finder",
+      "category": "productivity",
+      "homepage": "https://github.com/ansxn/facebook-deal-finder",
+      "keywords": [
+        "marketplace",
+        "deals",
+        "browsing",
+        "shopping"
+      ]
+    }
+  ]
+}

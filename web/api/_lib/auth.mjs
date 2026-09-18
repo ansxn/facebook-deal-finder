@@ -161,4 +161,26 @@ export function guardToken(handler) {
   };
 }
 
+/**
+ * Routes used by both the browser and the hunt: cookie session or push token.
+ * The token is tried first so a stale cookie in the same request can't shadow
+ * a valid one — the agent's call should never depend on who is logged in.
+ */
+export function guardEither(handler) {
+  return async (req, res) => {
+    let user;
+    try {
+      user = (await userForToken(req)) ?? (await getUser(req));
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    if (!user) {
+      res.status(401).json({ error: 'not authenticated', auth_required: true });
+      return;
+    }
+    return handler(req, res, user);
+  };
+}
+
 export { randomUUID };

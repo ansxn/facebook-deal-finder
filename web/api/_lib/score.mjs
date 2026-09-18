@@ -1,6 +1,3 @@
-// GENERATED — do not edit. Source of truth: scripts/lib/score.mjs
-// Regenerate with: node scripts/sync-web.mjs
-
 // Deal scoring: how far below fair value, weighted against condition and how
 // well the listing matches what you actually asked for.
 //
@@ -226,8 +223,65 @@ export function validateSearches(cfg) {
       if (!(k in PENALTY)) errs.push(`${name}: unknown penalty "${k}"`);
       else if (!(Number(v) >= 0.05 && Number(v) <= 1)) errs.push(`${name}: penalty "${k}" must be between 0.05 and 1`);
     }
+
+    if (!/^[a-z0-9-]+$/.test(s.id ?? '')) errs.push(`${name}: id must be lowercase letters, numbers and dashes`);
+    if (!s.label) errs.push(`${name}: needs a label`);
+    if (p.max == null) errs.push(`${name}: a price ceiling is required`);
+    if (p.good_deal_pct == null || p.great_deal_pct == null) errs.push(`${name}: good-deal % and steal % are both required`);
+    if (!s.condition?.accept?.length) errs.push(`${name}: at least one acceptable condition is required`);
+
+    const fv = s.fair_value ?? {};
+    if (!fv.basis) errs.push(`${name}: fair_value.basis should say where the numbers came from`);
+    if (fv.method === 'brand_tier') {
+      if (!(fv.tiers ?? []).length) errs.push(`${name}: brand_tier needs fair_value.tiers`);
+      if (!(fv.tiers ?? []).some((t) => t.tier === 'entry')) errs.push(`${name}: brand_tier needs a tier named "entry" for unbranded listings`);
+      for (const t of fv.tiers ?? []) if (!(t.fmv > 0)) errs.push(`${name}: tier "${t.tier}" needs a positive fmv`);
+    } else if (fv.method === 'per_set_lookup') {
+      if (!(fv.default_in_print_fmv > 0)) errs.push(`${name}: per_set_lookup needs default_in_print_fmv`);
+    } else if (fv.method === 'model_lookup') {
+      if (!(fv.models ?? []).length) errs.push(`${name}: model_lookup needs fair_value.models`);
+      for (const m of fv.models ?? []) if (!m.model || !(m.used_fmv > 0)) errs.push(`${name}: every model needs a name and a positive used_fmv`);
+    } else {
+      errs.push(`${name}: fair_value.method must be brand_tier, per_set_lookup or model_lookup`);
+    }
+  }
+
+  if (!g.currency) errs.push('currency is missing (e.g. "CAD", "USD")');
+  if (!g.location?.resolved) errs.push('location is missing: the city listings are measured from');
+  if (g.max_km == null) errs.push('max distance is missing: how far you will travel');
+  if (!g.pacing?.min_hours_between_runs) errs.push('pacing is missing: copy it from searches.example.json unchanged');
+  if (g.pacing?.abort_on_checkpoint !== true) errs.push('pacing.abort_on_checkpoint must be true');
+  for (const [town, km] of Object.entries(g.location?.reference_distances ?? {})) {
+    if (!(Number(km) > 0)) errs.push(`reference distance for "${town}" must be a positive number of km`);
+  }
+  for (const n of g.field_notes ?? []) {
+    if (typeof n !== 'string' || n.length > 300) errs.push('each field note must be text under 300 characters');
   }
   return errs;
+}
+
+/**
+ * Advisory only: things worth saying out loud that should never block a save.
+ * A config can be perfectly valid and still be about to disappoint you.
+ */
+export function configNotes(cfg) {
+  const notes = [];
+  if (!cfg || typeof cfg !== 'object') return notes;
+  const g = cfg.global ?? {};
+
+  const towns = Object.keys(g.location?.reference_distances ?? {}).length;
+  if (!towns) notes.push('no reference distances set, so every listing will be assessed without knowing how far away it is');
+  else if (towns < 8) notes.push(`only ${towns} reference distances — listings from towns not on the list get a rough guess`);
+
+  for (const s of cfg.searches ?? []) {
+    const name = s.label || s.id || '(unnamed)';
+    if (!s.title_style) notes.push(`${name}: no title style, so listings keep the seller's own wording`);
+    if (!(s.dealbreakers ?? []).length) notes.push(`${name}: no dealbreakers set`);
+    if (s.fair_value?.method === 'model_lookup' && !s.fair_value?.unknown_model_fallback?.fmv_pct_of_new_retail) {
+      notes.push(`${name}: no fallback for unlisted models, so those stay unscored`);
+    }
+  }
+  return notes;
 }
 
 const base = (l, search) => ({ id: l.id, search_id: l.search_id, title: l.title, display_title: displayTitle(l, search), price: l.price });
@@ -311,3 +365,28 @@ export function scoreAll({ listings, searches, verdicts = {}, includeDismissed =
   for (const d of scored) d.total_in_search = perSearch[d.search_id];
   return scored;
 }
+
+/**
+ * A scored listing trimmed to what a conversation needs to describe it.
+ *
+ * The full object carries the score breakdown, the description, the whole price
+ * history and the raw assessment — right for the dashboard, and far too much to
+ * read back into a chat after every search.
+ */
+export const compactDeal = (d) => ({
+  rank_in_search: d.rank_in_search,
+  id: d.id,
+  search_id: d.search_id,
+  title: d.display_title ?? d.title,
+  price: d.price,
+  score: d.score,
+  status: d.status,
+  label: d.label ?? null,
+  discount_pct: d.discount_pct,
+  fair_value: d.fair_value ?? null,
+  fair_value_confidence: d.fair_value_confidence ?? null,
+  flags: (d.flags ?? []).map((f) => ({ code: f.code, text: f.text })),
+  verdict: d.verdict ?? null,
+  first_seen: d.first_seen,
+  url: d.url,
+});
