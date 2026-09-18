@@ -198,9 +198,11 @@ Tell them:
   `/hunt`. Once a day at most; the tool enforces a gap between runs.
 - **To see results:** open https://deal-finder-zeta.vercel.app. Save or pass
   on listings, and open one to see why it scored the way it did.
-- **To change what it looks for:** use the Searches page on the website. Price
-  and threshold changes re-rank right away. Search terms, must-have wording and
+- **To tune a search:** use the Searches page on the website. Price and
+  threshold changes re-rank right away. Search terms, must-have wording and
   dealbreakers apply from the next hunt.
+- **To add or drop a search, or move city:** type `/hunt-update` in Claude Code.
+  The website tunes what is already there; this is for changing the lineup.
 - **To see more deals:** lower the worth-a-look threshold on the Searches page.
 
 Then offer to run the first hunt. Skills load from the project folder, so the

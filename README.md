@@ -17,6 +17,7 @@ There's no app to launch. You ask Claude to hunt; local code does everything els
 /hunt                 # run today's searches in your Chrome
 /hunt golf            # just one search
 /morning-hunt         # hunt if due, otherwise show standings
+/hunt-update          # add or drop a search, or move your location
 ```
 
 Then read the results — in the browser:
@@ -73,7 +74,7 @@ a Callaway set down to $258 when those sell for well over $300.
 
 ```
 searches.json          what I'm hunting — hand-editable, also written by the dashboard
-.claude/skills/        /hunt and /morning-hunt — the browse routine, not code
+.claude/skills/        /hunt, /morning-hunt, /hunt-update — routines, not code
 scripts/               ingest, dedupe, scoring, server — plain Node, zero dependencies
 dashboard/             localhost UI
 data/                  listing store + my verdicts (gitignored)
