@@ -46,7 +46,9 @@ CA$. A different user's account resolves to their own city and currency.)
 
 ### 2. One search at a time
 
-Sequential only. Never open several searches in parallel.
+Sequential only. Never open several searches in parallel. **Skip any search with
+`active: false`** — that is the website's Active toggle, and it means the user
+retired the search but kept its listings on the board.
 
 ```
 https://www.facebook.com/marketplace/search?query=<urlencoded>&minPrice=<n>&maxPrice=<n>&sortBy=creation_time_descend&exact=false
@@ -256,13 +258,14 @@ Rules that matter, in order of how much damage getting them wrong does:
 - **Always set `distance_km`**, estimated from the town name. Code cannot
   geocode a place name, and Facebook's radius filter leaks badly, so this is the
   only thing keeping a two-hour drive off the list. Measure from
-  `global.location.resolved`. If that is Toronto, reference points:
-  Markham/Richmond Hill/Vaughan/Mississauga ~25–30, Oakville ~35, Brampton ~40,
-  Clarington ~60, Barrie ~90, Waterloo/Woolwich ~105–110, Thorold/Niagara Falls
-  ~125–130, Norfolk ~150. Added 2026-07-29: Ajax ~40, Newmarket ~45, Whitby ~50,
-  East Gwillimbury/Caledon ~55, Burlington ~55, Hamilton ~70, Grimsby/Shelburne
-  ~85, Cambridge ~95, Brantford ~100, Pelham ~110, Springwater ~110,
-  Peterborough ~125, Kawartha Lakes ~150.
+  `global.location.resolved`. If that is London, Ontario (set 2026-09-18 when the
+  owner moved from Toronto), reference points in km: Komoka/Ilderton ~20,
+  Dorchester/Thorndale/Belmont ~25, Mount Brydges ~25, St. Thomas ~30, Lucan ~30,
+  Strathroy ~35, Ingersoll ~35, Port Stanley ~45, Aylmer ~45, Woodstock ~50,
+  Exeter ~55, Tillsonburg ~60, Stratford ~60, Grand Bend ~70, Simcoe ~90,
+  Goderich ~95, Chatham ~100, Brantford ~95, Cambridge ~95, Sarnia ~105,
+  Kitchener/Waterloo ~105, Hamilton ~130, Windsor ~190, Toronto ~190.
+  Anything in the GTA is roughly 190+ and always too far at a 50 km limit.
 - **Use `true`/`false` only when the listing actually says so. Omit when
   unknown.** Missing scores as half credit, which is right; an explicit `false`
   on a hard must-have kills the listing outright. Never infer `false` from
